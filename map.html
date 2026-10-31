@@ -41,6 +41,7 @@
       <button type="button" role="tab" id="tab-spaces" aria-controls="panel-spaces" aria-selected="false" tabindex="-1">Study spaces</button>
       <button type="button" role="tab" id="tab-history" aria-controls="panel-history" aria-selected="false" tabindex="-1">Speed history</button>
       <button type="button" role="tab" id="tab-time" aria-controls="panel-time" aria-selected="false" tabindex="-1">Time of day</button>
+      <button type="button" role="tab" id="tab-providers" aria-controls="panel-providers" aria-selected="false" tabindex="-1">Compare networks</button>
     </div>
     <div id="panel-map" role="tabpanel" aria-labelledby="tab-map">
     <section class="card" aria-labelledby="map-heading">
@@ -73,12 +74,36 @@
         </div>
       </div>
 
+      <div class="provider-map-filter"><label for="map-provider">Network</label>
+        <select id="map-provider"><option value="all">All networks</option></select>
+        <span>Unlabelled older tests appear only in “All networks”.</span>
+      </div>
       <div class="map-tools"><div class="zone-links" role="group" aria-label="Focus map area">
         <button type="button" data-zone="all">Campus</button><button type="button" data-zone="pasum">PASUM</button><button type="button" data-zone="kk12">KK12</button><button type="button" data-zone="kk11">KK11</button>
       </div><button type="button" class="btn btn-ghost" id="btn-locate">◎ Find my location</button><span id="location-status" role="status"></span></div>
       <div class="banner" id="banner" hidden></div>
 
       <div id="map-home"><div id="map" role="application" aria-label="Map of speed test results"></div></div>
+      <div class="dead-zone-controls"><label><input type="checkbox" id="show-dead-zones" checked> Show reported dead zones</label><span>Red rings = user reports, not verified speed tests.</span></div>
+      <details class="dead-zone-report"><summary>＋ Mark a dead zone</summary>
+        <form id="dead-zone-form">
+          <p class="note">Standing at a spot with little or no connection? Pin an approximate report here. It stays on this device; it is not a verified campus-wide outage.</p>
+          <div class="dead-zone-fields">
+            <label class="field">Network affected
+              <select id="dead-zone-provider" required><option value="">Choose network…</option><option>Campus Wi-Fi</option><option>TM</option><option>U Mobile</option><option>CelcomDigi</option><option>Maxis</option><option>Tune Talk</option><option>OneXOX</option><option>REDtone</option><option>Other / unsure</option></select>
+            </label>
+            <label class="field">What happened?
+              <select id="dead-zone-issue" required><option value="">Choose issue…</option><option value="No signal">No signal</option><option value="Cannot connect">Cannot connect</option><option value="Connected but unusable">Connected but unusable</option></select>
+            </label>
+            <label class="field">Place (optional)
+              <input id="dead-zone-place" maxlength="60" placeholder="e.g. KK11 lounge">
+            </label>
+          </div>
+          <button type="submit" class="btn">Use my location &amp; mark</button>
+          <p id="dead-zone-status" role="status" aria-live="polite"></p>
+        </form>
+        <div id="dead-zone-list"></div>
+      </details>
 
       <div class="legend" id="legend" aria-label="Legend"></div>
 
@@ -113,6 +138,17 @@
       <div id="history-summary" class="history-summary"></div>
       <div id="history-chart" class="history-chart" role="img" aria-label="Daily median download speeds"></div>
       <div id="history-table"></div>
+    </section>
+    <section class="card" id="panel-providers" role="tabpanel" aria-labelledby="tab-providers" hidden>
+      <div class="section-heading"><div><p class="eyebrow">CAMPUS CONNECTIVITY</p><h2>Compare networks by location</h2><p class="note">Median download and ping from crowdsourced tests. Results are observations, not carrier coverage guarantees.</p></div><span class="heading-icon" aria-hidden="true">↗</span></div>
+      <div class="compare-controls"><label class="field" for="compare-zone">Area
+        <select id="compare-zone"><option value="all">PASUM + KK11 + KK12</option><option value="pasum">PASUM</option><option value="kk12">KK12</option><option value="kk11">KK11</option></select>
+      </label><label class="field" for="compare-period">Measurements
+        <select id="compare-period"><option value="30">Last 30 days</option><option value="all">All time</option></select>
+      </label></div>
+      <p id="compare-summary" class="note" role="status" aria-live="polite"></p>
+      <div id="compare-results" class="compare-results"></div>
+      <p class="note">Older tests without a network label are excluded. Campus Wi-Fi and mobile networks are different connection types; compare results only with similar sample counts and times. Carrier names are selected by testers, not automatically verified.</p>
     </section>
     <section class="card" id="panel-time" role="tabpanel" aria-labelledby="tab-time" hidden>
       <h2>Coverage by time of day</h2>

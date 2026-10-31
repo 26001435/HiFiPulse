@@ -26,10 +26,77 @@
 
   var layer = L.layerGroup().addTo(map);
   var spotLayer = L.layerGroup().addTo(map);
+  var deadZoneLayer = L.layerGroup().addTo(map);
+  var deadZoneKey = "hifipulse:dead-zones";
+  var deadZoneReports = [];
   var records = [];
   var fitted = false;
   var lastLoaded = null;
   var selectedHour = null;
+
+  function readDeadZones() {
+    try {
+      var list = JSON.parse(localStorage.getItem(deadZoneKey) || "[]");
+      return Array.isArray(list) ? list.filter(function (r) {
+        return r && typeof r.id === "string" && typeof r.lat === "number" &&
+          typeof r.lon === "number" && r.lat >= 3.11 && r.lat <= 3.14 &&
+          r.lon >= 101.64 && r.lon <= 101.68 && typeof r.provider === "string" &&
+          typeof r.issue === "string" && typeof r.ts === "number";
+      }).slice(0, 50) : [];
+    } catch (e) { return []; }
+  }
+
+  function saveDeadZones() {
+    try {
+      localStorage.setItem(deadZoneKey, JSON.stringify(deadZoneReports));
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function drawDeadZones() {
+    deadZoneLayer.clearLayers();
+    if (!$("show-dead-zones").checked || selectedHour !== null) return;
+    var selected = $("map-provider").value;
+    deadZoneReports.forEach(function (r) {
+      if (selected !== "all" && selected !== r.provider) return;
+      var marker = L.circleMarker([r.lat, r.lon], {
+        radius: 15, color: "#c84252", weight: 3, fillColor: "#fc5a68",
+        fillOpacity: .14, dashArray: "5 4"
+      });
+      var popup = document.createElement("div");
+      var title = document.createElement("strong");
+      title.textContent = "⚠ Reported dead zone (unverified)";
+      popup.appendChild(title);
+      [r.provider + " · " + r.issue, r.place || "Approximate location",
+        new Date(r.ts).toLocaleString() + " · saved on this device"].forEach(function (text) {
+        var line = document.createElement("p"); line.textContent = text; popup.appendChild(line);
+      });
+      marker.bindPopup(popup).addTo(deadZoneLayer);
+    });
+  }
+
+  function renderDeadZoneList() {
+    var host = $("dead-zone-list"); host.replaceChildren();
+    if (!deadZoneReports.length) return;
+    var title = document.createElement("h3"); title.textContent = "Your reports";
+    host.appendChild(title);
+    deadZoneReports.forEach(function (r) {
+      var row = document.createElement("div"); row.className = "dead-zone-row";
+      var text = document.createElement("span");
+      text.textContent = r.provider + " · " + r.issue + (r.place ? " · " + r.place : "") +
+        " · " + new Date(r.ts).toLocaleDateString();
+      var remove = document.createElement("button"); remove.type = "button";
+      remove.textContent = "Remove";
+      remove.setAttribute("aria-label", "Remove dead zone report for " + r.provider + " " + r.place);
+      remove.addEventListener("click", function () {
+        var previous = deadZoneReports;
+        deadZoneReports = deadZoneReports.filter(function (item) { return item.id !== r.id; });
+        if (!saveDeadZones()) { deadZoneReports = previous; $("dead-zone-status").textContent = "Could not remove report: storage unavailable."; return; }
+        renderDeadZoneList(); drawDeadZones();
+      });
+      row.appendChild(text); row.appendChild(remove); host.appendChild(row);
+    });
+  }
 
   /* ---- Column resolution -------------------------------------------------
    * The sheet has been through a couple of header conventions
@@ -113,6 +180,7 @@
       building: field(row, ["Building", "Location"]),
       floor: field(row, ["Floor"]),
       connection: field(row, ["Connection"]),
+      provider: field(row, ["Provider", "Network Provider", "Carrier"]),
       city: field(row, ["City"]),
       country: field(row, ["Country"]),
       ts: parseTs(field(row, ["Timestamp", "Time", "Date"]))
@@ -164,6 +232,7 @@
     if (rec.connection) {
       el.appendChild(popupRow("Link", rec.connection));
     }
+    if (rec.provider) el.appendChild(popupRow("Network", rec.provider));
 
     var time = document.createElement("div");
     time.className = "popup-time";
@@ -190,9 +259,11 @@
 
   function render() {
     layer.clearLayers();
+    drawDeadZones();
 
     var enabled = activeTiers();
     var range = $("range").value;
+    var providerFilter = $("map-provider").value;
     var cutoff =
       range === "24h"
         ? Date.now() - 86400000
@@ -208,6 +279,7 @@
     var bounds = [];
 
     records.forEach(function (rec) {
+      if (providerFilter !== "all" && rec.provider !== providerFilter) return;
       if (selectedHour !== null && (rec.lat < 3.120 || rec.lat > 3.133 || rec.lon < 101.655 || rec.lon > 101.665)) return;
       if (selectedHour !== null && selectedHour >= 0 && (!rec.ts || Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kuala_Lumpur", hour: "2-digit", hourCycle: "h23" }).format(rec.ts)) !== selectedHour)) return;
       if (cutoff !== null && rec.ts !== null && rec.ts < cutoff) return;
@@ -300,10 +372,20 @@
             Download: item.download, Upload: item.upload,
             Ping: item.ping, Jitter: item.jitter,
             Accuracy: item.accuracy, Building: item.building,
-            Floor: item.floor, Timestamp: item.timestamp
+            Floor: item.floor, Timestamp: item.timestamp, Provider: item.provider
           });
         }).filter(Boolean);
     } catch (e) { return []; }
+  }
+
+  function updateProviderOptions() {
+    var select = $("map-provider"), selected = select.value;
+    select.replaceChildren();
+    var all = new Option("All networks", "all");
+    select.add(all);
+    var names = ["Campus Wi-Fi", "TM", "U Mobile", "CelcomDigi", "Maxis", "Tune Talk", "OneXOX", "REDtone", "Other / unsure"];
+    names.forEach(function (name) { select.add(new Option(name, name)); });
+    select.value = names.includes(selected) ? selected : "all";
   }
 
   /* ---- Loading ----------------------------------------------------------- */
@@ -327,12 +409,14 @@
       records = rows.map(normalise).filter(Boolean);
       // The published sheet can lag behind a recent submission. Show local
       // measurements as well, avoiding duplicate timestamps from the sheet.
-      var seen = new Set(records.map(function (r) { return [r.ts, r.lat, r.lon].join(":"); }));
+      var seen = new Map(records.map(function (r) { return [[r.ts, r.lat, r.lon].join(":"), r]; }));
       localRecords().forEach(function (r) {
         var key = [r.ts, r.lat, r.lon].join(":");
-        if (!seen.has(key)) { records.push(r); seen.add(key); }
+        if (!seen.has(key)) { records.push(r); seen.set(key, r); }
+        else if (!seen.get(key).provider) seen.get(key).provider = r.provider;
       });
       lastLoaded = Date.now();
+      updateProviderOptions();
       $("status-line").textContent =
         records.length + (records.length === 1 ? " result" : " results") + " loaded.";
       render();
@@ -340,6 +424,7 @@
     } catch (err) {
       records = localRecords();
       lastLoaded = Date.now();
+      updateProviderOptions();
       render();
       window.dispatchEvent(new CustomEvent("hifipulse:records", { detail: records.slice() }));
       $("status-line").textContent = records.length
@@ -353,6 +438,44 @@
 
   /* ---- Wiring ------------------------------------------------------------ */
   document.addEventListener("DOMContentLoaded", function () {
+    deadZoneReports = readDeadZones();
+    renderDeadZoneList();
+    $("show-dead-zones").addEventListener("change", drawDeadZones);
+    $("dead-zone-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      var provider = $("dead-zone-provider").value;
+      var issue = $("dead-zone-issue").value;
+      var status = $("dead-zone-status");
+      if (!provider || !issue) { status.textContent = "Select a network and an issue."; return; }
+      if (!navigator.geolocation) { status.textContent = "Location is not available in this browser."; return; }
+      status.textContent = "Finding your location…";
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        var lat = Number(pos.coords.latitude.toFixed(3));
+        var lon = Number(pos.coords.longitude.toFixed(3));
+        if (pos.coords.accuracy > 200) {
+          status.textContent = "Location is too approximate (over 200 m). Try again at the spot."; return;
+        }
+        if (lat < 3.11 || lat > 3.14 || lon < 101.64 || lon > 101.68) {
+          status.textContent = "Reports must be within the UM campus area."; return;
+        }
+        var report = {
+          id: window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random(),
+          lat: lat, lon: lon, provider: provider, issue: issue,
+          place: $("dead-zone-place").value.trim().slice(0, 60), ts: Date.now()
+        };
+        var previous = deadZoneReports;
+        deadZoneReports = [report].concat(deadZoneReports).slice(0, 50);
+        if (!saveDeadZones()) {
+          deadZoneReports = previous;
+          status.textContent = "Could not save report: local storage is unavailable."; return;
+        }
+        $("dead-zone-form").reset();
+        status.textContent = "Marked on this device. This is a report, not a verified outage.";
+        map.setView([lat, lon], 17);
+        drawDeadZones(); renderDeadZoneList();
+      }, function () { status.textContent = "Location unavailable. Allow access and retry at the spot."; },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 });
+    });
     /* Build the legend once from config. */
     var legend = $("legend");
     TIERS.forEach(function (tier) {
@@ -386,6 +509,7 @@
       input.addEventListener("change", render);
     });
     $("range").addEventListener("change", render);
+    $("map-provider").addEventListener("change", render);
     window.addEventListener("hifipulse:hour", function (event) {
       selectedHour = event.detail;
       render();

@@ -760,3 +760,45 @@ select option { color:#173e50; background:#effbfd; }
 .guide-bottom { display:flex; align-items:center; justify-content:space-between; gap:25px; padding:30px; background:linear-gradient(110deg,#b6eaf0,#cceef8); border:1px solid white; border-radius:22px; box-shadow:var(--shadow); } .guide-bottom h2 { margin:0 0 5px; font-size:1.4rem; } .guide-bottom p { margin:0; color:#527682; } .guide-bottom .btn { flex:none; text-decoration:none; }
 @media(max-width:800px) { .guide-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { .guide-grid,.guide-split { grid-template-columns:1fr; } .guide-preview,.guide-bottom { align-items:flex-start; flex-direction:column; } .guide-callout { padding:20px; } }
+
+/* Provider selection and evidence-based network comparison */
+.provider-field { display:block; max-width:520px; margin-bottom:4px; }
+.provider-field select { display:block; width:100%; margin-top:8px; padding:12px 15px; }
+.provider-field span { color:#b14d51; }
+.provider-help { margin:0 0 20px; max-width:70ch; }
+.provider-map-filter { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:0 0 14px; color:#436f7e; font-size:.84rem; }
+.provider-map-filter label { font-weight:700; }
+.provider-map-filter span { font-size:.76rem; }
+.compare-controls { display:flex; flex-wrap:wrap; gap:16px; margin:15px 0 22px; }
+.compare-controls .field { flex:1; min-width:190px; max-width:290px; }
+.compare-controls select { display:block; width:100%; margin-top:8px; }
+.compare-results { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:20px 0; }
+.compare-card { display:flex; flex-direction:column; min-height:182px; padding:20px; border:1px solid white; border-radius:17px; background:linear-gradient(145deg,#ffffffec,#e7f8f9e0); box-shadow:0 7px 23px #328aa21a,inset 0 1px white; }
+.compare-card-header { display:flex; justify-content:space-between; gap:10px; align-items:start; }
+.compare-card h3 { margin:0; color:#17495d; font-size:1.04rem; }
+.compare-count { color:#43788a; font-size:.75rem; white-space:nowrap; }
+.compare-speed { font-size:1.6rem; font-weight:800; letter-spacing:-.04em; margin:18px 0 0; color:#167898; }
+.compare-card .note { margin:2px 0 18px; }
+.compare-card .btn { margin-top:auto; align-self:flex-start; font-size:.8rem; padding:8px 14px; }
+@media(max-width:850px) { .compare-results { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:560px) { .compare-results { grid-template-columns:1fr; } }
+
+/* User-reported (unverified) dead zones */
+.dead-zone-controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; margin:14px 0; color:#476c79; font-size:.84rem; }
+.dead-zone-controls label { font-weight:700; cursor:pointer; }
+.dead-zone-controls input { accent-color:#c84252; }
+.dead-zone-controls span { color:#7e5d67; font-size:.78rem; }
+.dead-zone-report { margin:18px 0; padding:16px 20px; border:1px solid #f0cdd0; border-radius:17px; background:linear-gradient(140deg,#fffafa,#f6e9eb); }
+.dead-zone-report summary { color:#9d3f50; font-weight:750; cursor:pointer; list-style-position:inside; }
+.dead-zone-report form { padding:10px 0; }
+.dead-zone-fields { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:18px 0; }
+.dead-zone-fields select,.dead-zone-fields input { width:100%; margin-top:8px; }
+.dead-zone-report .btn { padding:10px 20px; font-size:.9rem; }
+.dead-zone-report #dead-zone-status { color:#835262; font-size:.85rem; }
+#dead-zone-list h3 { margin:10px 0; font-size:.9rem; color:#794559; }
+.dead-zone-row { display:flex; align-items:center; justify-content:space-between; gap:12px; border-top:1px solid #e9ced4; padding:9px 0; font-size:.82rem; color:#674d57; }
+.dead-zone-row button { background:#fff; border:1px solid #e8c6cd; border-radius:8px; padding:5px 9px; color:#9a4352; }
+@media(max-width:700px) { .dead-zone-fields { grid-template-columns:1fr; } }
+
+.diagnosis-grid .guide-tile { border-left:3px solid #6cc9dc; }
+.guide-tile em { font-style:italic; font-weight:650; }

@@ -122,6 +122,52 @@
     chart.setAttribute("aria-label", "Median download speed for " + days.map(function (day) { return day + " " + median(groups.get(day)).toFixed(1) + " Mbps"; }).join(", "));
     table.appendChild(t);
   }
+  var providerNames = ["Campus Wi-Fi", "TM", "U Mobile", "CelcomDigi", "Maxis", "Tune Talk", "OneXOX", "REDtone", "Other / unsure"];
+  function showProviders() {
+    var zone = $("compare-zone").value;
+    var period = $("compare-period").value;
+    var cutoff = period === "30" ? Date.now() - 30 * 86400000 : null;
+    var subset = records.filter(function (r) {
+      return measured(r) && inArea(r, zone) && providerNames.includes(r.provider) &&
+        (cutoff === null || (r.ts && r.ts >= cutoff && r.ts <= Date.now()));
+    });
+    $("compare-summary").textContent = subset.length + " labelled measurement(s) in " +
+      $("compare-zone").selectedOptions[0].textContent + ". Ranked by median download, not claimed coverage.";
+    var host = $("compare-results"); host.replaceChildren();
+    var rows = providerNames.map(function (name) {
+      var samples = subset.filter(function (r) { return r.provider === name; });
+      return {
+        name: name, count: samples.length,
+        speed: median(samples.map(function (r) { return r.download; })),
+        ping: median(samples.filter(function (r) { return r.ping !== null; }).map(function (r) { return r.ping; }))
+      };
+    }).sort(function (a, b) {
+      return Number(b.count >= 3) - Number(a.count >= 3) ||
+        (b.speed === null ? -1 : b.speed) - (a.speed === null ? -1 : a.speed);
+    });
+    rows.forEach(function (r) {
+      var card = node("article", "compare-card");
+      var label = node("div", "compare-card-header");
+      label.appendChild(node("h3", "", r.name));
+      label.appendChild(node("span", "compare-count", r.count + " test" + (r.count === 1 ? "" : "s")));
+      card.appendChild(label);
+      card.appendChild(node("p", "compare-speed", r.speed === null ? "No data yet" : r.speed.toFixed(1) + " Mbps"));
+      card.appendChild(node("p", "note", r.count === 0 ? "Run a test on this network to contribute." :
+        (r.count < 3 ? "Limited data · not enough for a ranking" : "Median download · " + (r.ping === null ? "ping unavailable" : Math.round(r.ping) + " ms median ping"))));
+      if (r.count) {
+        var button = node("button", "btn btn-ghost", "See on map →");
+        button.type = "button";
+        button.addEventListener("click", function () {
+          activate("map");
+          $("map-provider").value = r.name;
+          $("map-provider").dispatchEvent(new Event("change"));
+          if (zone !== "all") document.querySelector('[data-zone="' + zone + '"]').click();
+        });
+        card.appendChild(button);
+      }
+      host.appendChild(card);
+    });
+  }
   function hourMYT(ts) {
     return Number(new Intl.DateTimeFormat("en-GB", {
       timeZone: "Asia/Kuala_Lumpur", hour: "2-digit", hourCycle: "h23"
@@ -156,7 +202,7 @@
     window.dispatchEvent(new CustomEvent("hifipulse:hour", { detail: hour === null ? -1 : hour }));
   }
   function activate(name) {
-    ["map", "spaces", "history", "time"].forEach(function (key) {
+    ["map", "spaces", "history", "time", "providers"].forEach(function (key) {
       var active = name === key, tab = $("tab-" + key);
       tab.setAttribute("aria-selected", String(active));
       tab.tabIndex = active ? 0 : -1;
@@ -171,6 +217,7 @@
     }, 0);
     if (name === "spaces") showSpaces();
     if (name === "history") showHistory();
+    if (name === "providers") showProviders();
     if (name === "time") {
       $("range").value = "all";
       showTime();
@@ -183,17 +230,19 @@
       $("time-hour").appendChild(option);
     }
     $("time-hour").addEventListener("change", chooseHour);
-    ["map", "spaces", "history", "time"].forEach(function (key) {
+    ["map", "spaces", "history", "time", "providers"].forEach(function (key) {
       $("tab-" + key).addEventListener("click", function () { activate(key); });
       $("tab-" + key).addEventListener("keydown", function (event) {
         if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
         event.preventDefault();
-        var keys = ["map", "spaces", "history", "time"];
+        var keys = ["map", "spaces", "history", "time", "providers"];
         var next = keys[(keys.indexOf(key) + (event.key === "ArrowRight" ? 1 : keys.length - 1)) % keys.length];
         activate(next); $("tab-" + next).focus();
       });
     });
     $("history-zone").addEventListener("change", showHistory);
+    $("compare-zone").addEventListener("change", showProviders);
+    $("compare-period").addEventListener("change", showProviders);
     $("suggest-form").addEventListener("submit", function (event) {
       event.preventDefault();
       var status = $("suggest-status"), name = $("suggest-name").value.trim();
@@ -214,6 +263,7 @@
       records = event.detail;
       showSpaces();
       if (!$("panel-history").hidden) showHistory();
+      if (!$("panel-providers").hidden) showProviders();
       if (!$("panel-time").hidden) showTime();
     });
   });
