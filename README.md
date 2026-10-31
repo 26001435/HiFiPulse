@@ -1,41 +1,68 @@
 # HiFiPulse
 
-Crowdsourced Wi-Fi measurements focused on the Universiti Malaya PASUM, KK12 and KK11 area. Serve this directory over HTTP (for example `python3 -m http.server 8000 --bind 0.0.0.0`) and open `index.html` to test or `map.html` to explore. Geolocation requires HTTPS or localhost.
+**The living nervous system for campus connectivity** — a student-facing prototype for measuring network performance and understanding access around Universiti Malaya (UM), initially focused on PASUM, KK11 and KK12.
 
-## Campus views
+A student can test the connection they are actually using, label the place and network, and inspect approximate results on a campus map. The project also provides historical views, a study-space finder, student-reported dead zones and a practical Wi-Fi guide. It does **not** claim live seat occupancy, automatic carrier detection or a verified coverage map.
 
-The map defaults to the PASUM/KK12/KK11 area; the Campus and area buttons recenter it. Study spaces use tests within approximately 260 m of the closest area landmark, from the last 30 days. Ratings require at least three measurements; **they do not report desk availability**. Speed history shows up to 14 measured days, with daily median download speed and sample count. Unlocated results cannot contribute to these views. These are observational measurements, not guaranteed future performance.
+## Why this project exists
 
-Approximate landmark centers used for navigation: PASUM (3.12325, 101.65933), KK12 (3.12555, 101.6609), KK11 (3.1295, 101.66074). Sources: [PASUM Wikidata](https://www.wikidata.org/wiki/Q17627749), [KK12 location](https://malaysia.worldplaces.me/places-in-kuala-lumpur/1645592-kolej-kediaman-raja-dr-nazrin-shah-kk12-universiti-malaya.html), [KK11 location](https://malaysia.worldplaces.me/places-in-kuala-lumpur/2430003-kolej-kediaman-ungku-aziz-kk11-universiti-malaya.html). These points are approximate and should not be used as exact building outlines.
+1. **Improve digital equity.** Reliable access to coursework should not depend on a student's mobile-data budget or which building they happen to use. Crowdsourced, location-aware measurements can make gaps visible to students, student representatives and, eventually, campus IT. Sample sizes and uncertainty matter: an isolated slow test is evidence to investigate, not proof of a failed network.
+2. **Find better places to study and save time.** Compare nearby measurements before walking between a library, café, study cube or residence. Rank non-classroom study spots using repeated tests rather than an unverified claim that a desk is free. More coverage and more samples are needed before recommendations become dependable.
+3. **Increase connectivity awareness.** Explain the differences between weak Wi-Fi, congested networks, poor cellular reception and upstream outages. Help people test responsibly, protect their personal hotspot and understand why infrastructure upgrades—not just individual behaviour—are sometimes required.
 
-The community feed and submission endpoint are configured in `config.js` and require their external services to be available. Recent results on the same device remain available when the community feed is unavailable. Base map tiles require OpenStreetMap access. No sample readings or seat counts are fabricated.
+The educational mission connects to [UN SDG 4 (Quality Education), SDG 9 (Industry, Innovation and Infrastructure) and SDG 10 (Reduced Inequalities)](https://sdgs.un.org/goals). HiFiPulse is an independent student project; it is not an official UM network service or a UN programme.
 
-## Place selection and time of day
+## Explore the app
 
-The speed-test page offers a fixed list of supplied place names (duplicates removed), plus **Other / custom place** for names not listed. Floor remains optional. The time-of-day tab uses historical test timestamps grouped into Malaysia time (MYT, UTC+8), with a 24-hour selector and sample counts. The map displays tests from the approximate UM focus area for the chosen hour; **All hours** shows all campus-area tests. This is not a live network prediction. Tests without timestamps cannot be assigned to an hour.
+| Page | What it does |
+| --- | --- |
+| [Speed test](index.html) | Measures download, upload, ping and jitter via Cloudflare's public speed endpoints. Users manually choose the network and type/search a place name. A test may consume substantial data; the page shows an estimate before starting. |
+| [Coverage map](map.html) | Shows approximate, colour-coded test points; filters by speed, time and network; centers on PASUM, KK12 and KK11. Reads the published CSV plus recent measurements saved in this browser. |
+| Study spaces (map tab) | Lists suggested non-classroom spaces. A strong-coverage marker needs at least three matching tests within 180 m over two or more days in the last 30 days, with the lower quartile of download speeds at least 25 Mbps. Suggestions without enough evidence remain unrated. |
+| Speed history / Time of day (map tabs) | Displays daily median download results and hourly patterns in Malaysia time (MYT). These are historical observations, **not** predictions. |
+| Compare networks (map tab) | Compares self-reported Campus Wi-Fi, TM, U Mobile, CelcomDigi, Maxis, Tune Talk, OneXOX and REDtone samples around the three focus areas. Groups with fewer than three tests are labelled limited. |
+| Dead-zone reports (map) | Lets a person pin an approximate, **unverified** report for a selected network. Red dashed rings are separate from speed-test points. Reports can be removed from the same browser. |
+| [Wi-Fi guide](guide.html) | Explains congestion, troubleshooting, safer public-network and hotspot habits, digital equity and related SDGs. The test page also rotates short tips. |
+| [About us](about.html) | States the mission, methodology, current limitations and planned next steps. |
 
-## Study-space suggestions
+The place search offers curated campus names including the Main Library, PASUM, KK11 and KK12, but also accepts custom names. An exact match is normalized to the curated spelling. A place name never substitutes for a GPS fix.
 
-Study spaces are student suggestions, **not** classrooms, labs or staff-only rooms. On the map's Study spaces tab, a student can propose a café, study cube, bench, lounge or library area using geolocation. A speed-test user can also opt in to suggest their selected place. Suggestions made directly in the form are saved **on this device only**: the existing Google Sheet endpoint stores speed-test rows, not a shared suggestions database. Clearly named café, bench, lounge, library or study-cube locations in shared speed-test rows can be discovered across devices after the sheet publishes those rows. Other suggested names remain device-local until a shared suggestions backend is added.
+## Run locally
 
-Candidates appear immediately, but a "consistently good" blue map marker requires at least three named, nearby tests in the last 30 days, on at least two distinct days, with the lower quartile of download speeds at least 25 Mbps. Rankings put qualified spots first, then other measured spots by median speed, then unmeasured suggestions. GPS fixes worse than 200 m are not used for recommendations. No desk occupancy data is collected.
+No build step or package installation is required. Serve the repository over HTTP:
 
-## Connectivity guide
+```sh
+python3 -m http.server 8000 --bind 0.0.0.0
+```
 
-`guide.html` offers practical congestion-reduction habits, lecture-hall troubleshooting context, and a short digital-equity/SDG explainer with links to the NDIA, UN goals and Malaysia's Ministry of Digital. The speed test cycles contextual tips while it runs; users can also advance them manually. Wi-Fi capacity and cellular reception are different issues: neither can be diagnosed conclusively from a single browser speed test.
+Open `http://localhost:8000/index.html`. Geolocation requires **HTTPS or localhost**; a LAN address served over plain HTTP may not be eligible. The base map needs access to OpenStreetMap tiles, and measurements need access to the configured test endpoints. `file://` is not supported for reliable network and geolocation behaviour.
 
-## Network labels and comparison
+To deploy, publish the static files and update `config.js` with a reachable submission endpoint and published Google Sheet CSV. The source for the existing external Google Apps Script is **not** in this repository. Hosting static files alone will not create a shared results database. Test submission and feed access may fail if the external services are unavailable or block browser cross-origin requests; the UI reports failures rather than inventing a measurement.
 
-Before testing, choose the connection actually being used: Campus Wi-Fi, TM, U Mobile, CelcomDigi, Maxis, Tune Talk, OneXOX, REDtone, or Other / unsure. Carrier detection is **not automatic**: browsers do not reliably expose the cellular provider. A tester on mobile data should turn Wi-Fi off before testing; saved selection is only a convenience and must be checked each time. Provider names are self-reported and unverified.
+## Data flow and limitations
 
-The map can filter by network, and the Compare networks tab aggregates median download speed and ping near PASUM, KK12 and KK11. It shows sample counts, marks groups with fewer than three tests as limited, and does not make coverage guarantees. Legacy unlabeled measurements are excluded from provider comparisons. The existing external Google Apps Script/sheet schema is not included in this repository: **provider labels are retained in device-local results, but cross-device comparison requires updating the remote write endpoint to store the new `provider` payload field and publishing a `Provider` column in the CSV**. Until then the UI must not be treated as a campus-wide provider survey.
+- **Measurements:** `engine.js` performs the speed test; `app.js` gathers the selected place/network and a browser geolocation fix (if permitted), rounds coordinates to three decimals (~110 m latitude), saves a local copy and attempts to submit it to the configured external endpoint. If location is denied and no campus fallback is configured, the test cannot be placed on the map. A browser cannot reliably detect a cellular carrier: network labels are manually selected and unverified.
+- **Community map:** `map.js` parses a published CSV with `csv.js` and combines it with up to 50 recent local measurements. The feed may lag; older rows may have no provider label. The map is not a live radio coverage survey. Approximate landmark coordinates used for navigation are [PASUM](https://www.wikidata.org/wiki/Q17627749) (3.12325, 101.65933), [KK12](https://malaysia.worldplaces.me/places-in-kuala-lumpur/1645592-kolej-kediaman-raja-dr-nazrin-shah-kk12-universiti-malaya.html) (3.12555, 101.6609) and [KK11](https://malaysia.worldplaces.me/places-in-kuala-lumpur/2430003-kolej-kediaman-ungku-aziz-kk11-universiti-malaya.html) (3.1295, 101.66074). They are approximate landmarks, not building footprints.
+- **Study suggestions:** `spots.js` stores suggestions in this browser only. `insights.js` can also discover clearly named cafés, benches, libraries, lounges and study cubes from published speed-test rows. Matching/ranking requires a name, sufficiently accurate location and repeated measurements; the app does not know whether a seat is available. Classrooms, labs and staff-only rooms are excluded from suggestions.
+- **Dead-zone reports:** User-reported issues are stored only in this browser, with rounded coordinates and an initial fix accurate to within 200 m. They are unverified and do not sync to other devices. A student without connectivity may need to return to the app once online to file a report.
+- **Provider comparison:** New local test results retain the `provider` field, but campus-wide provider comparisons require the external write endpoint to save that field and the published CSV to expose a `Provider` column. This repository cannot verify or update that external service. Unlabelled legacy rows are excluded.
+- **Privacy:** Measurements contact Cloudflare endpoints; submitted results include metrics, a timestamp, selected place/network and approximate coordinates when available. Device-local suggestions and reports use localStorage and can be deleted with browser storage. Do not enter personal details in place names. The app does not claim that third-party services never process an IP address.
 
-## Reported dead zones
+## Repository map
 
-The coverage map includes a **Mark a dead zone** form for the selected network and issue (no signal, unable to connect, or connected but unusable). It requires an on-campus geolocation fix accurate within 200 m, rounds coordinates to three decimal places before storage, and draws a distinct red dashed ring. Reports are unverified observations, not measured network speed or an official outage. They are saved only in this browser, can be removed by the reporter, and are hidden from the historical time-of-day map; the network filter also applies to reports. No shared dead-zone database or server endpoint exists yet, so reports cannot be seen across devices. A report can be made after a test failed, provided the map page is reachable.
+| File | Responsibility |
+| --- | --- |
+| `index.html`, `app.js`, `engine.js` | Measurement screen, submission and speed-test engine |
+| `places.js` | Searchable curated-place combobox with custom entry |
+| `map.html`, `map.js`, `csv.js` | Coverage map, data loading and local dead-zone reports |
+| `insights.js`, `spots.js` | Study-space ranking, history, time-of-day and network comparisons |
+| `guide.html`, `about.html` | Connectivity education and project mission |
+| `theme.css`, `vendor/` | Shared styling and bundled Leaflet map library |
+| `config.js` | Test endpoints, map settings and external data-service URLs |
+| `CHANGELOG.md` | Development milestones and upcoming changes |
 
-The guide also includes a concise network lexicon, a Wi-Fi/cellular/upstream troubleshooting comparison, and safer hotspot/public-network habits. Speed-test tips use a shuffled deck: manual Next and automatic rotation draw from the same deck without repeating a tip until the deck is exhausted. Guidance distinguishes congestion from intentional throttling and warns that unknown open networks should be avoided while official campus Wi-Fi may still be appropriate.
+## Roadmap
 
-## Place search
+Shared, moderated suggestions and dead-zone reporting; a verified remote provider field; more campus-wide measurements; accessible, privacy-conscious data exports for student representatives and campus IT; and validation against actual network conditions. Predictive capacity, seat availability and institutional dashboards remain **ideas**, not implemented features.
 
-The speed-test place field is an editable combobox. Typing filters the curated locations (including Main Library, PASUM, KK11 and KK12 additions), while a new name can still be entered. Matching existing names are canonicalized on blur to reduce duplicate labels. Arrow keys and Enter select suggestions; Escape closes the list. Location coordinates are still obtained separately through browser geolocation, not inferred from a name.
+See [CHANGELOG.md](CHANGELOG.md) for the development history and [About us](about.html) for the student-facing mission.
