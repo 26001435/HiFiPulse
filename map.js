@@ -157,6 +157,12 @@
       : value.toFixed(decimals === undefined ? 1 : decimals);
   }
 
+  function fmtSpeed(value) {
+    if (value === null) return "—";
+    return value > 0 && value < 0.01 ? value.toFixed(6) :
+      value < 1 ? value.toFixed(4) : value.toFixed(1);
+  }
+
   /* ---- Normalisation ----------------------------------------------------- */
   function normalise(row) {
     var lat = num(field(row, ["Latitude", "lat"]));
@@ -164,7 +170,9 @@
     if (lat === null || lon === null) return null;
     if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
 
-    var download = num(field(row, ["Download", "Download (Mbps)"]));
+    var incomplete = field(row, ["Test Status", "testStatus", "test_status"]) === "incomplete";
+    var download = incomplete ? null : num(field(row, ["Download", "Download (Mbps)"]));
+    if (download === null && !incomplete) return null;
     var accuracy = num(field(row, ["Accuracy", "accuracy"]));
 
     var building = field(row, ["Building", "Location"]);
@@ -178,6 +186,7 @@
       lat: lat,
       lon: lon,
       download: download,
+      testStatus: incomplete && download === null ? "incomplete" : "complete",
       upload: num(field(row, ["Upload", "Upload (Mbps)"])),
       ping: num(field(row, ["Ping", "Ping (ms)"])),
       jitter: num(field(row, ["Jitter", "Jitter (ms)"])),
@@ -213,10 +222,10 @@
     var speed = document.createElement("span");
     speed.className = "popup-speed";
     speed.style.color = tier.color;
-    speed.textContent = fmt(rec.download, 1);
+    speed.textContent = rec.testStatus === "incomplete" ? "—" : fmtSpeed(rec.download);
     var unit = document.createElement("span");
     unit.className = "popup-unit";
-    unit.textContent = "Mbps download";
+    unit.textContent = rec.testStatus === "incomplete" ? "Download unmeasured · incomplete attempt" : "Mbps download";
     head.appendChild(speed);
     head.appendChild(unit);
     el.appendChild(head);
@@ -252,6 +261,51 @@
     return el;
   }
 
+  function buildGroupPopup(group, tier) {
+    if (group.records.length === 1) return buildPopup(group.records[0], tier);
+    var host = document.createElement("div");
+    var title = document.createElement("strong");
+    title.textContent = group.records.length + " nearby tests · approximate position";
+    host.appendChild(title);
+    var measured = group.records.filter(function (r) { return r.download !== null; })
+      .map(function (r) { return r.download; }).sort(function (a, b) { return a - b; });
+    var mid = Math.floor(measured.length / 2);
+    var median = measured.length % 2 ? measured[mid] : (measured[mid - 1] + measured[mid]) / 2;
+    var summary = document.createElement("p");
+    summary.textContent = measured.length
+      ? "Median measured download: " + fmtSpeed(median) +
+        " Mbps from " + measured.length + " test(s)."
+      : "No measured download speeds in this group.";
+    host.appendChild(summary);
+    var unknown = group.records.length - measured.length;
+    if (unknown) {
+      var note = document.createElement("p");
+      note.textContent = unknown + " incomplete attempt(s), speed unknown — not 0 Mbps.";
+      host.appendChild(note);
+    }
+    var details = document.createElement("details");
+    var label = document.createElement("summary");
+    label.textContent = "View individual tests";
+    details.appendChild(label);
+    group.records.slice().sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); })
+      .slice(0, 20).forEach(function (r) {
+        var line = document.createElement("p");
+        line.className = "group-test";
+        line.textContent = (r.provider || "Network unlabelled") + " · " +
+          (r.download === null ? "download unmeasured" : fmtSpeed(r.download) + " Mbps") +
+          " · " + (r.ts ? new Date(r.ts).toLocaleString() : "time unknown") +
+          (r.building ? " · " + r.building + " (self-reported)" : "");
+        details.appendChild(line);
+      });
+    if (group.records.length > 20) {
+      var more = document.createElement("p");
+      more.textContent = "Showing the 20 most recent of " + group.records.length + " tests.";
+      details.appendChild(more);
+    }
+    host.appendChild(details);
+    return host;
+  }
+
   /* ---- Rendering --------------------------------------------------------- */
   function activeTiers() {
     var out = {};
@@ -259,6 +313,7 @@
       var input = document.querySelector('.chip input[value="' + tier.id + '"]');
       out[tier.id] = !input || input.checked;
     });
+    out.incomplete = $("show-incomplete").checked;
     return out;
   }
 
@@ -280,39 +335,46 @@
     var totalDownload = 0;
     var downloadCount = 0;
     var pings = [];
-    var counts = { fast: 0, ok: 0, slow: 0 };
+    var counts = { fast: 0, ok: 0, slow: 0, incomplete: 0 };
     var bounds = [];
 
-    records.forEach(function (rec) {
-      if (providerFilter !== "all" && rec.provider !== providerFilter) return;
-      if (cutoff !== null && rec.ts !== null && rec.ts < cutoff) return;
-
-      var tier = tierFor(rec.download === null ? 0 : rec.download);
-      if (!enabled[tier.id]) return;
-
-      counts[tier.id] += 1;
+    var filtered = records.filter(function (rec) {
+      if (providerFilter !== "all" && rec.provider !== providerFilter) return false;
+      if (cutoff !== null && rec.ts !== null && rec.ts < cutoff) return false;
+      var tier = rec.download === null ? "incomplete" : tierFor(rec.download).id;
+      return enabled[tier];
+    });
+    filtered.forEach(function (rec) {
+      counts[rec.download === null ? "incomplete" : tierFor(rec.download).id] += 1;
       shown += 1;
-      if (rec.download !== null) {
-        totalDownload += rec.download;
-        downloadCount += 1;
-      }
+      if (rec.download !== null) { totalDownload += rec.download; downloadCount += 1; }
       if (rec.ping !== null) pings.push(rec.ping);
+    });
 
-      var precise =
-        rec.accuracy === null || rec.accuracy <= cfg.map.preciseAccuracyM;
-
-      var marker = L.circleMarker([rec.lat, rec.lon], {
-        radius: precise ? 7 : 5,
-        color: "#ffffff",
-        weight: precise ? 1.5 : 1,
-        fillColor: tier.color,
-        fillOpacity: precise ? 0.9 : 0.22,
-        opacity: precise ? 1 : 0.75
+    var groups = window.HifiMapClusters.group(filtered, 160);
+    groups.forEach(function (group) {
+      var measured = group.records.filter(function (r) { return r.download !== null; })
+        .map(function (r) { return r.download; }).sort(function (a, b) { return a - b; });
+      var mid = Math.floor(measured.length / 2);
+      var median = measured.length % 2 ? measured[mid] : (measured[mid - 1] + measured[mid]) / 2;
+      var tier = measured.length ? tierFor(median) : { color: "#71807a" };
+      var approximate = group.records.some(function (r) {
+        return r.accuracy === null || r.accuracy > cfg.map.preciseAccuracyM;
       });
-
-      marker.bindPopup(buildPopup(rec, tier), { maxWidth: 270 });
+      var marker = L.circleMarker([group.lat, group.lon], {
+        radius: group.records.length === 1 ? 7 : Math.min(18, 9 + Math.log2(group.records.length) * 2),
+        color: "#ffffff", weight: 1.5, fillColor: tier.color,
+        dashArray: !measured.length ? "3 3" : null,
+        fillOpacity: approximate || !measured.length ? 0.35 : 0.9
+      });
+      if (group.records.length > 1) {
+        marker.bindTooltip(String(group.records.length), {
+          permanent: true, direction: "center", className: "map-cluster-count"
+        });
+      }
+      marker.bindPopup(buildGroupPopup(group, tier), { maxWidth: 320 });
       marker.addTo(layer);
-      bounds.push([rec.lat, rec.lon]);
+      bounds.push([group.lat, group.lon]);
     });
 
     if (!fitted && bounds.length) {
@@ -322,8 +384,9 @@
 
     /* Stats */
     $("stat-count").textContent = shown;
+    $("stat-locations").textContent = groups.length;
     $("stat-avg").textContent = downloadCount
-      ? (totalDownload / downloadCount).toFixed(1) + " Mbps"
+      ? fmtSpeed(totalDownload / downloadCount) + " Mbps"
       : "—";
 
     pings.sort(function (a, b) {
@@ -375,7 +438,8 @@
             Download: item.download, Upload: item.upload,
             Ping: item.ping, Jitter: item.jitter,
             Accuracy: item.accuracy, Building: item.building,
-            Floor: item.floor, Timestamp: item.timestamp, Provider: item.provider
+            Floor: item.floor, Timestamp: item.timestamp, Provider: item.provider,
+            testStatus: item.testStatus
           });
         }).filter(Boolean);
     } catch (e) { return []; }
@@ -397,8 +461,10 @@
     button.disabled = true;
     $("status-line").textContent = "Loading results…";
 
+    var controller = new AbortController();
+    var timeout = setTimeout(function () { controller.abort(); }, 8000);
     try {
-      var res = await fetch(cfg.sheetCsvUrl, { cache: "no-store" });
+      var res = await fetch(cfg.sheetCsvUrl, { cache: "no-store", signal: controller.signal });
       if (!res.ok) throw new Error("HTTP " + res.status);
 
       var text = await res.text();
@@ -435,6 +501,7 @@
         : "Community feed unavailable. Run a test to add a local result.";
       if (records.length) banner("Community results unavailable: " + err.message, "warn");
     } finally {
+      clearTimeout(timeout);
       button.disabled = false;
     }
   }
@@ -496,6 +563,17 @@
       span.appendChild(count);
       legend.appendChild(span);
     });
+
+    var incompleteLegend = document.createElement("span");
+    var incompleteDot = document.createElement("i");
+    incompleteDot.style.background = "#71807a";
+    var incompleteLabel = document.createElement("span");
+    incompleteLabel.textContent = "Incomplete · speed unknown ";
+    var incompleteCount = document.createElement("b");
+    incompleteCount.id = "legend-incomplete";
+    incompleteCount.textContent = "0";
+    incompleteLegend.append(incompleteDot, incompleteLabel, incompleteCount);
+    legend.appendChild(incompleteLegend);
 
     /* Hollow-marker hint. */
     var hollow = document.createElement("span");

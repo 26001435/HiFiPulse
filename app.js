@@ -8,6 +8,7 @@
   var cfg = window.HIFIPULSE;
   var engine = null;
   var running = false;
+  var userCancelled = false;
   var tipTimer = null;
   var currentTip = 0;
   var tipBag = [];
@@ -79,7 +80,49 @@
   }
 
   function setMetric(id, value) {
-    $(id).textContent = isFiniteNumber(value) ? value.toFixed(2) : "—";
+    var metric = id.slice(4);
+    // A zero-byte download progress event is not a measured 0 Mbps result.
+    var measured = isFiniteNumber(value) && value >= 0 && !(metric === "download" && value === 0);
+    $(id).textContent = measured
+      ? value.toFixed(metric === "download" && value > 0 && value < 0.01 ? 6 :
+        metric === "download" && value < 1 ? 4 : 2) : "—";
+    var container = $(id).closest(".metric");
+    var meter = container.querySelector(".quality-track");
+    var rating = measured ? window.HifiQuality.rate(metric, value) : null;
+    container.dataset.quality = rating ? rating.key : "unmeasured";
+    meter.querySelector(".quality-fill").style.width = rating ? rating.fill.toFixed(1) + "%" : "0%";
+    meter.setAttribute("aria-valuenow", rating ? String(rating.score) : "0");
+    meter.setAttribute("aria-valuetext", rating ? rating.label + ", " + $(id).textContent +
+      (metric === "download" || metric === "upload" ? " Mbps" : " ms") : "Not measured");
+    container.querySelector(".quality-label").textContent = rating ? rating.label : "Not measured";
+  }
+
+  var samples = [];
+  var stages = ["latency", "download", "upload", "save"];
+  function setStage(stage) {
+    var current = stages.indexOf(stage);
+    document.querySelectorAll(".test-steps li").forEach(function (item) {
+      var position = stages.indexOf(item.dataset.stage);
+      item.dataset.state = current < 0 ? "waiting" :
+        position < current ? "done" : position === current ? "active" : "waiting";
+    });
+  }
+  function addDownloadSample(mbps) {
+    if (!isFiniteNumber(mbps) || mbps <= 0) return;
+    samples.push(mbps);
+    if (samples.length > 60) samples.shift();
+    var max = Math.max.apply(null, samples);
+    var points = samples.map(function (value, i) {
+      var x = samples.length === 1 ? 180 : i * 360 / (samples.length - 1);
+      return [x, 85 - (value / max) * 73];
+    });
+    $("trend-line").setAttribute("points", points.map(function (point) {
+      return point[0].toFixed(1) + "," + point[1].toFixed(1);
+    }).join(" "));
+    $("trend-dot").hidden = false;
+    $("trend-dot").setAttribute("cx", points[points.length - 1][0].toFixed(1));
+    $("trend-dot").setAttribute("cy", points[points.length - 1][1].toFixed(1));
+    $("trend-label").textContent = samples.length + " live reading" + (samples.length === 1 ? "" : "s");
   }
 
   function resetMetrics() {
@@ -88,12 +131,20 @@
     setMetric("val-ping", null);
     setMetric("val-jitter", null);
     $("progress-fill").style.width = "0%";
+    setStage(null);
+    samples = [];
+    $("live-trend").hidden = true;
+    $("trend-line").setAttribute("points", "");
+    $("trend-dot").hidden = true;
+    $("trend-label").textContent = "Waiting for a measured sample…";
+    $("edge").textContent = "";
     $("result").hidden = true;
   }
 
   function setProgress(fraction) {
     var pct = Math.max(0, Math.min(1, fraction)) * 100;
     $("progress-fill").style.width = pct.toFixed(1) + "%";
+    document.querySelector(".progress").setAttribute("aria-valuenow", String(Math.round(pct)));
   }
 
   /* ---- Geolocation ------------------------------------------------------ */
@@ -196,7 +247,8 @@
       schemaVersion: cfg.schemaVersion,
       testId: uid(),
       timestamp: new Date().toISOString(),
-      download: isFiniteNumber(result.download) ? round(result.download, 2) : null,
+      download: isFiniteNumber(result.download) ? round(result.download,
+        result.download > 0 && result.download < 0.01 ? 6 : result.download < 1 ? 4 : 2) : null,
       upload: isFiniteNumber(result.upload) ? round(result.upload, 2) : null,
       ping: isFiniteNumber(result.ping) ? round(result.ping, 1) : null,
       jitter: isFiniteNumber(result.jitter) ? round(result.jitter, 1) : null,
@@ -211,7 +263,9 @@
         (navigator.connection && navigator.connection.effectiveType) || "",
       device: isMobile() ? "mobile" : "desktop",
       country: (result.edge && result.edge.country) || "",
-      colo: (result.edge && result.edge.colo) || ""
+      colo: (result.edge && result.edge.colo) || "",
+      testStatus: result.testStatus || "complete",
+      testProfile: $("test-profile").value
     };
   }
 
@@ -223,6 +277,8 @@
 
     var body = JSON.stringify(payload);
 
+    var controller = new AbortController();
+    var timeout = setTimeout(function () { controller.abort(); }, 8000);
     try {
       /* text/plain is a CORS-safelisted content type, so this stays a
          "simple request" and skips the preflight that Apps Script cannot
@@ -232,7 +288,8 @@
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: body,
         cache: "no-store",
-        redirect: "follow"
+        redirect: "follow",
+        signal: controller.signal
       });
 
       if (!res.ok) return { ok: false, reason: "http-" + res.status };
@@ -248,48 +305,64 @@
       if (data && data.error) return { ok: false, reason: data.error };
       return { ok: true, unverified: true };
     } catch (err) {
+      if (controller.signal.aborted) return { ok: false, reason: "unconfirmed" };
       /* The redirect to script.googleusercontent.com occasionally breaks
          CORS. Retry as an opaque fire-and-forget POST so the data still
          lands, then report honestly that we could not confirm it. */
+      var retry = new AbortController();
+      var retryTimeout = setTimeout(function () { retry.abort(); }, 8000);
       try {
-        await fetch(url, { method: "POST", mode: "no-cors", body: body });
+        await fetch(url, { method: "POST", mode: "no-cors", body: body, signal: retry.signal });
         return { ok: false, reason: "unconfirmed" };
       } catch (err2) {
-        return { ok: false, reason: "network" };
-      }
-    }
+        return { ok: false, reason: retry.signal.aborted ? "unconfirmed" : "network" };
+      } finally { clearTimeout(retryTimeout); }
+    } finally { clearTimeout(timeout); }
   }
 
-  function reportSubmission(outcome) {
+  function reportSubmission(outcome, payload, localSaved) {
     var box = $("result");
     box.hidden = false;
-
+    box.replaceChildren();
+    var incomplete = payload.testStatus === "incomplete";
+    var located = payload.latitude !== null && payload.longitude !== null;
+    var localNotice = localSaved ? " It is visible on this device's map." : " It could not be stored on this device.";
     if (outcome.ok) {
-      setStatus(
-        outcome.duplicate
-          ? "Already recorded. This result was saved earlier."
-          : "Saved. Your result is on the map.",
-        "ok"
-      );
-      box.innerHTML = "";
+      setStatus(incomplete
+        ? "Download unavailable; this is an incomplete attempt, not a 0 Mbps speed." + (located ? (localSaved ? localNotice : " It was sent for saving but could not be stored on this device.") : " No map point: location unavailable.")
+        : (outcome.duplicate ? "Already recorded." : "Result sent for saving.") + (located ? localNotice : " No map point: location unavailable."),
+      incomplete ? "warn" : "ok");
+    } else {
+      var messages = {
+        "not-configured": "No submission endpoint is configured.",
+        unconfirmed: "Could not confirm the community save.",
+        network: "Network unavailable while submitting.",
+        "http-403": "The server rejected the submission.",
+        "http-429": "The server rate-limited the submission."
+      };
+      setStatus((incomplete ? "Download unavailable; recorded as an incomplete attempt, not 0 Mbps. " : "Test finished. ") +
+        (messages[outcome.reason] || "Community save failed (" + outcome.reason + ").") +
+        (located ? localNotice : " No map point: location unavailable."), "warn");
+    }
+    var again = document.createElement("button");
+    again.type = "button";
+    again.className = "btn btn-ghost btn-again";
+    again.textContent = "Test again";
+    again.addEventListener("click", start);
+    box.appendChild(again);
+    if (located && localSaved) {
       var link = document.createElement("a");
       link.href = "map.html";
       link.className = "link";
-      link.textContent = "Open the live map →";
+      link.textContent = "Open this device's map →";
       box.appendChild(link);
-      return;
+    } else if (!located) {
+      var fallback = document.createElement("a");
+      fallback.href = "map.html";
+      fallback.className = "link";
+      fallback.textContent = "If location becomes available, mark an unverified dead zone on the map →";
+      box.appendChild(fallback);
     }
-
-    var messages = {
-      "not-configured":
-        "Test complete. This deployment has no submit endpoint configured yet, so nothing was saved.",
-      unconfirmed:
-        "Test complete. We couldn't confirm the save — your result may still appear on the map shortly.",
-      network: "Test complete. Network error while saving — your result was not recorded.",
-      "http-403": "Test complete. The server rejected the token — your result was not recorded.",
-      "http-429": "Test complete. Rate limited by the server — try again later."
-    };
-    setStatus(messages[outcome.reason] || "Test complete, but saving failed (" + outcome.reason + ").", "warn");
   }
 
   /* ---- Main flow -------------------------------------------------------- */
@@ -301,41 +374,51 @@
       return;
     }
     running = true;
+    userCancelled = false;
     nextTip();
     tipTimer = setInterval(nextTip, 6500);
 
     $("btn-start").disabled = true;
+    $("test-profile").disabled = true;
     $("btn-cancel").hidden = false;
     $("result").hidden = true;
     resetMetrics();
     setProgress(0);
     setStatus("Starting…", "info");
+    setStage("latency");
 
     var geoPromise = getPosition();
-    engine = new window.HifiPulseEngine(cfg);
+    var profile = $("test-profile").value;
+    engine = new window.HifiPulseEngine(window.HifiPulseEngine.withProfile(cfg, profile));
 
     try {
       var result = await engine.run({
         onPhase: function (phase) {
           if (phase === "latency") {
+            setStage("latency");
             setPhase("Measuring latency…");
             setProgress(0.05);
           } else if (phase === "download") {
+            setStage("download");
+            $("live-trend").hidden = false;
             setPhase("Measuring download…");
             setProgress(0.3);
           } else if (phase === "upload") {
+            setStage("upload");
             setPhase("Measuring upload…");
             setProgress(0.7);
           } else {
-            setPhase("Finishing…");
-            setProgress(0.98);
+            setPhase("Preparing result…");
+            setProgress(0.85);
           }
         },
         onProgress: function (p) {
           if (p.phase === "latency") {
             setMetric("val-ping", p.ping);
+            setMetric("val-jitter", p.jitter);
             setProgress(0.05 + (p.sample / p.total) * 0.2);
           } else if (p.phase === "download") {
+            addDownloadSample(p.mbps);
             setMetric("val-download", p.mbps);
             setProgress(0.5);
           } else if (p.phase === "upload") {
@@ -346,10 +429,13 @@
       });
 
       setMetric("val-download", result.download);
+      $("trend-label").textContent = result.download === null
+        ? "No reliable download reading — attempt is incomplete."
+        : "Final measured download: " + $("val-download").textContent + " Mbps";
       setMetric("val-upload", result.upload);
       setMetric("val-ping", result.ping);
       setMetric("val-jitter", result.jitter);
-      setProgress(1);
+      setProgress(0.88);
 
       if (result.edge && (result.edge.country || result.edge.colo)) {
         $("edge").textContent =
@@ -358,10 +444,20 @@
           (result.edge.country ? " (" + result.edge.country + ")" : "");
       }
 
-      setPhase("Saving result…");
+      setStage("save");
+      setProgress(0.9);
+      if (result.download === null) document.querySelector('[data-stage="download"]').dataset.state = "skipped";
+      if (result.upload === null) document.querySelector('[data-stage="upload"]').dataset.state = "skipped";
+      setPhase(result.testStatus === "incomplete" ? "Recording incomplete attempt…" : "Saving result…");
       setStatus("Saving…", "info");
 
       var geo = await geoPromise;
+      if (userCancelled) {
+        resetMetrics();
+        setStatus("Test cancelled; no result was saved.", "warn");
+        setPhase("");
+        return;
+      }
       $("geo-status").textContent = describeGeo(geo);
 
       var payload = buildPayload(result, geo);
@@ -381,21 +477,27 @@
       }
       // Keep a device-local copy so the map remains useful even if the
       // community sheet is delayed or temporarily unreachable.
+      var localSaved = false;
       if (payload.latitude !== null && payload.longitude !== null) {
         try {
           var local = JSON.parse(localStorage.getItem("hifipulse:results") || "[]");
           local.unshift(payload);
           localStorage.setItem("hifipulse:results", JSON.stringify(local.slice(0, 50)));
+          localSaved = true;
         } catch (e) { /* Private browsing or full storage: remote save still works. */ }
       }
-      if ($("input-suggest").checked && geo.ok && geo.accuracy <= 200 && payload.building) {
+      if (payload.testStatus !== "incomplete" && $("input-suggest").checked && geo.ok && geo.accuracy <= 200 && payload.building) {
         window.HifiSpots.add(payload.building, $("input-space-type").value, payload.latitude, payload.longitude);
       }
       var outcome = await submit(payload);
       setPhase("");
-      reportSubmission(outcome);
+      reportSubmission(outcome, payload, localSaved);
+      setProgress(1);
+      document.querySelector('[data-stage="save"]').dataset.state =
+        localSaved || outcome.ok ? "done" : "skipped";
     } catch (err) {
       if (err && err.name === "AbortError") {
+        resetMetrics();
         setStatus("Test cancelled.", "warn");
         setPhase("");
       } else {
@@ -407,20 +509,27 @@
       tipTimer = null;
       running = false;
       $("btn-start").disabled = false;
+      $("test-profile").disabled = false;
       $("btn-cancel").hidden = true;
     }
   }
 
   function cancel() {
+    userCancelled = true;
     if (engine) engine.abort();
   }
 
   /* ---- Wiring ----------------------------------------------------------- */
   document.addEventListener("DOMContentLoaded", function () {
     nextTip();
-    var estimate = window.HifiPulseEngine.estimateMegabytes(cfg);
-    $("estimate").textContent =
-      "Uses up to ~" + estimate + " MB of data. On mobile data? Switch to Wi-Fi first.";
+    function updateEstimate() {
+      var profile = window.HifiPulseEngine.withProfile(cfg, $("test-profile").value);
+      var estimate = window.HifiPulseEngine.estimateMegabytes(profile);
+      $("estimate").textContent =
+        "Up to ~" + estimate + " MB. A very slow connection may use less; an incomplete attempt is shown separately from measured speeds.";
+    }
+    $("test-profile").addEventListener("change", updateEstimate);
+    updateEstimate();
 
     $("btn-start").addEventListener("click", start);
     try {

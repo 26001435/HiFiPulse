@@ -12,6 +12,7 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <script src="config.js" defer></script>
   <script src="engine.js" defer></script>
+  <script src="quality.js" defer></script>
   <script src="spots.js" defer></script>
   <script src="places.js" defer></script>
   <script src="place-check.js" defer></script>
@@ -85,31 +86,71 @@
 
     <section class="card" aria-labelledby="test-heading">
       <h2 id="test-heading">Network test</h2>
+      <ol class="test-steps" aria-label="Test stages">
+        <li data-stage="latency">01 <span>Latency</span></li>
+        <li data-stage="download">02 <span>Download</span></li>
+        <li data-stage="upload">03 <span>Upload</span></li>
+        <li data-stage="save">04 <span>Record</span></li>
+      </ol>
+
+      <label class="field test-profile" for="test-profile">Test size
+        <select id="test-profile">
+          <option value="light" selected>Lightweight · up to ~8 MB</option>
+          <option value="heavy">Heavyweight · up to ~52 MB</option>
+        </select>
+      </label>
+      <p class="note">Lightweight reduces data use and is better for slow or metered connections. Neither size guarantees an exact data cost.</p>
 
       <div class="gauge-grid">
-        <div class="metric">
+        <div class="metric" data-quality="unmeasured">
           <div class="metric-label">Download</div>
           <div class="metric-value" id="val-download">—</div>
           <span class="metric-unit">Mbps</span>
+          <div class="quality-track" role="meter" aria-label="Download quality" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-valuetext="Not measured"><span class="quality-fill"></span></div>
+          <span class="quality-label">Not measured</span>
         </div>
-        <div class="metric">
+        <div class="metric" data-quality="unmeasured">
           <div class="metric-label">Upload</div>
           <div class="metric-value" id="val-upload">—</div>
           <span class="metric-unit">Mbps</span>
+          <div class="quality-track" role="meter" aria-label="Upload quality" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-valuetext="Not measured"><span class="quality-fill"></span></div>
+          <span class="quality-label">Not measured</span>
         </div>
-        <div class="metric">
+        <div class="metric" data-quality="unmeasured">
           <div class="metric-label">Ping</div>
           <div class="metric-value" id="val-ping">—</div>
           <span class="metric-unit">ms</span>
+          <div class="quality-track" role="meter" aria-label="Ping quality" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-valuetext="Not measured"><span class="quality-fill"></span></div>
+          <span class="quality-label">Not measured</span>
         </div>
-        <div class="metric">
+        <div class="metric" data-quality="unmeasured">
           <div class="metric-label">Jitter</div>
           <div class="metric-value" id="val-jitter">—</div>
           <span class="metric-unit">ms</span>
+          <div class="quality-track" role="meter" aria-label="Jitter quality" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-valuetext="Not measured"><span class="quality-fill"></span></div>
+          <span class="quality-label">Not measured</span>
         </div>
       </div>
 
-      <div class="progress" role="progressbar" aria-label="Test progress" aria-valuemin="0" aria-valuemax="100">
+      <details class="quality-guide"><summary>How are these ratings calculated?</summary>
+        <p>These are illustrative connection-quality bands, not a guarantee. Higher download and upload are better; lower ping and jitter are better. Ratings update with live readings and settle on the final measurement.</p>
+        <ul><li>Download: poor under 15, fair 15–49.99, excellent 50+ Mbps.</li>
+          <li>Upload: poor under 5, fair 5–19.99, excellent 20+ Mbps.</li>
+          <li>Ping: excellent 40 ms or less, fair above 40–120, poor above 120 ms.</li>
+          <li>Jitter: excellent 10 ms or less, fair above 10–30, poor above 30 ms.</li></ul>
+      </details>
+
+      <div class="live-trend" id="live-trend" hidden>
+        <div class="live-trend-heading"><strong>Live download trend</strong><span id="trend-label">Waiting for a measured sample…</span></div>
+        <svg id="trend-chart" viewBox="0 0 360 96" preserveAspectRatio="none" role="img" aria-label="Live download speed readings, not a final result">
+          <line x1="0" y1="89" x2="360" y2="89" stroke="currentColor" stroke-width="1" />
+          <polyline id="trend-line" points="" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <circle id="trend-dot" cx="0" cy="0" r="3.5" fill="currentColor" hidden />
+        </svg>
+        <p class="note">Readings are snapshots during the transfer; only the final measured speed is recorded.</p>
+      </div>
+
+      <div class="progress" role="progressbar" aria-label="Test stage progress (approximate)" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
         <div id="progress-fill"></div>
       </div>
 

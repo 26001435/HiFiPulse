@@ -18,6 +18,7 @@ test('excludes cellular, missing location and contradictory names', () => {
   assert.equal(valid.building, 'KK12 (Cafeteria)');
   assert.equal(core.normalise(row('2026-10-31T03:00:00Z', 100, 'Maxis'), check), null);
   assert.equal(core.normalise({...row('2026-10-31T03:00:00Z', 100), Latitude: ''}, check), null);
+  assert.equal(core.normalise({...row('2026-10-31T03:00:00Z', 0), 'Test Status': 'incomplete'}, check), null);
   assert.equal(core.normalise({...row('2026-10-31T03:00:00Z', 100), Download: '—'}, check), null);
   const mismatched = core.normalise({...row('2026-10-31T03:00:00Z', 100), Building:'PASUM Main Building'}, check);
   assert.equal(mismatched.building, '');

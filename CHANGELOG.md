@@ -4,6 +4,14 @@ Development milestones for HiFiPulse. Pull-request numbers below describe merged
 
 ## Unreleased
 
+- Added decibel-meter-style quality bars for download, upload, ping and jitter: poor red, fair amber, excellent green, with live fills, explicit threshold guide, and unrated states when no measurement exists.
+
+- Added an interactive speed-test stage tracker, live measured download trend, accessible approximate progress and a Test again action; the trend is provisional and cleared on cancellation.
+
+- Grouped nearby rounded GPS measurements into numbered approximate map locations while retaining each test in the popup; coarse positions stay separate and grouping does not assert a verified building.
+
+- Added lightweight (~8 MiB) and heavyweight (~52 MiB) test profiles. Stalled/no-download tests now produce an honestly labelled, device-local incomplete marker if GPS is available; they are never treated as 0 Mbps or ranked. Submission and feed support still depend on the external service.
+
 - Added subtle opening/closing motion to navigation dropdowns and close-on-outside-click/Escape; reduced-motion preferences skip the animation.
 
 ### Added
