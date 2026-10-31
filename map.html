@@ -21,19 +21,19 @@
 
   <header class="site-header">
     <a class="brand" href="index.html">
-      <span class="brand-mark" aria-hidden="true">◈</span>
+      <span class="brand-mark" aria-hidden="true"></span>
       HiFiPulse
     </a>
     <nav class="site-nav" aria-label="Main">
       <a href="index.html">Speed test</a>
-      <a href="map.html" aria-current="page">Live map</a>
+      <a href="map.html" aria-current="page">Coverage map</a>
     </nav>
   </header>
 
   <main class="wide">
     <div class="hero">
-      <h1>Campus coverage, <span class="title-accent">measured by students</span></h1>
-      <p>Explore measured connections around PASUM, KK12 and KK11. Green is fast, amber is workable, red needs attention.</p>
+      <h1>The campus, measured.</h1>
+      <p>Explore student measurements around PASUM, KK12 and KK11. Each point represents a test, not a coverage guarantee.</p>
     </div>
 
     <div class="view-tabs" role="tablist" aria-label="Explore campus data">
@@ -45,7 +45,7 @@
     </div>
     <div id="panel-map" role="tabpanel" aria-labelledby="tab-map">
     <section class="card" aria-labelledby="map-heading">
-      <h2 id="map-heading">Live results</h2>
+      <h2 id="map-heading">Recorded measurements</h2>
 
       <div class="map-toolbar">
         <div class="filters" role="group" aria-label="Filter by speed">
@@ -80,12 +80,12 @@
       </div>
       <div class="map-tools"><div class="zone-links" role="group" aria-label="Focus map area">
         <button type="button" data-zone="all">Campus</button><button type="button" data-zone="pasum">PASUM</button><button type="button" data-zone="kk12">KK12</button><button type="button" data-zone="kk11">KK11</button>
-      </div><button type="button" class="btn btn-ghost" id="btn-locate">◎ Find my location</button><span id="location-status" role="status"></span></div>
+      </div><button type="button" class="btn btn-ghost" id="btn-locate">Find my location</button><span id="location-status" role="status"></span></div>
       <div class="banner" id="banner" hidden></div>
 
       <div id="map-home"><div id="map" role="application" aria-label="Map of speed test results"></div></div>
       <div class="dead-zone-controls"><label><input type="checkbox" id="show-dead-zones" checked> Show reported dead zones</label><span>Red rings = user reports, not verified speed tests.</span></div>
-      <details class="dead-zone-report"><summary>＋ Mark a dead zone</summary>
+      <details class="dead-zone-report"><summary>Mark a dead zone</summary>
         <form id="dead-zone-form">
           <p class="note">Standing at a spot with little or no connection? Pin an approximate report here. It stays on this device; it is not a verified campus-wide outage.</p>
           <div class="dead-zone-fields">
@@ -118,9 +118,9 @@
     </section>
     </div>
     <section class="card" id="panel-spaces" role="tabpanel" aria-labelledby="tab-spaces" hidden>
-      <div class="section-heading"><div><p class="eyebrow">COMMUNITY PICKS</p><h2>Study spaces <span class="title-accent">worth the walk</span></h2><p class="note">Cafés, study cubes, benches and lounges only. Rankings use recent verified tests, not seat availability.</p></div><span class="heading-icon" aria-hidden="true">✦</span></div>
+      <div class="section-heading"><div><p class="eyebrow">COMMUNITY PICKS</p><h2>Study spaces worth the walk</h2><p class="note">Cafés, study cubes, benches and lounges only. Rankings use recent verified tests, not seat availability.</p></div></div>
       <div class="spaces-layout"><div><div id="spaces-list" class="insight-grid" aria-live="polite"></div></div>
-      <aside class="suggest-panel"><span class="suggest-symbol" aria-hidden="true">＋</span><h3>Know a good spot?</h3>
+      <aside class="suggest-panel"><h3>Know a good spot?</h3>
         <p>Suggest a place to study. Your suggestion appears on this device; it earns a Wi-Fi rating only after enough measurements.</p>
         <form id="suggest-form">
           <label class="field">Place name <input id="suggest-name" required maxlength="60" placeholder="e.g. Café near KK12"></label>
@@ -140,7 +140,7 @@
       <div id="history-table"></div>
     </section>
     <section class="card" id="panel-providers" role="tabpanel" aria-labelledby="tab-providers" hidden>
-      <div class="section-heading"><div><p class="eyebrow">CAMPUS CONNECTIVITY</p><h2>Compare networks <span class="title-accent">by location</span></h2><p class="note">Median download and ping from crowdsourced tests. Results are observations, not carrier coverage guarantees.</p></div><span class="heading-icon" aria-hidden="true">↗</span></div>
+      <div class="section-heading"><div><p class="eyebrow">CAMPUS CONNECTIVITY</p><h2>Compare networks by location</h2><p class="note">Median download and ping from crowdsourced tests. Results are observations, not carrier coverage guarantees.</p></div></div>
       <div class="compare-controls"><label class="field" for="compare-zone">Area
         <select id="compare-zone"><option value="all">PASUM + KK11 + KK12</option><option value="pasum">PASUM</option><option value="kk12">KK12</option><option value="kk11">KK11</option></select>
       </label><label class="field" for="compare-period">Measurements
