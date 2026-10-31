@@ -4,12 +4,21 @@ Development milestones for HiFiPulse. Pull-request numbers below describe merged
 
 ## Unreleased
 
-### Added
-- Project summary, objectives, architecture, limitations and roadmap in the README.
-- Student-facing About us page with mission, approach and honest data-status notes.
-- Changelog and About us navigation across the site.
+### Fixed
+- Restored the flat site layout: `index.html`, `map.html`, `guide.html` and `about.html` are served directly from the repository root again.
+- Corrected stylesheet, icon and JavaScript paths after the `main/` and `assets/` folders were removed; kept bundled Leaflet assets in `vendor/`.
+- Renamed `assets.js` back to `spots.js` so the script filename matches its study-spot purpose and the page references.
+- Updated README links and local run instructions to match the restored layout. The PITRAM proposal remains a separate Markdown document, not the site entry page.
 
 ## Earlier development milestones
+
+### [PR #9](https://github.com/26001435/HiFiPulse/pull/9) — PITRAM proposal and folder-path repair
+- Added `PITRAM_PROPOSAL.md` with a written proposal, spoken pitch and pilot plan.
+- Added an entry page and asset paths for the then-current folder structure; those paths were superseded by the flat-layout restoration above.
+
+### [PR #8](https://github.com/26001435/HiFiPulse/pull/8) — Project documentation and About us
+- Expanded the README with objectives, architecture, limitations and roadmap.
+- Added the About us page and project changelog.
 
 ### [PR #7](https://github.com/26001435/HiFiPulse/pull/7) — Searchable place entry
 - Replaced the fixed place selector with a searchable combobox that still accepts custom names.
