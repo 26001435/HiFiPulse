@@ -15,8 +15,8 @@ window.HIFIPULSE = {
    * While these still say PASTE_YOUR_..., the site runs the test but does
    * not submit, and tells the user so.
    * ----------------------------------------------------------------------*/
-  submitUrl: "PASTE_YOUR_APPS_SCRIPT_EXEC_URL",
-  submitToken: "PASTE_YOUR_SHARED_TOKEN",
+  submitUrl: "https://script.google.com/macros/s/AKfycbxaEuWMFdROQpZUL91YgSTSKxLtcgeaVy7EJ869hUpJw_fuGr7kHhuAgSJ-l2yCeoYZyA/exec",
+  submitToken: "8292af7f14fe4e2eac57153dfa5e3904",
 
   /* ------------------------------------------------------------------------
    * READ PATH — the public CSV of your sheet.
