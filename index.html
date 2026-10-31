@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>HiFiPulse — Campus Speed Test</title>
+  <meta name="description" content="Measure your campus network and contribute an anonymous data point to the live coverage map.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://speed.cloudflare.com https://cloudflare.com https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'">
+  <link rel="stylesheet" href="assets/theme.css">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <script src="assets/config.js" defer></script>
+  <script src="assets/engine.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">◈</span>
+      HiFiPulse
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html" aria-current="page">Speed test</a>
+      <a href="map.html">Live map</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="hero">
+      <h1>How fast is your campus, really?</h1>
+      <p>Run a 30-second test and add one anonymous point to the coverage map. No account, no tracking.</p>
+    </div>
+
+    <section class="card" aria-labelledby="test-heading">
+      <h2 id="test-heading">Network test</h2>
+
+      <div class="gauge-grid">
+        <div class="metric">
+          <div class="metric-label">Download</div>
+          <div class="metric-value" id="val-download">—</div>
+          <span class="metric-unit">Mbps</span>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Upload</div>
+          <div class="metric-value" id="val-upload">—</div>
+          <span class="metric-unit">Mbps</span>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Ping</div>
+          <div class="metric-value" id="val-ping">—</div>
+          <span class="metric-unit">ms</span>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Jitter</div>
+          <div class="metric-value" id="val-jitter">—</div>
+          <span class="metric-unit">ms</span>
+        </div>
+      </div>
+
+      <div class="progress" role="progressbar" aria-label="Test progress" aria-valuemin="0" aria-valuemax="100">
+        <div id="progress-fill"></div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="btn-start">Start test</button>
+        <button type="button" class="btn btn-ghost" id="btn-cancel" hidden>Cancel</button>
+      </div>
+
+      <p class="status" id="status" role="status" aria-live="polite">Ready when you are.</p>
+      <p class="phase" id="phase" aria-live="polite"></p>
+      <p class="hint" id="estimate"></p>
+    </section>
+
+    <section class="card" aria-labelledby="context-heading">
+      <h2 id="context-heading">Where are you testing?</h2>
+
+      <div class="field-grid">
+        <label class="field">
+          Building
+          <input type="text" id="input-building" maxlength="60" placeholder="e.g. Main Library" autocomplete="off">
+        </label>
+        <label class="field">
+          Floor
+          <input type="text" id="input-floor" maxlength="20" placeholder="e.g. 3" autocomplete="off">
+        </label>
+      </div>
+
+      <p class="note" id="geo-status">
+        Your location is requested when you start. Coordinates are rounded to about
+        110&nbsp;m before they leave this page, and your IP address is never stored.
+      </p>
+      <p class="edge" id="edge"></p>
+    </section>
+
+    <section class="card" id="result" hidden aria-live="polite"></section>
+  </main>
+
+  <footer>
+    <p>
+      HiFiPulse collects only the numbers on this page plus a rounded location.
+      <a href="map.html">See the live map</a>.
+    </p>
+  </footer>
+
+  <noscript>
+    <p style="max-width:760px;margin:0 auto;padding:20px;color:#fca5a5;">
+      This speed test needs JavaScript enabled.
+    </p>
+  </noscript>
+
+</body>
+</html>

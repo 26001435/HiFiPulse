@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>HiFiPulse — Live Coverage Map</title>
+  <meta name="description" content="Live, crowd-sourced campus network map. Every marker is one anonymous speed test.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com; connect-src 'self' https://docs.google.com https://*.googleusercontent.com; font-src 'self'; base-uri 'none'; form-action 'none'">
+  <link rel="stylesheet" href="assets/theme.css">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H"
+        crossorigin="anonymous">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH"
+          crossorigin="anonymous" defer></script>
+  <script src="assets/config.js" defer></script>
+  <script src="assets/csv.js" defer></script>
+  <script src="assets/map.js" defer></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">◈</span>
+      HiFiPulse
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html">Speed test</a>
+      <a href="map.html" aria-current="page">Live map</a>
+    </nav>
+  </header>
+
+  <main class="wide">
+    <div class="hero">
+      <h1>Campus coverage, measured by students</h1>
+      <p>Each dot is one anonymous test. Green is fast, amber is workable, red needs attention.</p>
+    </div>
+
+    <section class="card" aria-labelledby="map-heading">
+      <h2 id="map-heading">Live results</h2>
+
+      <div class="map-toolbar">
+        <div class="filters" role="group" aria-label="Filter by speed">
+          <label class="chip" style="--dot:#10b981">
+            <input type="checkbox" value="fast" checked>
+            50+ Mbps
+          </label>
+          <label class="chip" style="--dot:#f59e0b">
+            <input type="checkbox" value="ok" checked>
+            15–50 Mbps
+          </label>
+          <label class="chip" style="--dot:#ef4444">
+            <input type="checkbox" value="slow" checked>
+            under 15 Mbps
+          </label>
+        </div>
+
+        <div class="filters">
+          <label class="visually-hidden" for="range">Time range</label>
+          <select id="range">
+            <option value="all">All time</option>
+            <option value="7d">Last 7 days</option>
+            <option value="24h">Last 24 hours</option>
+          </select>
+          <button type="button" class="btn btn-ghost" id="btn-refresh">Refresh</button>
+        </div>
+      </div>
+
+      <div class="banner" id="banner" hidden></div>
+
+      <div id="map" role="application" aria-label="Map of speed test results"></div>
+
+      <div class="legend" id="legend" aria-label="Legend"></div>
+
+      <div class="stats">
+        <span>Results shown <b id="stat-count">0</b></span>
+        <span>Average download <b id="stat-avg">—</b></span>
+        <span>Median ping <b id="stat-ping">—</b></span>
+        <span>Updated <b id="stat-updated">—</b></span>
+      </div>
+
+      <p class="note" id="status-line" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Data is read from a published Google Sheet. Positions are rounded before
+      they are stored, and approximate fixes are drawn hollow.
+      <a href="index.html">Add your own result</a>.
+    </p>
+  </footer>
+
+</body>
+</html>
