@@ -6,10 +6,128 @@
     <!-- Include LibreSpeed JS engine -->
     <script src="https://cloudflare.com"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 40px; }
-        .metric { font-size: 24px; margin: 20px; font-weight: bold; }
-        button { padding: 15px 30px; font-size: 18px; cursor: pointer; }
-    </style>
+    :root {
+        --bg-color: #0b0f19;
+        --card-bg: rgba(255, 255, 255, 0.05);
+        --text-color: #f3f4f6;
+        --accent-color: #3b82f6;
+        --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    }
+    
+    body { 
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        text-align: center; 
+        padding: 40px 20px;
+        margin: 0;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    p {
+        color: #9ca3af;
+        margin-bottom: 40px;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 30px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    button { 
+        background: var(--accent-gradient);
+        color: white;
+        border: none;
+        padding: 16px 40px; 
+        font-size: 1.1rem; 
+        font-weight: 600;
+        border-radius: 50px;
+        cursor: pointer; 
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+    }
+
+    button:disabled {
+        background: #4b5563;
+        box-shadow: none;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 40px;
+    }
+
+    .metric-card {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .metric-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #9ca3af;
+        margin-bottom: 8px;
+    }
+
+    .metric-value { 
+        font-size: 1.8rem; 
+        font-weight: bold; 
+        color: #ffffff;
+    }
+    
+    .unit {
+        font-size: 1rem;
+        color: #6b7280;
+        margin-left: 4px;
+    }
+</style>
+
+<div class="container">
+    <h1>Community Speed Test</h1>
+    <p>Test your network performance and contribute to our mapping project.</p>
+    
+    <button id="startBtn" onclick="runSpeedTest()">Begin Test</button>
+    
+    <div id="results" class="dashboard" style="display:none;">
+        <div class="metric-card">
+            <div class="metric-label">Download</div>
+            <div><span class="metric-value" id="dl">0.00</span><span class="unit">Mbps</span></div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Upload</div>
+            <div><span class="metric-value" id="ul">0.00</span><span class="unit">Mbps</span></div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Ping</div>
+            <div><span class="metric-value" id="ping">0</span><span class="unit">ms</span></div>
+        </div>
+    </div>
+</div>
 </head>
 <body>
 
