@@ -6,19 +6,14 @@
   <meta name="color-scheme" content="dark">
   <title>HiFiPulse — Live Coverage Map</title>
   <meta name="description" content="Live, crowd-sourced campus network map. Every marker is one anonymous speed test.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com; connect-src 'self' https://docs.google.com https://*.googleusercontent.com; font-src 'self'; base-uri 'none'; form-action 'none'">
-  <link rel="stylesheet" href="assets/theme.css">
-  <link rel="icon" type="image/png" href="assets/favicon.png">
-  <link rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H"
-        crossorigin="anonymous">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-          integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH"
-          crossorigin="anonymous" defer></script>
-  <script src="assets/config.js" defer></script>
-  <script src="assets/csv.js" defer></script>
-  <script src="assets/map.js" defer></script>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; connect-src 'self' https://docs.google.com https://*.googleusercontent.com; font-src 'self'; base-uri 'none'; form-action 'none'">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <script src="vendor/leaflet.js" defer></script>
+  <script src="config.js" defer></script>
+  <script src="csv.js" defer></script>
+  <script src="map.js" defer></script>
 </head>
 <body>
 
@@ -69,6 +64,7 @@
         </div>
       </div>
 
+      <div class="map-tools"><button type="button" class="btn btn-ghost" id="btn-locate">◎ Find my location</button><span id="location-status" role="status"></span></div>
       <div class="banner" id="banner" hidden></div>
 
       <div id="map" role="application" aria-label="Map of speed test results"></div>
@@ -88,7 +84,7 @@
 
   <footer>
     <p>
-      Data is read from a published Google Sheet. Positions are rounded before
+      Results are read from the published community sheet and your device. Positions are rounded before
       they are stored, and approximate fixes are drawn hollow.
       <a href="index.html">Add your own result</a>.
     </p>

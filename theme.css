@@ -651,3 +651,23 @@ footer a {
   white-space: nowrap;
   border: 0;
 }
+
+/* Campus dashboard refresh */
+:root { --bg:#08151a; --bg-soft:#102329; --accent:#65e0bd; --accent-2:#3eaaad; --grad:linear-gradient(135deg,#78e9bd,#39b8c0); --border:rgba(148,224,207,.17); --muted:#a7bab9; --radius:20px; }
+body { background-image:radial-gradient(900px 550px at 10% -10%,rgba(57,184,192,.20),transparent 65%),radial-gradient(700px 500px at 95% 25%,rgba(120,233,189,.09),transparent 70%); }
+.site-header { max-width:1180px; padding:22px 24px; border-bottom:1px solid var(--border); }
+.brand { font-size:1.2rem; letter-spacing:-.04em; }
+.brand-mark { background:var(--grad); color:#052126; box-shadow:0 0 24px rgba(91,218,195,.25); }
+main { max-width:900px; padding-top:48px; } main.wide { max-width:1180px; }
+.hero { text-align:left; margin:0 0 34px; padding:10px 0 4px; }
+.hero h1 { max-width:850px; font-size:clamp(2.6rem,6vw,4.8rem); letter-spacing:-.065em; line-height:1.06; background:none; -webkit-text-fill-color:var(--text); color:var(--text); }
+.hero p { margin:0; max-width:65ch; font-size:1.08rem; }
+.card { background:linear-gradient(145deg,rgba(22,47,52,.92),rgba(12,30,36,.92)); box-shadow:0 22px 55px rgba(0,0,0,.22); padding:30px; }
+.card h2 { color:#86ddca; }
+.metric { background:rgba(3,18,23,.45); border-color:var(--border); padding:23px 12px; }
+.metric-value { font-size:clamp(1.7rem,4vw,2.6rem); letter-spacing:-.055em; }
+.btn { color:#062329; box-shadow:0 8px 25px rgba(57,184,192,.18); }
+.btn:hover:not(:disabled) { box-shadow:0 12px 30px rgba(57,184,192,.3); }
+.map-tools { display:flex; align-items:center; gap:16px; margin:14px 0; color:var(--muted); font-size:.85rem; }
+#map { background:#142b2e; }
+@media(max-width:600px) { .hero { padding-top:0; } .card { padding:20px; } .map-tools { flex-wrap:wrap; } }

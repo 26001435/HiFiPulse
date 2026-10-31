@@ -245,7 +245,9 @@
       await Promise.all(streams);
     } catch (err) {
       if (signal && signal.aborted) throw abortError();
-      throw err;
+      // The duration timer intentionally aborts in-flight streams. Bytes
+      // already received are the valid measurement, not a failed test.
+      if (!stopped) { ctrl.abort(); throw err; }
     } finally {
       clearTimeout(warmTimer);
       clearTimeout(endTimer);
