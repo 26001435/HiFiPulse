@@ -16,14 +16,14 @@ The educational mission connects to [UN SDG 4 (Quality Education), SDG 9 (Indust
 
 | Page | What it does |
 | --- | --- |
-| [Speed test](index.html) | Measures download, upload, ping and jitter via Cloudflare's public speed endpoints. Users manually choose the network and type/search a place name. A test may consume substantial data; the page shows an estimate before starting. |
-| [Coverage map](map.html) | Shows approximate, colour-coded test points; filters by speed, time and network; centers on PASUM, KK12 and KK11. Reads the published CSV plus recent measurements saved in this browser. |
+| [Speed test](main/index.html) | Measures download, upload, ping and jitter via Cloudflare's public speed endpoints. Users manually choose the network and type/search a place name. A test may consume substantial data; the page shows an estimate before starting. |
+| [Coverage map](main/map.html) | Shows approximate, colour-coded test points; filters by speed, time and network; centers on PASUM, KK12 and KK11. Reads the published CSV plus recent measurements saved in this browser. |
 | Study spaces (map tab) | Lists suggested non-classroom spaces. A strong-coverage marker needs at least three matching tests within 180 m over two or more days in the last 30 days, with the lower quartile of download speeds at least 25 Mbps. Suggestions without enough evidence remain unrated. |
 | Speed history / Time of day (map tabs) | Displays daily median download results and hourly patterns in Malaysia time (MYT). These are historical observations, **not** predictions. |
 | Compare networks (map tab) | Compares self-reported Campus Wi-Fi, TM, U Mobile, CelcomDigi, Maxis, Tune Talk, OneXOX and REDtone samples around the three focus areas. Groups with fewer than three tests are labelled limited. |
 | Dead-zone reports (map) | Lets a person pin an approximate, **unverified** report for a selected network. Red dashed rings are separate from speed-test points. Reports can be removed from the same browser. |
-| [Wi-Fi guide](guide.html) | Explains congestion, troubleshooting, safer public-network and hotspot habits, digital equity and related SDGs. The test page also rotates short tips. |
-| [About us](about.html) | States the mission, methodology, current limitations and planned next steps. |
+| [Wi-Fi guide](main/guide.html) | Explains congestion, troubleshooting, safer public-network and hotspot habits, digital equity and related SDGs. The test page also rotates short tips. |
+| [About us](main/about.html) | States the mission, methodology, current limitations and planned next steps. |
 
 The place search offers curated campus names including the Main Library, PASUM, KK11 and KK12, but also accepts custom names. An exact match is normalized to the curated spelling. A place name never substitutes for a GPS fix.
 
@@ -35,7 +35,7 @@ No build step or package installation is required. Serve the repository over HTT
 python3 -m http.server 8000 --bind 0.0.0.0
 ```
 
-Open `http://localhost:8000/index.html`. Geolocation requires **HTTPS or localhost**; a LAN address served over plain HTTP may not be eligible. The base map needs access to OpenStreetMap tiles, and measurements need access to the configured test endpoints. `file://` is not supported for reliable network and geolocation behaviour.
+Open `http://localhost:8000/`. Geolocation requires **HTTPS or localhost**; a LAN address served over plain HTTP may not be eligible. The base map needs access to OpenStreetMap tiles, and measurements need access to the configured test endpoints. `file://` is not supported for reliable network and geolocation behaviour.
 
 To deploy, publish the static files and update `config.js` with a reachable submission endpoint and published Google Sheet CSV. The source for the existing external Google Apps Script is **not** in this repository. Hosting static files alone will not create a shared results database. Test submission and feed access may fail if the external services are unavailable or block browser cross-origin requests; the UI reports failures rather than inventing a measurement.
 
@@ -52,17 +52,17 @@ To deploy, publish the static files and update `config.js` with a reachable subm
 
 | File | Responsibility |
 | --- | --- |
-| `index.html`, `app.js`, `engine.js` | Measurement screen, submission and speed-test engine |
-| `places.js` | Searchable curated-place combobox with custom entry |
-| `map.html`, `map.js`, `csv.js` | Coverage map, data loading and local dead-zone reports |
-| `insights.js`, `spots.js` | Study-space ranking, history, time-of-day and network comparisons |
-| `guide.html`, `about.html` | Connectivity education and project mission |
-| `theme.css`, `vendor/` | Shared styling and bundled Leaflet map library |
-| `config.js` | Test endpoints, map settings and external data-service URLs |
+| `main/index.html`, `assets/app.js`, `assets/engine.js` | Measurement screen, submission and speed-test engine |
+| `assets/places.js` | Searchable curated-place combobox with custom entry |
+| `main/map.html`, `assets/map.js`, `assets/csv.js` | Coverage map, data loading and local dead-zone reports |
+| `assets/insights.js`, `assets/assets.js` | Study-space ranking, history, time-of-day and network comparisons |
+| `main/guide.html`, `main/about.html` | Connectivity education and project mission |
+| `assets/theme.css`, `vendor/` | Shared styling and bundled Leaflet map library |
+| `assets/config.js` | Test endpoints, map settings and external data-service URLs |
 | `CHANGELOG.md` | Development milestones and upcoming changes |
 
 ## Roadmap
 
 Shared, moderated suggestions and dead-zone reporting; a verified remote provider field; more campus-wide measurements; accessible, privacy-conscious data exports for student representatives and campus IT; and validation against actual network conditions. Predictive capacity, seat availability and institutional dashboards remain **ideas**, not implemented features.
 
-See [CHANGELOG.md](CHANGELOG.md) for the development history and [About us](about.html) for the student-facing mission.
+See [CHANGELOG.md](CHANGELOG.md) for the development history and [About us](main/about.html) for the student-facing mission.
