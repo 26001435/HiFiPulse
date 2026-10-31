@@ -287,6 +287,21 @@
     el.dataset.tone = tone || "warn";
   }
 
+  function localRecords() {
+    try {
+      return JSON.parse(localStorage.getItem("hifipulse:results") || "[]")
+        .map(function (item) {
+          return normalise({
+            Latitude: item.latitude, Longitude: item.longitude,
+            Download: item.download, Upload: item.upload,
+            Ping: item.ping, Jitter: item.jitter,
+            Accuracy: item.accuracy, Building: item.building,
+            Floor: item.floor, Timestamp: item.timestamp
+          });
+        }).filter(Boolean);
+    } catch (e) { return []; }
+  }
+
   /* ---- Loading ----------------------------------------------------------- */
   async function load() {
     var button = $("btn-refresh");
@@ -306,13 +321,25 @@
 
       var rows = window.HifiCsv.toObjects(window.HifiCsv.parse(text));
       records = rows.map(normalise).filter(Boolean);
+      // The published sheet can lag behind a recent submission. Show local
+      // measurements as well, avoiding duplicate timestamps from the sheet.
+      var seen = new Set(records.map(function (r) { return [r.ts, r.lat, r.lon].join(":"); }));
+      localRecords().forEach(function (r) {
+        var key = [r.ts, r.lat, r.lon].join(":");
+        if (!seen.has(key)) { records.push(r); seen.add(key); }
+      });
       lastLoaded = Date.now();
       $("status-line").textContent =
         records.length + (records.length === 1 ? " result" : " results") + " loaded.";
       render();
     } catch (err) {
-      $("status-line").textContent = "";
-      banner("Could not load results: " + err.message, "error");
+      records = localRecords();
+      lastLoaded = Date.now();
+      render();
+      $("status-line").textContent = records.length
+        ? "Showing results saved on this device. Community feed unavailable."
+        : "Community feed unavailable. Run a test to add a local result.";
+      if (records.length) banner("Community results unavailable: " + err.message, "warn");
     } finally {
       button.disabled = false;
     }
@@ -354,6 +381,16 @@
     });
     $("range").addEventListener("change", render);
     $("btn-refresh").addEventListener("click", load);
+    $("btn-locate").addEventListener("click", function () {
+      var status = $("location-status");
+      if (!navigator.geolocation) { status.textContent = "Location is not supported here."; return; }
+      status.textContent = "Finding your location…";
+      navigator.geolocation.getCurrentPosition(function (position) {
+        map.setView([position.coords.latitude, position.coords.longitude], 15);
+        status.textContent = "Centered near your location (not shared).";
+      }, function () { status.textContent = "Location unavailable. Check browser permissions."; },
+      { timeout: 10000, maximumAge: 300000 });
+    });
 
     load();
 

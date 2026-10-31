@@ -324,7 +324,17 @@
       var geo = await geoPromise;
       $("geo-status").textContent = describeGeo(geo);
 
-      var outcome = await submit(buildPayload(result, geo));
+      var payload = buildPayload(result, geo);
+      // Keep a device-local copy so the map remains useful even if the
+      // community sheet is delayed or temporarily unreachable.
+      if (payload.latitude !== null && payload.longitude !== null) {
+        try {
+          var local = JSON.parse(localStorage.getItem("hifipulse:results") || "[]");
+          local.unshift(payload);
+          localStorage.setItem("hifipulse:results", JSON.stringify(local.slice(0, 50)));
+        } catch (e) { /* Private browsing or full storage: remote save still works. */ }
+      }
+      var outcome = await submit(payload);
       setPhase("");
       reportSubmission(outcome);
     } catch (err) {
