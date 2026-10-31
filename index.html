@@ -18,62 +18,21 @@
 
   <header class="site-header">
     <a class="brand" href="index.html">
-      <span class="brand-mark" aria-hidden="true">◈</span>
+      <span class="brand-mark" aria-hidden="true"></span>
       HiFiPulse
     </a>
     <nav class="site-nav" aria-label="Main">
       <a href="index.html" aria-current="page">Speed test</a>
-      <a href="map.html">Live map</a>
+      <a href="map.html">Coverage map</a>
       <a href="guide.html">Wi-Fi guide</a>
     </nav>
   </header>
 
   <main>
     <div class="hero">
-      <h1>How fast is your <span class="title-accent">campus</span>, really?</h1>
-      <p>Run a 30-second test and add one anonymous point to the coverage map. No account, no tracking.</p>
+      <h1>Measure the connection you actually use.</h1>
+      <p>Test download, upload and latency at your exact campus location. Results help students see where connections hold up—and where they do not.</p>
     </div>
-
-    <section class="card" aria-labelledby="test-heading">
-      <h2 id="test-heading">Network test</h2>
-
-      <div class="gauge-grid">
-        <div class="metric">
-          <div class="metric-label">Download</div>
-          <div class="metric-value" id="val-download">—</div>
-          <span class="metric-unit">Mbps</span>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Upload</div>
-          <div class="metric-value" id="val-upload">—</div>
-          <span class="metric-unit">Mbps</span>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Ping</div>
-          <div class="metric-value" id="val-ping">—</div>
-          <span class="metric-unit">ms</span>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Jitter</div>
-          <div class="metric-value" id="val-jitter">—</div>
-          <span class="metric-unit">ms</span>
-        </div>
-      </div>
-
-      <div class="progress" role="progressbar" aria-label="Test progress" aria-valuemin="0" aria-valuemax="100">
-        <div id="progress-fill"></div>
-      </div>
-
-      <div class="actions">
-        <button type="button" class="btn" id="btn-start">Start test</button>
-        <button type="button" class="btn btn-ghost" id="btn-cancel" hidden>Cancel</button>
-      </div>
-
-      <p class="status" id="status" role="status" aria-live="polite">Ready when you are.</p>
-      <p class="phase" id="phase" aria-live="polite"></p>
-      <p class="hint" id="estimate"></p>
-      <aside class="tip-strip" aria-label="Connectivity tip"><span class="tip-icon" aria-hidden="true">✦</span><div><strong>While you test · Campus tip</strong><p id="test-tip" aria-live="polite">For a fair result, pause large downloads and stay in one place during the test.</p></div><button type="button" id="tip-next" aria-label="Next tip">→</button></aside>
-    </section>
 
     <section class="card" aria-labelledby="context-heading">
       <h2 id="context-heading">Where are you testing?</h2>
@@ -159,18 +118,59 @@
       </div>
       <p class="note" id="geo-status">
         Your location is requested when you start. Coordinates are rounded to about
-        110&nbsp;m before they leave this page, and your IP address is never stored.
+        110&nbsp;m before submission. The test uses Cloudflare endpoints, and any published result is approximate.
       </p>
       <p class="edge" id="edge"></p>
     </section>
 
+    <section class="card" aria-labelledby="test-heading">
+      <h2 id="test-heading">Network test</h2>
+
+      <div class="gauge-grid">
+        <div class="metric">
+          <div class="metric-label">Download</div>
+          <div class="metric-value" id="val-download">—</div>
+          <span class="metric-unit">Mbps</span>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Upload</div>
+          <div class="metric-value" id="val-upload">—</div>
+          <span class="metric-unit">Mbps</span>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Ping</div>
+          <div class="metric-value" id="val-ping">—</div>
+          <span class="metric-unit">ms</span>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Jitter</div>
+          <div class="metric-value" id="val-jitter">—</div>
+          <span class="metric-unit">ms</span>
+        </div>
+      </div>
+
+      <div class="progress" role="progressbar" aria-label="Test progress" aria-valuemin="0" aria-valuemax="100">
+        <div id="progress-fill"></div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="btn-start">Start test</button>
+        <button type="button" class="btn btn-ghost" id="btn-cancel" hidden>Cancel</button>
+      </div>
+
+      <p class="status" id="status" role="status" aria-live="polite">Ready when you are.</p>
+      <p class="phase" id="phase" aria-live="polite"></p>
+      <p class="hint" id="estimate"></p>
+      <aside class="tip-strip" aria-label="Connectivity tip"><div><strong>Connectivity note</strong><p id="test-tip" aria-live="polite">For a fair result, pause large downloads and stay in one place during the test.</p></div><button type="button" id="tip-next" aria-label="Next tip">→</button></aside>
+    </section>
+
     <section class="card" id="result" hidden aria-live="polite"></section>
-    <section class="guide-preview"><span class="guide-preview-icon" aria-hidden="true">◎</span><div><h2>A better connection starts with better habits.</h2><p>Learn how to ease congestion, find a stronger spot, and make the case for fair access across campus.</p></div><a class="btn btn-ghost" href="guide.html">Explore the Wi-Fi guide →</a></section>
+    <section class="guide-preview"><div><h2>Before your next lecture</h2><p>Practical advice for crowded networks, weak signals and safer hotspots.</p></div><a class="btn btn-ghost" href="guide.html">Explore the Wi-Fi guide →</a></section>
   </main>
 
   <footer>
     <p>
-      HiFiPulse collects only the numbers on this page plus a rounded location.
+      Submitted results include test metrics, the selected network and place, and an approximate location.
       <a href="map.html">See the live map</a>.
     </p>
   </footer>
