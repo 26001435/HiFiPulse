@@ -12,6 +12,7 @@
   <script src="config.js" defer></script>
   <script src="engine.js" defer></script>
   <script src="spots.js" defer></script>
+  <script src="places.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -30,7 +31,7 @@
 
   <main>
     <div class="hero">
-      <h1>Measure the connection you actually use.</h1>
+      <h1>Measure the connection <span class="heading-emphasis">you actually use.</span></h1>
       <p>Test download, upload and latency at your exact campus location. Results help students see where connections hold up—and where they do not.</p>
     </div>
 
@@ -49,68 +50,20 @@
       <p class="note provider-help">Choose the connection actually used for this test. Browsers cannot reliably identify your cellular carrier; switch off Wi-Fi before testing mobile data.</p>
 
       <div class="field-grid">
-        <label class="field">
-          Place
-          <select id="input-building">
-            <option value="">Select a place</option>
-            <option value="BILIK TUTORIAL BT 1">BILIK TUTORIAL BT 1</option>
-            <option value="BILIK TUTORIAL BT 2">BILIK TUTORIAL BT 2</option>
-            <option value="BILIK TUTORIAL BT 3">BILIK TUTORIAL BT 3</option>
-            <option value="BILIK TUTORIAL BT 4">BILIK TUTORIAL BT 4</option>
-            <option value="BILIK TUTORIAL BT 5">BILIK TUTORIAL BT 5</option>
-            <option value="BILIK TUTORIAL BT 6">BILIK TUTORIAL BT 6</option>
-            <option value="BILIK TUTORIAL BT 7">BILIK TUTORIAL BT 7</option>
-            <option value="BILIK TUTORIAL BT B">BILIK TUTORIAL BT B</option>
-            <option value="BILIK TUTORIAL BT 13">BILIK TUTORIAL BT 13</option>
-            <option value="BILIK TUTORIAL BT 15">BILIK TUTORIAL BT 15</option>
-            <option value="MAKMAL PENYELIDIKAN BAHAN">MAKMAL PENYELIDIKAN BAHAN</option>
-            <option value="STOR AAJ">STOR AAJ</option>
-            <option value="MAKMAL PENYELIDIKAN BIOLOGI">MAKMAL PENYELIDIKAN BIOLOGI</option>
-            <option value="BILIK PENSYARAH 3">BILIK PENSYARAH 3</option>
-            <option value="BILIK TUTORIAL ABT 1">BILIK TUTORIAL ABT 1</option>
-            <option value="BILIK TUTORIAL ABT 2">BILIK TUTORIAL ABT 2</option>
-            <option value="BILIK TUTORIAL ABT 3">BILIK TUTORIAL ABT 3</option>
-            <option value="BILIK TUTORIAL ABT 18">BILIK TUTORIAL ABT 18</option>
-            <option value="BILIK TUTORIAL ABT 11">BILIK TUTORIAL ABT 11</option>
-            <option value="BILIK TUTORIAL ABT 12">BILIK TUTORIAL ABT 12</option>
-            <option value="BILIK TUTORIAL ART 4">BILIK TUTORIAL ART 4</option>
-            <option value="BILIK TUTORIAL ART S">BILIK TUTORIAL ART S</option>
-            <option value="BILIK TUTORIAL ART &amp;">BILIK TUTORIAL ART &amp;</option>
-            <option value="BILIK TUTORIAL ART 7">BILIK TUTORIAL ART 7</option>
-            <option value="TUTORIAL ART">TUTORIAL ART</option>
-            <option value="BILIK TUTORIAL ART">BILIK TUTORIAL ART</option>
-            <option value="KEDAI CETAK">KEDAI CETAK</option>
-            <option value="BILIK KAWALAN AAJ">BILIK KAWALAN AAJ</option>
-            <option value="BILIK PENSYARAH 2">BILIK PENSYARAH 2</option>
-            <option value="BILIK SAKURA">BILIK SAKURA</option>
-            <option value="PANTRI STAFF">PANTRI STAFF</option>
-            <option value="BILIK MESYUARAT AAJ">BILIK MESYUARAT AAJ</option>
-            <option value="BILIK PENSYARAHN 1">BILIK PENSYARAHN 1</option>
-            <option value="STOR ICT AAJ">STOR ICT AAJ</option>
-            <option value="BILIK AVA">BILIK AVA</option>
-            <option value="BILIK JURUTEKNIK">BILIK JURUTEKNIK</option>
-            <option value="MAKMAL BAHASA">MAKMAL BAHASA</option>
-            <option value="BILIK SERVER ICT">BILIK SERVER ICT</option>
-            <option value="BILIK KETUA GURU JEPUN">BILIK KETUA GURU JEPUN</option>
-            <option value="BILIK PENYELARAS RPKJ">BILIK PENYELARAS RPKJ</option>
-            <option value="DEWAN ADK 1">DEWAN ADK 1</option>
-            <option value="DEWAN ADK 2">DEWAN ADK 2</option>
-            <option value="DEWAN KULIAH UTAMA">DEWAN KULIAH UTAMA</option>
-            <option value="MAKMAL FIZIK JEPUN">MAKMAL FIZIK JEPUN</option>
-            <option value="MAKMAL KIMIA JEPUN">MAKMAL KIMIA JEPUN</option>
-            <option value="custom">Other / custom place…</option>
-          </select>
-        </label>
+        <div class="field place-field">
+          <label for="input-building">Place</label>
+          <div class="place-combobox">
+            <input type="text" id="input-building" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="place-suggestions" autocomplete="off" maxlength="60" placeholder="Search or enter a place" spellcheck="false">
+            <ul id="place-suggestions" role="listbox" aria-label="Suggested places" hidden></ul>
+          </div>
+          <p class="note">Choose a suggestion to keep names consistent, or enter a new place.</p>
+        </div>
         <label class="field">
           Floor
           <input type="text" id="input-floor" maxlength="20" placeholder="e.g. 3" autocomplete="off">
         </label>
       </div>
 
-      <label class="field custom-place" id="custom-place-field" hidden>
-        Custom place name
-        <input type="text" id="input-custom-building" maxlength="60" placeholder="Enter your place name" autocomplete="off">
-      </label>
       <div class="study-optin"><label><input type="checkbox" id="input-suggest"> Suggest this place as a study spot</label>
         <label class="field" id="study-type-field" hidden>Type of study space
           <select id="input-space-type"><option value="cafe">Café</option><option value="study cube">Study cube</option><option value="bench">Bench</option><option value="lounge">Lounge / common area</option><option value="library">Library study area</option><option value="other">Other non-classroom space</option></select>
