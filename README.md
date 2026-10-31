@@ -23,3 +23,15 @@ Candidates appear immediately, but a "consistently good" blue map marker require
 ## Connectivity guide
 
 `guide.html` offers practical congestion-reduction habits, lecture-hall troubleshooting context, and a short digital-equity/SDG explainer with links to the NDIA, UN goals and Malaysia's Ministry of Digital. The speed test cycles contextual tips while it runs; users can also advance them manually. Wi-Fi capacity and cellular reception are different issues: neither can be diagnosed conclusively from a single browser speed test.
+
+## Network labels and comparison
+
+Before testing, choose the connection actually being used: Campus Wi-Fi, TM, U Mobile, CelcomDigi, Maxis, Tune Talk, OneXOX, REDtone, or Other / unsure. Carrier detection is **not automatic**: browsers do not reliably expose the cellular provider. A tester on mobile data should turn Wi-Fi off before testing; saved selection is only a convenience and must be checked each time. Provider names are self-reported and unverified.
+
+The map can filter by network, and the Compare networks tab aggregates median download speed and ping near PASUM, KK12 and KK11. It shows sample counts, marks groups with fewer than three tests as limited, and does not make coverage guarantees. Legacy unlabeled measurements are excluded from provider comparisons. The existing external Google Apps Script/sheet schema is not included in this repository: **provider labels are retained in device-local results, but cross-device comparison requires updating the remote write endpoint to store the new `provider` payload field and publishing a `Provider` column in the CSV**. Until then the UI must not be treated as a campus-wide provider survey.
+
+## Reported dead zones
+
+The coverage map includes a **Mark a dead zone** form for the selected network and issue (no signal, unable to connect, or connected but unusable). It requires an on-campus geolocation fix accurate within 200 m, rounds coordinates to three decimal places before storage, and draws a distinct red dashed ring. Reports are unverified observations, not measured network speed or an official outage. They are saved only in this browser, can be removed by the reporter, and are hidden from the historical time-of-day map; the network filter also applies to reports. No shared dead-zone database or server endpoint exists yet, so reports cannot be seen across devices. A report can be made after a test failed, provided the map page is reachable.
+
+The guide also includes a concise network lexicon, a Wi-Fi/cellular/upstream troubleshooting comparison, and safer hotspot/public-network habits. Speed-test tips use a shuffled deck: manual Next and automatic rotation draw from the same deck without repeating a tip until the deck is exhausted. Guidance distinguishes congestion from intentional throttling and warns that unknown open networks should be avoided while official campus Wi-Fi may still be appropriate.

@@ -9,19 +9,36 @@
   var engine = null;
   var running = false;
   var tipTimer = null;
-  var tipIndex = 0;
+  var currentTip = 0;
+  var tipBag = [];
   var tips = [
     "For a fair result, pause large downloads and stay in one place during the test.",
     "A crowded access point can slow Wi-Fi even when the router is working normally.",
     "Pause cloud backups and game updates until after peak lecture hours.",
     "Disconnect secondary devices you are not using; active downloads matter most.",
-    "Thick walls may weaken both Wi-Fi and cellular signals. Try a seat closer to an official access point.",
+    "Thick walls may weaken both Wi-Fi and cellular signals. Try a different seat.",
     "Download lecture materials before class when possible, then sync your work later.",
-    "One test is a snapshot. Compare several results at similar times before choosing a study spot."
+    "One test is a snapshot. Compare several results at similar times before choosing a study spot.",
+    "A dead zone is an area with little or no usable signal. A slow test alone does not prove one.",
+    "Tethering shares your phone’s mobile data with another device. Check your data allowance first.",
+    "Full Wi-Fi bars but no internet? The problem may be upstream, not the signal to the router.",
+    "Use only the official campus network. Avoid lookalike hotspots and unknown open Wi-Fi.",
+    "On an unfamiliar network, check for HTTPS and keep your device and browser updated.",
+    "Secure a personal hotspot with WPA2 or WPA3 and a unique passphrase, then turn it off when done.",
+    "A phone VPN does not necessarily cover a laptop using its hotspot; protect each device separately.",
+    "If mobile data is slow, move away from a windowless concrete room before blaming campus Wi-Fi."
   ];
   function nextTip() {
-    tipIndex = (tipIndex + 1) % tips.length;
-    $("test-tip").textContent = tips[tipIndex];
+    // Shuffle a full deck before repeating, avoiding back-to-back duplicates.
+    if (!tipBag.length) {
+      tipBag = tips.map(function (_, i) { return i; }).filter(function (i) { return i !== currentTip; });
+      for (var i = tipBag.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var swap = tipBag[i]; tipBag[i] = tipBag[j]; tipBag[j] = swap;
+      }
+    }
+    currentTip = tipBag.pop();
+    $("test-tip").textContent = tips[currentTip];
   }
 
   function $(id) {
@@ -189,6 +206,7 @@
       geoSource: source,
       building: (($("input-building").value === "custom" ? $("input-custom-building").value : $("input-building").value) || "").trim().slice(0, 60),
       floor: ($("input-floor").value || "").trim().slice(0, 20),
+      provider: $("input-provider").value,
       connection:
         (navigator.connection && navigator.connection.effectiveType) || "",
       device: isMobile() ? "mobile" : "desktop",
@@ -277,6 +295,11 @@
   /* ---- Main flow -------------------------------------------------------- */
   async function start() {
     if (running) return;
+    if (!$("input-provider").value) {
+      setStatus("Choose the network you are testing before starting.", "warn");
+      $("input-provider").focus();
+      return;
+    }
     running = true;
     nextTip();
     tipTimer = setInterval(nextTip, 6500);
@@ -380,13 +403,25 @@
 
   /* ---- Wiring ----------------------------------------------------------- */
   document.addEventListener("DOMContentLoaded", function () {
+    nextTip();
     var estimate = window.HifiPulseEngine.estimateMegabytes(cfg);
     $("estimate").textContent =
       "Uses up to ~" + estimate + " MB of data. On mobile data? Switch to Wi-Fi first.";
 
     $("btn-start").addEventListener("click", start);
+    try {
+      var savedProvider = localStorage.getItem("hifipulse:provider");
+      if (savedProvider && Array.from($("input-provider").options).some(function (o) { return o.value === savedProvider; }))
+        $("input-provider").value = savedProvider;
+    } catch (e) {}
+    $("input-provider").addEventListener("change", function () {
+      try { localStorage.setItem("hifipulse:provider", $("input-provider").value); } catch (e) {}
+    });
     $("btn-cancel").addEventListener("click", cancel);
-    $("tip-next").addEventListener("click", nextTip);
+    $("tip-next").addEventListener("click", function () {
+      nextTip();
+      if (tipTimer) { clearInterval(tipTimer); tipTimer = setInterval(nextTip, 6500); }
+    });
 
     /* Remember the location context across visits. */
     ["input-building", "input-custom-building", "input-floor"].forEach(function (id) {

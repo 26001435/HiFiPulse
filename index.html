@@ -78,6 +78,17 @@
     <section class="card" aria-labelledby="context-heading">
       <h2 id="context-heading">Where are you testing?</h2>
 
+      <label class="field provider-field" for="input-provider">Network being tested <span aria-hidden="true">*</span>
+        <select id="input-provider" required>
+          <option value="">Select the network you are using…</option>
+          <option>Campus Wi-Fi</option><option>TM</option><option>U Mobile</option>
+          <option>CelcomDigi</option><option>Maxis</option><option>Tune Talk</option>
+          <option>OneXOX</option><option>REDtone</option>
+          <option value="Other / unsure">Other / unsure</option>
+        </select>
+      </label>
+      <p class="note provider-help">Choose the connection actually used for this test. Browsers cannot reliably identify your cellular carrier; switch off Wi-Fi before testing mobile data.</p>
+
       <div class="field-grid">
         <label class="field">
           Place
