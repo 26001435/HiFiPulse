@@ -8,6 +8,21 @@
   var cfg = window.HIFIPULSE;
   var engine = null;
   var running = false;
+  var tipTimer = null;
+  var tipIndex = 0;
+  var tips = [
+    "For a fair result, pause large downloads and stay in one place during the test.",
+    "A crowded access point can slow Wi-Fi even when the router is working normally.",
+    "Pause cloud backups and game updates until after peak lecture hours.",
+    "Disconnect secondary devices you are not using; active downloads matter most.",
+    "Thick walls may weaken both Wi-Fi and cellular signals. Try a seat closer to an official access point.",
+    "Download lecture materials before class when possible, then sync your work later.",
+    "One test is a snapshot. Compare several results at similar times before choosing a study spot."
+  ];
+  function nextTip() {
+    tipIndex = (tipIndex + 1) % tips.length;
+    $("test-tip").textContent = tips[tipIndex];
+  }
 
   function $(id) {
     return document.getElementById(id);
@@ -172,7 +187,7 @@
       longitude: lon,
       accuracy: accuracy,
       geoSource: source,
-      building: ($("input-building").value || "").trim().slice(0, 60),
+      building: (($("input-building").value === "custom" ? $("input-custom-building").value : $("input-building").value) || "").trim().slice(0, 60),
       floor: ($("input-floor").value || "").trim().slice(0, 20),
       connection:
         (navigator.connection && navigator.connection.effectiveType) || "",
@@ -263,6 +278,8 @@
   async function start() {
     if (running) return;
     running = true;
+    nextTip();
+    tipTimer = setInterval(nextTip, 6500);
 
     $("btn-start").disabled = true;
     $("btn-cancel").hidden = false;
@@ -334,6 +351,9 @@
           localStorage.setItem("hifipulse:results", JSON.stringify(local.slice(0, 50)));
         } catch (e) { /* Private browsing or full storage: remote save still works. */ }
       }
+      if ($("input-suggest").checked && geo.ok && geo.accuracy <= 200 && payload.building) {
+        window.HifiSpots.add(payload.building, $("input-space-type").value, payload.latitude, payload.longitude);
+      }
       var outcome = await submit(payload);
       setPhase("");
       reportSubmission(outcome);
@@ -346,6 +366,8 @@
         setPhase("");
       }
     } finally {
+      clearInterval(tipTimer);
+      tipTimer = null;
       running = false;
       $("btn-start").disabled = false;
       $("btn-cancel").hidden = true;
@@ -364,9 +386,10 @@
 
     $("btn-start").addEventListener("click", start);
     $("btn-cancel").addEventListener("click", cancel);
+    $("tip-next").addEventListener("click", nextTip);
 
     /* Remember the location context across visits. */
-    ["input-building", "input-floor"].forEach(function (id) {
+    ["input-building", "input-custom-building", "input-floor"].forEach(function (id) {
       var el = $(id);
       try {
         var saved = localStorage.getItem("hifipulse:" + id);
@@ -379,6 +402,15 @@
           localStorage.setItem("hifipulse:" + id, el.value);
         } catch (e) {}
       });
+    });
+
+    function toggleCustomPlace() {
+      $("custom-place-field").hidden = $("input-building").value !== "custom";
+    }
+    $("input-building").addEventListener("change", toggleCustomPlace);
+    toggleCustomPlace();
+    $("input-suggest").addEventListener("change", function () {
+      $("study-type-field").hidden = !$("input-suggest").checked;
     });
 
     if (!cfg.submitUrl || cfg.submitUrl.indexOf("PASTE_YOUR_") === 0) {
