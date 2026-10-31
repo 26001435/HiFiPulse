@@ -82,8 +82,8 @@ window.HIFIPULSE = {
    * ----------------------------------------------------------------------*/
   map: {
     refreshMs: 60000,
-    center: [20, 0],
-    zoom: 2,
+    center: [3.126, 101.660],
+    zoom: 16,
     /* Markers whose GPS accuracy is worse than this (metres) are drawn
        hollow, so a city-level fallback is never mistaken for a precise fix. */
     preciseAccuracyM: 2000,
