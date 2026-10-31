@@ -4,6 +4,9 @@
   var core = window.HifiRankingsCore;
   var records = [];
   function $(id) { return document.getElementById(id); }
+  function speed(value) {
+    return value > 0 && value < 0.01 ? value.toFixed(6) : value < 1 ? value.toFixed(4) : value.toFixed(1);
+  }
   function node(tag, cls, text) {
     var el = document.createElement(tag);
     if (cls) el.className = cls;
@@ -35,7 +38,7 @@
     var today = core.dateKey(now);
     var todayRecords = records.filter(function (r) { return core.dateKey(r.timestamp) === today; });
     var best = core.leaderboard(records, 'today', now)[0];
-    $('daily-speed').textContent = best ? best.download.toFixed(1) + ' Mbps' : '—';
+    $('daily-speed').textContent = best ? speed(best.download) + ' Mbps' : '—';
     $('daily-detail').textContent = best ? place(best) + ' · ' + core.clock(best.timestamp) : 'No Campus Wi-Fi tests recorded today.';
     $('daily-count').textContent = String(todayRecords.length);
     var top = core.leaderboard(records, $('rank-period').value, now);
@@ -51,7 +54,7 @@
       details.appendChild(node('strong','',place(r)));
       details.appendChild(node('span','',new Date(r.timestamp).toLocaleDateString('en-MY', { timeZone:'Asia/Kuala_Lumpur', day:'numeric', month:'short', year:'numeric' }) + ' · ' + core.clock(r.timestamp) + (r.ping === null ? '' : ' · ' + Math.round(r.ping) + ' ms ping')));
       item.appendChild(details);
-      item.appendChild(node('strong','rank-speed',r.download.toFixed(1) + ' Mbps'));
+      item.appendChild(node('strong','rank-speed',speed(r.download) + ' Mbps'));
       list.appendChild(item);
     });
   }
@@ -60,7 +63,7 @@
     var eligible = hours.filter(function (h) { return h.count >= 3; }).sort(function (a,b) { return b.average-a.average || b.count-a.count; });
     var best = eligible[0];
     $('best-hour').textContent = best ? String(best.hour).padStart(2,'0') + ':00' : '—';
-    $('best-hour-detail').textContent = best ? best.average.toFixed(1) + ' Mbps average · ' + best.count + ' tests in 30 days (MYT)' : 'No hour has at least 3 measurements yet.';
+    $('best-hour-detail').textContent = best ? speed(best.average) + ' Mbps average · ' + best.count + ' tests in 30 days (MYT)' : 'No hour has at least 3 measurements yet.';
     var host = $('hourly-results'); host.replaceChildren();
     hours.forEach(function (h) {
       var row = node('div','hour-row');
@@ -69,7 +72,7 @@
       var bar = node('span','hour-fill');
       bar.style.width = h.average === null ? '0%' : Math.max(2, Math.min(100, h.average / Math.max(50, ...hours.map(function (v) { return v.average || 0; })) * 100)) + '%';
       track.appendChild(bar); row.appendChild(track);
-      row.appendChild(node('span','hour-figure',h.count ? h.average.toFixed(1) + ' Mbps · ' + h.count : 'No tests'));
+      row.appendChild(node('span','hour-figure',h.count ? speed(h.average) + ' Mbps · ' + h.count : 'No tests'));
       host.appendChild(row);
     });
   }
@@ -109,7 +112,7 @@
       card.appendChild(node('span','spot-rank','#' + (i+1) + ' · ' + r.spot.type));
       card.appendChild(node('h3','',r.spot.name));
       card.appendChild(node('p','space-status',r.strong ? 'Consistently good coverage' : r.ranked ? 'Measured · variable coverage' : 'Awaiting repeat tests'));
-      if (r.median !== null) card.appendChild(node('p','space-speed',r.median.toFixed(1) + ' Mbps median'));
+      if (r.median !== null) card.appendChild(node('p','space-speed',speed(r.median) + ' Mbps median'));
       card.appendChild(node('p','note',r.count + ' matching Campus Wi-Fi test' + (r.count === 1 ? '' : 's') + ' in 30 days' + (r.ranked ? ' · across 2+ days' : ' · 3 tests across 2 days needed')));
       var link = node('a','space-map-link','View map →');
       link.href = 'map.html?lat=' + encodeURIComponent(r.spot.lat) + '&lon=' + encodeURIComponent(r.spot.lon);

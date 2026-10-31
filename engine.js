@@ -92,27 +92,41 @@
     };
 
     onPhase("latency");
-    /* The trace request is tiny and independent — start it alongside the
-       latency probes rather than paying for it serially. */
+    // Metadata must not hold up a test on an unusable connection.
     var tracePromise = this._trace(signal);
-
-    var lat = await this._latency(signal, onProgress);
-    result.ping = lat.ping;
-    result.jitter = lat.jitter;
-    result.edge = await tracePromise;
+    try {
+      var lat = await this._latency(signal, onProgress);
+      result.ping = lat.ping;
+      result.jitter = lat.jitter;
+    } catch (err) {
+      if (signal.aborted) throw abortError();
+      // A failed latency probe does not rule out a useful download sample.
+    }
 
     onPhase("download");
-    result.download = await this._download(signal, onProgress);
-
-    onPhase("upload");
     try {
-      result.upload = await this._upload(signal, onProgress);
+      result.download = await this._download(signal, onProgress);
     } catch (err) {
-      /* Upload can legitimately fail (blocked POST, corporate proxy). That is
-         not a reason to throw away a valid download measurement. */
       if (signal.aborted) throw abortError();
-      result.upload = null;
+      // No reliable download measurement: record the attempt, not 0 Mbps.
+      result.testStatus = "incomplete";
+      result.failureReason = "Download could not be measured";
     }
+
+    if (result.download !== null) {
+      onPhase("upload");
+      try {
+        result.upload = await this._upload(signal, onProgress);
+      } catch (err) {
+        if (signal.aborted) throw abortError();
+        result.upload = null;
+      }
+    }
+    // Do not wait indefinitely for optional edge metadata.
+    result.edge = await Promise.race([
+      tracePromise, new Promise(function (resolve) { setTimeout(function () { resolve({}); }, 1200); })
+    ]);
+    if (signal.aborted) throw abortError();
 
     onPhase("done");
     return result;
@@ -130,9 +144,18 @@
         r: randomToken()
       });
       var t0 = now();
-      var res = await fetch(url, { cache: "no-store", signal: signal });
-      if (!res.ok) throw new Error("Latency probe failed (HTTP " + res.status + ")");
-      await res.arrayBuffer();
+      var probe = new AbortController();
+      var onAbort = function () { probe.abort(); };
+      signal.addEventListener("abort", onAbort, { once: true });
+      var timer = setTimeout(function () { probe.abort(); }, 3000);
+      try {
+        var res = await fetch(url, { cache: "no-store", signal: probe.signal });
+        if (!res.ok) throw new Error("Latency probe failed (HTTP " + res.status + ")");
+        await res.arrayBuffer();
+      } finally {
+        clearTimeout(timer);
+        signal.removeEventListener("abort", onAbort);
+      }
       var dt = now() - t0;
 
       /* The first probe pays for DNS + TCP + TLS. Exclude it. */
@@ -141,7 +164,8 @@
         phase: "latency",
         sample: i + 1,
         total: total,
-        ping: median(samples)
+        ping: median(samples),
+        jitter: samples.length > 1 ? meanJitter(samples) : null
       });
     }
 
@@ -173,7 +197,7 @@
   /* ---- Download --------------------------------------------------------- */
   HifiPulseEngine.prototype._download = async function (signal, onProgress) {
     var t = this.cfg.test;
-    var counter = { bytes: 0 };
+    var counter = { bytes: 0, reserved: 0 };
     var stopped = false;
     var ctrl = new AbortController();
 
@@ -208,9 +232,11 @@
 
     var self = this;
     var pump = async function () {
-      while (!stopped && counter.bytes < t.maxDownloadBytes) {
+      while (!stopped && counter.reserved < t.maxDownloadBytes) {
+        var chunk = Math.min(t.downloadChunkBytes, t.maxDownloadBytes - counter.reserved);
+        counter.reserved += chunk;
         var url = joinUrl(self.cfg.endpoints.download, {
-          bytes: t.downloadChunkBytes,
+          bytes: chunk,
           r: randomToken()
         });
         var res = await fetch(url, { cache: "no-store", signal: ctrl.signal });
@@ -258,12 +284,15 @@
     if (signal && signal.aborted) throw abortError();
 
     var finish = now();
-    var from = warmAt || start;
-    var fromBytes = warmAt ? warmBytes : 0;
+    // If all bytes arrived during warmup, use the full transfer instead of
+    // discarding an otherwise valid fast result.
+    var useWarmup = warmAt && counter.bytes > warmBytes;
+    var from = useWarmup ? warmAt : start;
+    var fromBytes = useWarmup ? warmBytes : 0;
     var seconds = Math.max((finish - from) / 1000, 0.001);
     var bits = (counter.bytes - fromBytes) * 8;
 
-    if (counter.bytes === 0) throw new Error("Download produced no data");
+    if (counter.bytes === 0 || bits <= 0) throw new Error("Download produced no measurable data");
     return bits / seconds / 1e6;
   };
 
@@ -282,40 +311,62 @@
       }
     }
 
+    var ctrl = new AbortController();
+    var onAbort = function () { ctrl.abort(); };
+    signal.addEventListener("abort", onAbort, { once: true });
+    var timer = setTimeout(function () { ctrl.abort(); }, t.uploadTimeoutMs || 8000);
     var best = 0;
-    for (var r = 0; r < t.uploadRounds; r++) {
-      onProgress({
-        phase: "upload",
-        round: r + 1,
-        rounds: t.uploadRounds,
-        mbps: best || null
-      });
+    try {
+      for (var r = 0; r < t.uploadRounds; r++) {
+        onProgress({
+          phase: "upload",
+          round: r + 1,
+          rounds: t.uploadRounds,
+          mbps: best || null
+        });
 
-      var t0 = now();
-      var res = await fetch(this.cfg.endpoints.upload, {
-        method: "POST",
-        body: payload,
-        cache: "no-store",
-        signal: signal
-      });
-      if (!res.ok) throw new Error("Upload failed (HTTP " + res.status + ")");
-      try {
-        await res.arrayBuffer();
-      } catch (e) {
-        /* Body is irrelevant; we only needed the round-trip. */
+        var t0 = now();
+        var res = await fetch(this.cfg.endpoints.upload, {
+          method: "POST",
+          body: payload,
+          cache: "no-store",
+          signal: ctrl.signal
+        });
+        if (!res.ok) throw new Error("Upload failed (HTTP " + res.status + ")");
+        try {
+          await res.arrayBuffer();
+        } catch (e) {
+          /* Body is irrelevant; we only needed the round-trip. */
+        }
+
+        var seconds = Math.max((now() - t0) / 1000, 0.001);
+        best = Math.max(best, (payload.length * 8) / seconds / 1e6);
+        onProgress({
+          phase: "upload",
+          round: r + 1,
+          rounds: t.uploadRounds,
+          mbps: best
+        });
       }
 
-      var seconds = Math.max((now() - t0) / 1000, 0.001);
-      best = Math.max(best, (payload.length * 8) / seconds / 1e6);
-      onProgress({
-        phase: "upload",
-        round: r + 1,
-        rounds: t.uploadRounds,
-        mbps: best
-      });
+    } finally {
+      clearTimeout(timer);
+      signal.removeEventListener("abort", onAbort);
     }
 
     return best;
+  };
+
+  HifiPulseEngine.withProfile = function (config, mode) {
+    if (mode !== "light" && mode !== "heavy") throw new Error("Unknown test profile");
+    var test = Object.assign({}, config.test);
+    if (mode === "light") Object.assign(test, {
+      downloadStreams: 1, downloadChunkBytes: 1024 * 1024,
+      maxDownloadBytes: 6 * 1024 * 1024, downloadWarmupMs: 0,
+      downloadDurationMs: 5000, uploadBytes: 2 * 1024 * 1024,
+      uploadRounds: 1, uploadTimeoutMs: 5000, latencySamples: 4
+    });
+    return Object.assign({}, config, { test: test });
   };
 
   /* Rough per-test data cost, used by the UI to warn mobile users. */

@@ -447,3 +447,46 @@ footer p { margin: 0; }
   .nav-dropdown .nav-menu { animation: none !important; }
   .nav-chevron { transition: none; }
 }
+
+.test-profile { max-width: 340px; margin-bottom: 18px; }
+
+.incomplete-filter { display: inline-flex; gap: 9px; align-items: center; font-size: .86rem; margin-top: 8px; }
+
+/* Location counts sit on markers without swallowing map clicks. */
+.leaflet-tooltip.map-cluster-count { pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 50%; box-shadow: none; font-size: .74rem; font-weight: 750; min-width: 22px; height: 22px; padding: 1px 4px; text-align: center; line-height: 18px; }
+.leaflet-tooltip.map-cluster-count::before { display: none; }
+.group-test { border-top: 1px solid var(--line); padding: 7px 0; margin: 0; font-size: .8rem; }
+
+/* Test feedback is driven by real samples, without a looping or decorative animation. */
+.test-steps { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0; max-width: 740px; padding: 0; margin: 0 0 24px; list-style: none; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.test-steps li { color: var(--muted); padding: 10px 7px 11px; font-size: .76rem; font-variant-numeric: tabular-nums; }
+.test-steps li + li { border-left: 1px solid var(--line); }
+.test-steps li span { display: block; font-size: .89rem; font-weight: 650; }
+.test-steps li[data-state="active"] { background: var(--green-light); color: var(--green); }
+.test-steps li[data-state="done"] { color: var(--green); }
+.test-steps li[data-state="skipped"] { color: var(--ochre); }
+.live-trend { max-width: 740px; margin: -3px 0 22px; }
+.live-trend-heading { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 20px; font-size: .82rem; color: var(--muted); }
+.live-trend-heading strong { color: var(--ink); }
+#trend-chart { display: block; width: 100%; height: 105px; color: var(--green); border-bottom: 1px solid var(--line); }
+.live-trend .note { margin-top: 6px; }
+@media (max-width: 440px) { .test-steps li span { font-size: .74rem; } .test-steps li { font-size: .7rem; } }
+@media (prefers-reduced-motion: reduce) { #progress-fill { transition: none; } }
+
+.btn-again { margin-right: 18px; }
+
+/* Discrete, threshold-based quality meters: no gradient or invented speed. */
+.quality-track { height: 9px; margin-top: 16px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.quality-fill { display: block; width: 0; height: 100%; background: var(--muted); transition: width .3s ease-out, background-color .3s ease-out; }
+.metric[data-quality="poor"] .quality-fill { background: var(--danger); }
+.metric[data-quality="fair"] .quality-fill { background: var(--ochre); }
+.metric[data-quality="excellent"] .quality-fill { background: var(--green); }
+.quality-label { display: block; min-height: 1.4em; margin-top: 7px; color: var(--muted); font-size: .75rem; font-weight: 650; }
+.metric[data-quality="poor"] .quality-label { color: var(--danger); }
+.metric[data-quality="fair"] .quality-label { color: var(--ochre); }
+.metric[data-quality="excellent"] .quality-label { color: var(--green); }
+.quality-guide { margin: -8px 0 24px; max-width: 740px; font-size: .83rem; color: var(--muted); }
+.quality-guide summary { cursor: pointer; color: var(--green); font-weight: 650; }
+.quality-guide p { margin: 12px 0 7px; }
+.quality-guide ul { margin: 0; padding-left: 20px; }
+@media (prefers-reduced-motion: reduce) { .quality-fill { transition: none; } }

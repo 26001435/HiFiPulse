@@ -36,6 +36,7 @@
   function normalise(row, check) {
     var lat = number(field(row, ['Latitude', 'lat']));
     var lon = number(field(row, ['Longitude', 'lon', 'lng']));
+    if (field(row, ['Test Status', 'testStatus', 'test_status']) === 'incomplete') return null;
     var download = number(field(row, ['Download', 'Download (Mbps)']));
     var timestamp = Date.parse(field(row, ['Timestamp', 'Time', 'Date']));
     // This is a UM pilot. Do not rank tests elsewhere, future tests, or

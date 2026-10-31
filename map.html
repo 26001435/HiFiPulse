@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>HiFiPulse — Live Coverage Map</title>
-  <meta name="description" content="Live, crowd-sourced campus network map. Every marker is one anonymous speed test.">
+  <meta name="description" content="Live, crowd-sourced campus network map. Nearby rounded measurements are grouped into approximate location markers.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; connect-src 'self' https://docs.google.com https://*.googleusercontent.com; font-src 'self'; base-uri 'none'; form-action 'none'">
   <link rel="stylesheet" href="theme.css">
   <script src="theme.js" defer></script>
@@ -15,6 +15,7 @@
   <script src="config.js" defer></script>
   <script src="csv.js" defer></script>
   <script src="place-check.js" defer></script>
+  <script src="map-clusters.js" defer></script>
   <script src="map.js" defer></script>
   <script src="insights.js" defer></script>
 </head>
@@ -40,7 +41,7 @@
   <main class="wide">
     <div class="hero">
       <h1>The campus, <span class="heading-emphasis">measured.</span></h1>
-      <p>Explore student measurements around PASUM, KK12 and KK11. Each point represents a test, not a coverage guarantee.</p>
+      <p>Explore student measurements around PASUM, KK12 and KK11. Nearby tests are grouped by approximate position, not by verified building. A marker is not a coverage guarantee.</p>
     </div>
 
     <div class="view-tabs" role="tablist" aria-label="Explore campus data">
@@ -79,6 +80,8 @@
         </div>
       </div>
 
+      <label class="incomplete-filter"><input id="show-incomplete" type="checkbox" checked> Show incomplete tests (speed unknown)</label>
+      <p class="note">An incomplete test means the download could not be measured. It is not a 0 Mbps measurement or a verified outage.</p>
       <div class="provider-map-filter"><label for="map-provider">Network</label>
         <select id="map-provider"><option value="all">All networks</option></select>
         <span>Unlabelled older tests appear only in “All networks”.</span>
@@ -111,9 +114,11 @@
       </details>
 
       <div class="legend" id="legend" aria-label="Legend"></div>
+      <p class="note">Numbered markers group nearby tests within about 160 m of an anchor point. Positions are averages of rounded coordinates, not exact rooms or verified place names. Open a marker for individual results.</p>
 
       <div class="stats">
-        <span>Results shown <b id="stat-count">0</b></span>
+        <span>Tests shown <b id="stat-count">0</b></span>
+        <span>Map locations <b id="stat-locations">0</b></span>
         <span>Average download <b id="stat-avg">—</b></span>
         <span>Median ping <b id="stat-ping">—</b></span>
         <span>Updated <b id="stat-updated">—</b></span>
