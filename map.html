@@ -14,6 +14,7 @@
   <script src="config.js" defer></script>
   <script src="csv.js" defer></script>
   <script src="map.js" defer></script>
+  <script src="insights.js" defer></script>
 </head>
 <body>
 
@@ -31,9 +32,15 @@
   <main class="wide">
     <div class="hero">
       <h1>Campus coverage, measured by students</h1>
-      <p>Each dot is one anonymous test. Green is fast, amber is workable, red needs attention.</p>
+      <p>Explore measured connections around PASUM, KK12 and KK11. Green is fast, amber is workable, red needs attention.</p>
     </div>
 
+    <div class="view-tabs" role="tablist" aria-label="Explore campus data">
+      <button type="button" role="tab" id="tab-map" aria-controls="panel-map" aria-selected="true" tabindex="0">Coverage map</button>
+      <button type="button" role="tab" id="tab-spaces" aria-controls="panel-spaces" aria-selected="false" tabindex="-1">Study spaces</button>
+      <button type="button" role="tab" id="tab-history" aria-controls="panel-history" aria-selected="false" tabindex="-1">Speed history</button>
+    </div>
+    <div id="panel-map" role="tabpanel" aria-labelledby="tab-map">
     <section class="card" aria-labelledby="map-heading">
       <h2 id="map-heading">Live results</h2>
 
@@ -64,7 +71,9 @@
         </div>
       </div>
 
-      <div class="map-tools"><button type="button" class="btn btn-ghost" id="btn-locate">◎ Find my location</button><span id="location-status" role="status"></span></div>
+      <div class="map-tools"><div class="zone-links" role="group" aria-label="Focus map area">
+        <button type="button" data-zone="all">Campus</button><button type="button" data-zone="pasum">PASUM</button><button type="button" data-zone="kk12">KK12</button><button type="button" data-zone="kk11">KK11</button>
+      </div><button type="button" class="btn btn-ghost" id="btn-locate">◎ Find my location</button><span id="location-status" role="status"></span></div>
       <div class="banner" id="banner" hidden></div>
 
       <div id="map" role="application" aria-label="Map of speed test results"></div>
@@ -79,6 +88,20 @@
       </div>
 
       <p class="note" id="status-line" role="status" aria-live="polite"></p>
+    </section>
+    </div>
+    <section class="card" id="panel-spaces" role="tabpanel" aria-labelledby="tab-spaces" hidden>
+      <h2>Find a study zone</h2>
+      <p class="note">Recommendations use measured download speed and ping near each area, not live seat availability. No test data means no rating.</p>
+      <div id="spaces-list" class="insight-grid"></div>
+    </section>
+    <section class="card" id="panel-history" role="tabpanel" aria-labelledby="tab-history" hidden>
+      <h2>Wi-Fi speed history</h2>
+      <p class="note">Daily median download speed from crowdsourced tests. A small sample is not a prediction of future performance.</p>
+      <label class="field history-select">Area <select id="history-zone"><option value="all">PASUM + KK11 + KK12</option><option value="pasum">PASUM</option><option value="kk12">KK12</option><option value="kk11">KK11</option></select></label>
+      <div id="history-summary" class="history-summary"></div>
+      <div id="history-chart" class="history-chart" role="img" aria-label="Daily median download speeds"></div>
+      <div id="history-table"></div>
     </section>
   </main>
 

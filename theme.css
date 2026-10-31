@@ -671,3 +671,24 @@ main { max-width:900px; padding-top:48px; } main.wide { max-width:1180px; }
 .map-tools { display:flex; align-items:center; gap:16px; margin:14px 0; color:var(--muted); font-size:.85rem; }
 #map { background:#142b2e; }
 @media(max-width:600px) { .hero { padding-top:0; } .card { padding:20px; } .map-tools { flex-wrap:wrap; } }
+
+.view-tabs { display:flex; gap:8px; overflow-x:auto; margin:0 0 18px; padding-bottom:4px; }
+.view-tabs button, .zone-links button { font:inherit; cursor:pointer; color:var(--muted); background:rgba(10,32,38,.8); border:1px solid var(--border); border-radius:12px; padding:10px 18px; white-space:nowrap; }
+.view-tabs button[aria-selected="true"], .zone-links button:hover { color:#072c30; background:#78e9bd; border-color:#78e9bd; }
+[hidden] { display:none !important; }
+.zone-links { display:flex; flex-wrap:wrap; gap:6px; }
+.zone-links button { padding:7px 12px; font-size:.82rem; }
+.insight-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.space-card { border:1px solid var(--border); border-radius:16px; background:rgba(2,20,24,.5); padding:22px; display:flex; flex-direction:column; align-items:flex-start; }
+.space-card h3 { margin:0 0 16px; font-size:1.35rem; }
+.space-status { color:#78e9bd; font-weight:700; margin:0 0 6px; }
+.space-speed { font-size:1.5rem; font-weight:700; margin:4px 0; }
+.space-card .btn { margin-top:auto; padding:9px 15px; font-size:.85rem; }
+.history-select { max-width:310px; margin:20px 0; }
+.history-summary { color:var(--muted); margin:15px 0; }
+.history-chart { display:flex; align-items:flex-end; gap:8px; min-height:180px; height:180px; padding:12px; border-bottom:1px solid var(--border); background:rgba(2,20,24,.35); border-radius:12px 12px 0 0; }
+.history-bar { flex:1; min-width:8px; background:linear-gradient(#78e9bd,#299ba4); border-radius:5px 5px 0 0; }
+.history-table { width:100%; border-collapse:collapse; font-size:.9rem; margin-top:20px; }
+.history-table th,.history-table td { text-align:left; padding:10px; border-bottom:1px solid var(--border); }
+.history-table th { color:#78e9bd; }
+@media(max-width:700px) { .insight-grid { grid-template-columns:1fr; } .map-tools { align-items:flex-start; } }

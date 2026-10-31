@@ -237,7 +237,7 @@
     });
 
     if (!fitted && bounds.length) {
-      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
+      // Stay focused on UM rather than flying to an unrelated global result.
       fitted = true;
     }
 
@@ -332,10 +332,12 @@
       $("status-line").textContent =
         records.length + (records.length === 1 ? " result" : " results") + " loaded.";
       render();
+      window.dispatchEvent(new CustomEvent("hifipulse:records", { detail: records.slice() }));
     } catch (err) {
       records = localRecords();
       lastLoaded = Date.now();
       render();
+      window.dispatchEvent(new CustomEvent("hifipulse:records", { detail: records.slice() }));
       $("status-line").textContent = records.length
         ? "Showing results saved on this device. Community feed unavailable."
         : "Community feed unavailable. Run a test to add a local result.";
@@ -381,6 +383,13 @@
     });
     $("range").addEventListener("change", render);
     $("btn-refresh").addEventListener("click", load);
+    document.querySelectorAll("[data-zone]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var zone = window.HifiZones[button.dataset.zone];
+        map.setView(zone.center, zone.zoom || 17);
+      });
+    });
+    window.addEventListener("hifipulse:map-visible", function () { map.invalidateSize(); });
     $("btn-locate").addEventListener("click", function () {
       var status = $("location-status");
       if (!navigator.geolocation) { status.textContent = "Location is not supported here."; return; }
