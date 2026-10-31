@@ -25,9 +25,11 @@
   }).addTo(map);
 
   var layer = L.layerGroup().addTo(map);
+  var spotLayer = L.layerGroup().addTo(map);
   var records = [];
   var fitted = false;
   var lastLoaded = null;
+  var selectedHour = null;
 
   /* ---- Column resolution -------------------------------------------------
    * The sheet has been through a couple of header conventions
@@ -206,6 +208,8 @@
     var bounds = [];
 
     records.forEach(function (rec) {
+      if (selectedHour !== null && (rec.lat < 3.120 || rec.lat > 3.133 || rec.lon < 101.655 || rec.lon > 101.665)) return;
+      if (selectedHour !== null && selectedHour >= 0 && (!rec.ts || Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kuala_Lumpur", hour: "2-digit", hourCycle: "h23" }).format(rec.ts)) !== selectedHour)) return;
       if (cutoff !== null && rec.ts !== null && rec.ts < cutoff) return;
 
       var tier = tierFor(rec.download === null ? 0 : rec.download);
@@ -382,7 +386,25 @@
       input.addEventListener("change", render);
     });
     $("range").addEventListener("change", render);
+    window.addEventListener("hifipulse:hour", function (event) {
+      selectedHour = event.detail;
+      render();
+    });
     $("btn-refresh").addEventListener("click", load);
+    window.addEventListener("hifipulse:spots", function (event) {
+      spotLayer.clearLayers();
+      event.detail.forEach(function (spot) {
+        var marker = L.circleMarker([spot.lat, spot.lon], {
+          radius: 12, color: "#fff", weight: 2.5, fillColor: "#43c5e4", fillOpacity: .95
+        });
+        var label = document.createElement("div");
+        label.appendChild(document.createTextNode("✦ Verified study spot · " + spot.name));
+        marker.bindPopup(label).addTo(spotLayer);
+      });
+    });
+    window.addEventListener("hifipulse:focus-spot", function (event) {
+      map.setView([event.detail.lat, event.detail.lon], 18);
+    });
     document.querySelectorAll("[data-zone]").forEach(function (button) {
       button.addEventListener("click", function () {
         var zone = window.HifiZones[button.dataset.zone];

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="light">
   <title>HiFiPulse — Campus Speed Test</title>
   <meta name="description" content="Measure your campus network and contribute an anonymous data point to the live coverage map.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://speed.cloudflare.com https://cloudflare.com https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'">
@@ -11,6 +11,7 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <script src="config.js" defer></script>
   <script src="engine.js" defer></script>
+  <script src="spots.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -23,6 +24,7 @@
     <nav class="site-nav" aria-label="Main">
       <a href="index.html" aria-current="page">Speed test</a>
       <a href="map.html">Live map</a>
+      <a href="guide.html">Wi-Fi guide</a>
     </nav>
   </header>
 
@@ -70,6 +72,7 @@
       <p class="status" id="status" role="status" aria-live="polite">Ready when you are.</p>
       <p class="phase" id="phase" aria-live="polite"></p>
       <p class="hint" id="estimate"></p>
+      <aside class="tip-strip" aria-label="Connectivity tip"><span class="tip-icon" aria-hidden="true">✦</span><div><strong>While you test · Campus tip</strong><p id="test-tip" aria-live="polite">For a fair result, pause large downloads and stay in one place during the test.</p></div><button type="button" id="tip-next" aria-label="Next tip">→</button></aside>
     </section>
 
     <section class="card" aria-labelledby="context-heading">
@@ -77,8 +80,56 @@
 
       <div class="field-grid">
         <label class="field">
-          Building
-          <input type="text" id="input-building" maxlength="60" placeholder="e.g. Main Library" autocomplete="off">
+          Place
+          <select id="input-building">
+            <option value="">Select a place</option>
+            <option value="BILIK TUTORIAL BT 1">BILIK TUTORIAL BT 1</option>
+            <option value="BILIK TUTORIAL BT 2">BILIK TUTORIAL BT 2</option>
+            <option value="BILIK TUTORIAL BT 3">BILIK TUTORIAL BT 3</option>
+            <option value="BILIK TUTORIAL BT 4">BILIK TUTORIAL BT 4</option>
+            <option value="BILIK TUTORIAL BT 5">BILIK TUTORIAL BT 5</option>
+            <option value="BILIK TUTORIAL BT 6">BILIK TUTORIAL BT 6</option>
+            <option value="BILIK TUTORIAL BT 7">BILIK TUTORIAL BT 7</option>
+            <option value="BILIK TUTORIAL BT B">BILIK TUTORIAL BT B</option>
+            <option value="BILIK TUTORIAL BT 13">BILIK TUTORIAL BT 13</option>
+            <option value="BILIK TUTORIAL BT 15">BILIK TUTORIAL BT 15</option>
+            <option value="MAKMAL PENYELIDIKAN BAHAN">MAKMAL PENYELIDIKAN BAHAN</option>
+            <option value="STOR AAJ">STOR AAJ</option>
+            <option value="MAKMAL PENYELIDIKAN BIOLOGI">MAKMAL PENYELIDIKAN BIOLOGI</option>
+            <option value="BILIK PENSYARAH 3">BILIK PENSYARAH 3</option>
+            <option value="BILIK TUTORIAL ABT 1">BILIK TUTORIAL ABT 1</option>
+            <option value="BILIK TUTORIAL ABT 2">BILIK TUTORIAL ABT 2</option>
+            <option value="BILIK TUTORIAL ABT 3">BILIK TUTORIAL ABT 3</option>
+            <option value="BILIK TUTORIAL ABT 18">BILIK TUTORIAL ABT 18</option>
+            <option value="BILIK TUTORIAL ABT 11">BILIK TUTORIAL ABT 11</option>
+            <option value="BILIK TUTORIAL ABT 12">BILIK TUTORIAL ABT 12</option>
+            <option value="BILIK TUTORIAL ART 4">BILIK TUTORIAL ART 4</option>
+            <option value="BILIK TUTORIAL ART S">BILIK TUTORIAL ART S</option>
+            <option value="BILIK TUTORIAL ART &amp;">BILIK TUTORIAL ART &amp;</option>
+            <option value="BILIK TUTORIAL ART 7">BILIK TUTORIAL ART 7</option>
+            <option value="TUTORIAL ART">TUTORIAL ART</option>
+            <option value="BILIK TUTORIAL ART">BILIK TUTORIAL ART</option>
+            <option value="KEDAI CETAK">KEDAI CETAK</option>
+            <option value="BILIK KAWALAN AAJ">BILIK KAWALAN AAJ</option>
+            <option value="BILIK PENSYARAH 2">BILIK PENSYARAH 2</option>
+            <option value="BILIK SAKURA">BILIK SAKURA</option>
+            <option value="PANTRI STAFF">PANTRI STAFF</option>
+            <option value="BILIK MESYUARAT AAJ">BILIK MESYUARAT AAJ</option>
+            <option value="BILIK PENSYARAHN 1">BILIK PENSYARAHN 1</option>
+            <option value="STOR ICT AAJ">STOR ICT AAJ</option>
+            <option value="BILIK AVA">BILIK AVA</option>
+            <option value="BILIK JURUTEKNIK">BILIK JURUTEKNIK</option>
+            <option value="MAKMAL BAHASA">MAKMAL BAHASA</option>
+            <option value="BILIK SERVER ICT">BILIK SERVER ICT</option>
+            <option value="BILIK KETUA GURU JEPUN">BILIK KETUA GURU JEPUN</option>
+            <option value="BILIK PENYELARAS RPKJ">BILIK PENYELARAS RPKJ</option>
+            <option value="DEWAN ADK 1">DEWAN ADK 1</option>
+            <option value="DEWAN ADK 2">DEWAN ADK 2</option>
+            <option value="DEWAN KULIAH UTAMA">DEWAN KULIAH UTAMA</option>
+            <option value="MAKMAL FIZIK JEPUN">MAKMAL FIZIK JEPUN</option>
+            <option value="MAKMAL KIMIA JEPUN">MAKMAL KIMIA JEPUN</option>
+            <option value="custom">Other / custom place…</option>
+          </select>
         </label>
         <label class="field">
           Floor
@@ -86,6 +137,15 @@
         </label>
       </div>
 
+      <label class="field custom-place" id="custom-place-field" hidden>
+        Custom place name
+        <input type="text" id="input-custom-building" maxlength="60" placeholder="Enter your place name" autocomplete="off">
+      </label>
+      <div class="study-optin"><label><input type="checkbox" id="input-suggest"> Suggest this place as a study spot</label>
+        <label class="field" id="study-type-field" hidden>Type of study space
+          <select id="input-space-type"><option value="cafe">Café</option><option value="study cube">Study cube</option><option value="bench">Bench</option><option value="lounge">Lounge / common area</option><option value="library">Library study area</option><option value="other">Other non-classroom space</option></select>
+        </label><p class="note">Only suitable non-classroom places. Your suggestion is stored on this device and needs repeat tests to earn a rating.</p>
+      </div>
       <p class="note" id="geo-status">
         Your location is requested when you start. Coordinates are rounded to about
         110&nbsp;m before they leave this page, and your IP address is never stored.
@@ -94,6 +154,7 @@
     </section>
 
     <section class="card" id="result" hidden aria-live="polite"></section>
+    <section class="guide-preview"><span class="guide-preview-icon" aria-hidden="true">◎</span><div><h2>A better connection starts with better habits.</h2><p>Learn how to ease congestion, find a stronger spot, and make the case for fair access across campus.</p></div><a class="btn btn-ghost" href="guide.html">Explore the Wi-Fi guide →</a></section>
   </main>
 
   <footer>

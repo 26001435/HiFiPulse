@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="light">
   <title>HiFiPulse — Live Coverage Map</title>
   <meta name="description" content="Live, crowd-sourced campus network map. Every marker is one anonymous speed test.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; connect-src 'self' https://docs.google.com https://*.googleusercontent.com; font-src 'self'; base-uri 'none'; form-action 'none'">
@@ -13,6 +13,7 @@
   <script src="vendor/leaflet.js" defer></script>
   <script src="config.js" defer></script>
   <script src="csv.js" defer></script>
+  <script src="spots.js" defer></script>
   <script src="map.js" defer></script>
   <script src="insights.js" defer></script>
 </head>
@@ -39,6 +40,7 @@
       <button type="button" role="tab" id="tab-map" aria-controls="panel-map" aria-selected="true" tabindex="0">Coverage map</button>
       <button type="button" role="tab" id="tab-spaces" aria-controls="panel-spaces" aria-selected="false" tabindex="-1">Study spaces</button>
       <button type="button" role="tab" id="tab-history" aria-controls="panel-history" aria-selected="false" tabindex="-1">Speed history</button>
+      <button type="button" role="tab" id="tab-time" aria-controls="panel-time" aria-selected="false" tabindex="-1">Time of day</button>
     </div>
     <div id="panel-map" role="tabpanel" aria-labelledby="tab-map">
     <section class="card" aria-labelledby="map-heading">
@@ -76,7 +78,7 @@
       </div><button type="button" class="btn btn-ghost" id="btn-locate">◎ Find my location</button><span id="location-status" role="status"></span></div>
       <div class="banner" id="banner" hidden></div>
 
-      <div id="map" role="application" aria-label="Map of speed test results"></div>
+      <div id="map-home"><div id="map" role="application" aria-label="Map of speed test results"></div></div>
 
       <div class="legend" id="legend" aria-label="Legend"></div>
 
@@ -91,9 +93,18 @@
     </section>
     </div>
     <section class="card" id="panel-spaces" role="tabpanel" aria-labelledby="tab-spaces" hidden>
-      <h2>Find a study zone</h2>
-      <p class="note">Recommendations use measured download speed and ping near each area, not live seat availability. No test data means no rating.</p>
-      <div id="spaces-list" class="insight-grid"></div>
+      <div class="section-heading"><div><p class="eyebrow">COMMUNITY PICKS</p><h2>Study spaces worth the walk</h2><p class="note">Cafés, study cubes, benches and lounges only. Rankings use recent verified tests, not seat availability.</p></div><span class="heading-icon" aria-hidden="true">✦</span></div>
+      <div class="spaces-layout"><div><div id="spaces-list" class="insight-grid" aria-live="polite"></div></div>
+      <aside class="suggest-panel"><span class="suggest-symbol" aria-hidden="true">＋</span><h3>Know a good spot?</h3>
+        <p>Suggest a place to study. Your suggestion appears on this device; it earns a Wi-Fi rating only after enough measurements.</p>
+        <form id="suggest-form">
+          <label class="field">Place name <input id="suggest-name" required maxlength="60" placeholder="e.g. Café near KK12"></label>
+          <label class="field">Space type <select id="suggest-type" required><option value="cafe">Café</option><option value="study cube">Study cube</option><option value="bench">Bench</option><option value="lounge">Lounge / common area</option><option value="library">Library study area</option><option value="other">Other non-classroom space</option></select></label>
+          <button type="submit" class="btn">Use my location &amp; suggest</button>
+          <p class="note">Location permission required. Approximate position is rounded before saving locally. Suggestions are not shared between devices.</p>
+          <p id="suggest-status" role="status" aria-live="polite"></p>
+        </form>
+      </aside></div>
     </section>
     <section class="card" id="panel-history" role="tabpanel" aria-labelledby="tab-history" hidden>
       <h2>Wi-Fi speed history</h2>
@@ -102,6 +113,16 @@
       <div id="history-summary" class="history-summary"></div>
       <div id="history-chart" class="history-chart" role="img" aria-label="Daily median download speeds"></div>
       <div id="history-table"></div>
+    </section>
+    <section class="card" id="panel-time" role="tabpanel" aria-labelledby="tab-time" hidden>
+      <h2>Coverage by time of day</h2>
+      <p class="note">Compare past measurements by hour in Malaysia time (MYT). This is historical data, not a live forecast; hours with no tests show no markers.</p>
+      <label class="field history-select">Hour (MYT)
+        <select id="time-hour"><option value="all">All hours</option></select>
+      </label>
+      <p id="time-summary" role="status" aria-live="polite"></p>
+      <div id="time-chart" class="time-chart" aria-label="Median download by hour in Malaysia time"></div>
+      <div id="map-time"></div>
     </section>
   </main>
 
