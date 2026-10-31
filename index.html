@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Custom Speedtest</title>
+    <!-- Include LibreSpeed JS engine -->
+    <script src="https://cloudflare.com"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 40px; }
+        .metric { font-size: 24px; margin: 20px; font-weight: bold; }
+        button { padding: 15px 30px; font-size: 18px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>Community Speed Test</h1>
+    <button id="startBtn" onclick="runSpeedTest()">Start Speed Test</button>
+    
+    <div id="results" style="display:none;">
+        <div class="metric">Download: <span id="dl">0.00</span> Mbps</div>
+        <div class="metric">Upload: <span id="ul">0.00</span> Mbps</div>
+        <div class="metric">Ping: <span id="ping">0</span> ms</div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+        let lat = null, lon = null;
+
+        // Request browser geolocation immediately
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                lat = pos.coords.latitude;
+                lon = pos.coords.longitude;
+            });
+        }
+
+        function runSpeedTest() {
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('results').style.display = 'block';
+
+            var s = new Speedtest(); 
+            // Set up fallback files hosted on large public networks for data streaming
+            s.setParameter("url_dl", "https://cloudflare.com");
+            s.setParameter("url_ul", "https://cloudflare.com");
+            s.setParameter("url_ping", "https://cloudflare.com");
+
+            s.onupdate = function(data) {
+                document.getElementById('dl').textContent = data.dlStatus;
+                document.getElementById('ul').textContent = data.ulStatus;
+                document.getElementById('ping').textContent = data.pingStatus;
+            };
+
+            s.onend = function(aborted) {
+                document.getElementById('startBtn').disabled = false;
+                if (!aborted) {
+                    let telemetryData = s.getTelemetry(); // Contains IP, jitter, etc.
+                    sendDataToSheets({
+                        ip: telemetryData.clientIp,
+                        download: document.getElementById('dl').textContent,
+                        upload: document.getElementById('ul').textContent,
+                        ping: document.getElementById('ping').textContent,
+                        jitter: telemetryData.jitterStatus || 0,
+                        latitude: lat,
+                        longitude: lon
+                    });
+                }
+            };
+            s.start();
+        }
+
+        function sendDataToSheets(payload) {
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                mode: "no-cors", // Required to pass firewall blocks across domains
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(() => alert("Results successfully recorded!"));
+        }
+    </script>
+</body>
+</html>
