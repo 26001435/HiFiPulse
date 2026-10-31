@@ -25,14 +25,12 @@
   }).addTo(map);
 
   var layer = L.layerGroup().addTo(map);
-  var spotLayer = L.layerGroup().addTo(map);
   var deadZoneLayer = L.layerGroup().addTo(map);
   var deadZoneKey = "hifipulse:dead-zones";
   var deadZoneReports = [];
   var records = [];
   var fitted = false;
   var lastLoaded = null;
-  var selectedHour = null;
 
   function readDeadZones() {
     try {
@@ -55,7 +53,7 @@
 
   function drawDeadZones() {
     deadZoneLayer.clearLayers();
-    if (!$("show-dead-zones").checked || selectedHour !== null) return;
+    if (!$("show-dead-zones").checked) return;
     var selected = $("map-provider").value;
     deadZoneReports.forEach(function (r) {
       if (selected !== "all" && selected !== r.provider) return;
@@ -169,6 +167,13 @@
     var download = num(field(row, ["Download", "Download (Mbps)"]));
     var accuracy = num(field(row, ["Accuracy", "accuracy"]));
 
+    var building = field(row, ["Building", "Location"]);
+    var verdict = window.HifiPlaceCheck.check(building, {
+      ok: true, lat: lat, lon: lon, accuracy: accuracy
+    });
+    // Legacy sheet rows can also contain contradictory names. Never show or
+    // rank an obviously wrong label, even if it predates the browser check.
+    if (verdict === "mismatch" || verdict === "uncertain") building = "";
     return {
       lat: lat,
       lon: lon,
@@ -177,8 +182,8 @@
       ping: num(field(row, ["Ping", "Ping (ms)"])),
       jitter: num(field(row, ["Jitter", "Jitter (ms)"])),
       accuracy: accuracy,
-      building: field(row, ["Building", "Location"]),
-      floor: field(row, ["Floor"]),
+      building: building,
+      floor: building ? field(row, ["Floor"]) : "",
       connection: field(row, ["Connection"]),
       provider: field(row, ["Provider", "Network Provider", "Carrier"]),
       city: field(row, ["City"]),
@@ -224,7 +229,7 @@
     if (rec.building) {
       el.appendChild(
         popupRow(
-          "Location",
+          "Place (self-reported)",
           rec.building + (rec.floor ? " · floor " + rec.floor : "")
         )
       );
@@ -280,8 +285,6 @@
 
     records.forEach(function (rec) {
       if (providerFilter !== "all" && rec.provider !== providerFilter) return;
-      if (selectedHour !== null && (rec.lat < 3.120 || rec.lat > 3.133 || rec.lon < 101.655 || rec.lon > 101.665)) return;
-      if (selectedHour !== null && selectedHour >= 0 && (!rec.ts || Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kuala_Lumpur", hour: "2-digit", hourCycle: "h23" }).format(rec.ts)) !== selectedHour)) return;
       if (cutoff !== null && rec.ts !== null && rec.ts < cutoff) return;
 
       var tier = tierFor(rec.download === null ? 0 : rec.download);
@@ -510,25 +513,13 @@
     });
     $("range").addEventListener("change", render);
     $("map-provider").addEventListener("change", render);
-    window.addEventListener("hifipulse:hour", function (event) {
-      selectedHour = event.detail;
-      render();
-    });
     $("btn-refresh").addEventListener("click", load);
-    window.addEventListener("hifipulse:spots", function (event) {
-      spotLayer.clearLayers();
-      event.detail.forEach(function (spot) {
-        var marker = L.circleMarker([spot.lat, spot.lon], {
-          radius: 12, color: "#fff", weight: 2.5, fillColor: "#43c5e4", fillOpacity: .95
-        });
-        var label = document.createElement("div");
-        label.appendChild(document.createTextNode("✦ Verified study spot · " + spot.name));
-        marker.bindPopup(label).addTo(spotLayer);
-      });
-    });
-    window.addEventListener("hifipulse:focus-spot", function (event) {
-      map.setView([event.detail.lat, event.detail.lon], 18);
-    });
+    var query = new URLSearchParams(window.location.search);
+    var lat = Number(query.get("lat")), lon = Number(query.get("lon"));
+    if (query.has("lat") && query.has("lon") && Number.isFinite(lat) && Number.isFinite(lon) &&
+        lat >= 3.11 && lat <= 3.14 && lon >= 101.64 && lon <= 101.68) {
+      map.setView([lat, lon], 17);
+    }
     document.querySelectorAll("[data-zone]").forEach(function (button) {
       button.addEventListener("click", function () {
         var zone = window.HifiZones[button.dataset.zone];

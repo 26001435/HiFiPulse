@@ -365,6 +365,20 @@
       $("geo-status").textContent = describeGeo(geo);
 
       var payload = buildPayload(result, geo);
+      var placeCheck = window.HifiPlaceCheck.check(payload.building, geo);
+      // Keep the measurement at its actual GPS location, but never publish a
+      // place/floor label when its approximate location contradicts the name.
+      if (placeCheck === "mismatch" || placeCheck === "no-location" || placeCheck === "uncertain") {
+        payload.building = "";
+        payload.floor = "";
+        if (placeCheck === "mismatch") {
+          $("geo-status").textContent = "The selected area does not match your approximate location. The result will not include a place name or floor. Check your selection before testing again.";
+        } else if (placeCheck === "uncertain") {
+          $("geo-status").textContent = "Your location is too imprecise to associate this result with a named place. The result will not include a place name or floor.";
+        } else {
+          $("geo-status").textContent = "Location unavailable. The result will not include a place name or floor.";
+        }
+      }
       // Keep a device-local copy so the map remains useful even if the
       // community sheet is delayed or temporarily unreachable.
       if (payload.latitude !== null && payload.longitude !== null) {

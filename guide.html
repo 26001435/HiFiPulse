@@ -3,17 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <title>Wi-Fi guide &amp; digital equity — HiFiPulse</title>
   <meta name="description" content="Practical campus connectivity tips, congestion awareness and digital equity context.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
   <link rel="stylesheet" href="theme.css">
+  <script src="theme.js" defer></script>
   <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body>
   <header class="site-header">
     <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span>HiFiPulse</a>
-    <nav class="site-nav" aria-label="Main"><a href="index.html">Speed test</a><a href="map.html">Coverage map</a><a href="guide.html" aria-current="page">Wi-Fi guide</a><a href="about.html">About us</a></nav>
+    <nav class="site-nav" aria-label="Main">
+      <div class="nav-group nav-parent-active"><a href="about.html">About us</a><details class="nav-dropdown"><summary class="nav-expand" aria-label="Toggle About us menu"><span class="nav-chevron" aria-hidden="true"></span></summary>
+        <div class="nav-menu" id="about-menu"><a href="about.html#mission-heading">Our Mission</a><a href="guide.html" aria-current="page">Wi-Fi guide</a></div></details>
+      </div>
+      <a href="index.html">Speed test</a>
+      <div class="nav-group"><a href="map.html">Coverage map</a><details class="nav-dropdown"><summary class="nav-expand" aria-label="Toggle Coverage map menu"><span class="nav-chevron" aria-hidden="true"></span></summary>
+        <div class="nav-menu" id="map-menu"><a href="map.html#panel-map">Coverage map</a><a href="map.html#panel-history">Speed history</a><a href="map.html#panel-providers">Compare networks</a><a href="rankings.html">Rankings</a></div></details>
+      </div>
+    </nav>
+    <div class="header-actions"><button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">Dark mode</button></div>
   </header>
   <main class="wide guide-main">
     <div class="hero"><p class="eyebrow">THE CAMPUS CONNECTION GUIDE</p><h1>A practical guide to <span class="heading-emphasis">better connectivity.</span></h1><p>Small habits help during peak hours. Better infrastructure and fair access matter just as much.</p></div>
@@ -62,7 +72,7 @@
       </div>
       <p class="guide-caveat">HTTPS protects the connection to a website, but it cannot make a fake sign-in page trustworthy. A VPN can add protection on untrusted networks; it is not a substitute for checking the network or updating your device. See <a href="https://www.cisa.gov/secure-our-world/use-strong-passwords" target="_blank" rel="noopener noreferrer">CISA’s password guidance ↗</a> and <a href="https://www.security.org/digital-safety/mobile-hotspot-safe/" target="_blank" rel="noopener noreferrer">hotspot safety guidance ↗</a>.</p>
     </section>
-    <div class="guide-bottom"><div><h2>Turn a frustrating connection into useful evidence.</h2><p>Test from the place you actually study, then compare the map and time-of-day view.</p></div><a class="btn" href="index.html">Run a network test →</a></div>
+    <div class="guide-bottom"><div><h2>Turn a frustrating connection into useful evidence.</h2><p>Test from the place you actually study, then compare the map and the Rankings hourly averages.</p></div><a class="btn" href="index.html">Run a network test →</a></div>
   </main>
   <footer><p>HiFiPulse tips are general guidance, not a diagnosis of a particular network. <a href="map.html">Explore community measurements</a>.</p></footer>
 </body>

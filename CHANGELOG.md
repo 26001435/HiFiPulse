@@ -4,6 +4,22 @@ Development milestones for HiFiPulse. Pull-request numbers below describe merged
 
 ## Unreleased
 
+- Added subtle opening/closing motion to navigation dropdowns and close-on-outside-click/Escape; reduced-motion preferences skip the animation.
+
+### Added
+- A persistent light/dark theme across all pages, with themed dropdowns: Our Mission and Wi-Fi guide under About us; map, speed history, network comparisons and Rankings under Coverage map. The theme toggle stays at the far right.
+- Campus Wi-Fi leaderboard with the top five measured download speeds, highest result today (MYT), daily test count and 30-day hourly averages. No student identity or simulated data is displayed.
+- Unit tests for Malaysia-time aggregation, provider filtering, deduplication and hourly averages.
+
+### Changed
+- Moved best study spaces and time-of-day performance from the Coverage map tabs to the dedicated Rankings page; the map retains coverage, daily history and network comparison.
+- Kept study-space suggestions on Rankings, with the same device-local storage and evidence thresholds.
+
+### Improved
+- Compare self-reported PASUM, KK11 and KK12 place labels against approximate GPS areas before saving. Remove place/floor labels when the location clearly contradicts the name, is missing, or is too imprecise; keep the measurement itself.
+- Apply the same conservative filter to published map rows and identify remaining place names as self-reported.
+- Add automated tests for plausible, mismatched, uncertain and custom location labels. Document the limits of client-side checks and the need for server-side validation.
+
 ### Fixed
 - Restored the flat site layout: `index.html`, `map.html`, `guide.html` and `about.html` are served directly from the repository root again.
 - Corrected stylesheet, icon and JavaScript paths after the `main/` and `assets/` folders were removed; kept bundled Leaflet assets in `vendor/`.

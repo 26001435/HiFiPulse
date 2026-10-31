@@ -3,22 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <title>About us — HiFiPulse</title>
   <meta name="description" content="HiFiPulse's mission: fairer digital access, faster study-space discovery, and better campus connectivity awareness.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
   <link rel="stylesheet" href="theme.css">
+  <script src="theme.js" defer></script>
   <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body>
   <header class="site-header">
     <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span>HiFiPulse</a>
     <nav class="site-nav" aria-label="Main">
+      <div class="nav-group"><a href="about.html" aria-current="page">About us</a><details class="nav-dropdown"><summary class="nav-expand" aria-label="Toggle About us menu"><span class="nav-chevron" aria-hidden="true"></span></summary>
+        <div class="nav-menu" id="about-menu"><a href="about.html#mission-heading">Our Mission</a><a href="guide.html">Wi-Fi guide</a></div></details>
+      </div>
       <a href="index.html">Speed test</a>
-      <a href="map.html">Coverage map</a>
-      <a href="guide.html">Wi-Fi guide</a>
-      <a href="about.html" aria-current="page">About us</a>
+      <div class="nav-group"><a href="map.html">Coverage map</a><details class="nav-dropdown"><summary class="nav-expand" aria-label="Toggle Coverage map menu"><span class="nav-chevron" aria-hidden="true"></span></summary>
+        <div class="nav-menu" id="map-menu"><a href="map.html#panel-map">Coverage map</a><a href="map.html#panel-history">Speed history</a><a href="map.html#panel-providers">Compare networks</a><a href="rankings.html">Rankings</a></div></details>
+      </div>
     </nav>
+    <div class="header-actions"><button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">Dark mode</button></div>
   </header>
 
   <main class="wide about-main">
