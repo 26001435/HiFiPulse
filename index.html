@@ -3,16 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <title>HiFiPulse — Campus Speed Test</title>
   <meta name="description" content="Measure your campus network and contribute an anonymous data point to the live coverage map.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://speed.cloudflare.com https://cloudflare.com https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'">
   <link rel="stylesheet" href="theme.css">
+  <script src="theme.js" defer></script>
   <link rel="icon" type="image/png" href="favicon.png">
   <script src="config.js" defer></script>
   <script src="engine.js" defer></script>
   <script src="spots.js" defer></script>
   <script src="places.js" defer></script>
+  <script src="place-check.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -23,11 +25,15 @@
       HiFiPulse
     </a>
     <nav class="site-nav" aria-label="Main">
+      <div class="nav-group"><a href="about.html">About us</a><details class="nav-dropdown"><summary class="nav-expand" aria-label="Toggle About us menu"><span class="nav-chevron" aria-hidden="true"></span></summary>
+        <div class="nav-menu" id="about-menu"><a href="about.html#mission-heading">Our Mission</a><a href="guide.html">Wi-Fi guide</a></div></details>
+      </div>
       <a href="index.html" aria-current="page">Speed test</a>
-      <a href="map.html">Coverage map</a>
-      <a href="guide.html">Wi-Fi guide</a>
-      <a href="about.html">About us</a>
+      <div class="nav-group"><a href="map.html">Coverage map</a><details class="nav-dropdown"><summary class="nav-expand" aria-label="Toggle Coverage map menu"><span class="nav-chevron" aria-hidden="true"></span></summary>
+        <div class="nav-menu" id="map-menu"><a href="map.html#panel-map">Coverage map</a><a href="map.html#panel-history">Speed history</a><a href="map.html#panel-providers">Compare networks</a><a href="rankings.html">Rankings</a></div></details>
+      </div>
     </nav>
+    <div class="header-actions"><button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">Dark mode</button></div>
   </header>
 
   <main>
@@ -57,7 +63,7 @@
             <input type="text" id="input-building" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="place-suggestions" autocomplete="off" maxlength="60" placeholder="Search or enter a place" spellcheck="false">
             <ul id="place-suggestions" role="listbox" aria-label="Suggested places" hidden></ul>
           </div>
-          <p class="note">Choose a suggestion to keep names consistent, or enter a new place.</p>
+          <p class="note">Choose a suggestion or enter a new place. Names are self-reported; when GPS is available, obvious mismatches are removed before saving.</p>
         </div>
         <label class="field">
           Floor
