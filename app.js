@@ -204,7 +204,7 @@
       longitude: lon,
       accuracy: accuracy,
       geoSource: source,
-      building: (($("input-building").value === "custom" ? $("input-custom-building").value : $("input-building").value) || "").trim().slice(0, 60),
+      building: ($("input-building").value || "").trim().slice(0, 60),
       floor: ($("input-floor").value || "").trim().slice(0, 20),
       provider: $("input-provider").value,
       connection:
@@ -423,27 +423,13 @@
       if (tipTimer) { clearInterval(tipTimer); tipTimer = setInterval(nextTip, 6500); }
     });
 
-    /* Remember the location context across visits. */
-    ["input-building", "input-custom-building", "input-floor"].forEach(function (id) {
-      var el = $(id);
-      try {
-        var saved = localStorage.getItem("hifipulse:" + id);
-        if (saved) el.value = saved;
-      } catch (e) {
-        /* storage can be blocked; not fatal */
-      }
-      el.addEventListener("input", function () {
-        try {
-          localStorage.setItem("hifipulse:" + id, el.value);
-        } catch (e) {}
-      });
+    // places.js owns the place combobox and its saved value.
+    var floor = $("input-floor");
+    try { floor.value = localStorage.getItem("hifipulse:input-floor") || ""; } catch (e) {}
+    floor.addEventListener("input", function () {
+      try { localStorage.setItem("hifipulse:input-floor", floor.value); } catch (e) {}
     });
 
-    function toggleCustomPlace() {
-      $("custom-place-field").hidden = $("input-building").value !== "custom";
-    }
-    $("input-building").addEventListener("change", toggleCustomPlace);
-    toggleCustomPlace();
     $("input-suggest").addEventListener("change", function () {
       $("study-type-field").hidden = !$("input-suggest").checked;
     });

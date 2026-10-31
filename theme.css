@@ -229,3 +229,37 @@ footer p { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+/* Searchable place field: suggestions remain visually tied to the input. */
+.place-combobox { position: relative; margin-top: 8px; }
+.place-combobox input { margin-top: 0; }
+.place-combobox input[aria-expanded="true"] { border-color: var(--green); }
+#place-suggestions {
+  position: absolute; z-index: 50; top: calc(100% + 4px); left: 0; right: 0;
+  max-height: 290px; overflow-y: auto; margin: 0; padding: 5px 0;
+  list-style: none; background: var(--surface); border: 1px solid #bbc3b8;
+  border-radius: 4px; box-shadow: 0 12px 26px #232a271c;
+}
+#place-suggestions [role="option"] {
+  padding: 9px 13px; font-size: .88rem; font-weight: 450; cursor: pointer;
+  line-height: 1.35; overflow-wrap: anywhere;
+}
+#place-suggestions [role="option"]:hover,
+#place-suggestions [role="option"][aria-selected="true"] {
+  background: var(--green-light); color: #153c2e;
+}
+.place-field > .note { margin-top: 7px; font-weight: 450; }
+
+/* A short entrance establishes hierarchy without constant visual motion. */
+.heading-emphasis { color: var(--green); }
+@keyframes heading-arrive {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero h1, .hero p { animation: heading-arrive .58s cubic-bezier(.2,.7,.2,1) both; }
+  .hero p { animation-delay: .1s; }
+  .card h2, .guide-section-head h2 { animation: heading-arrive .46s ease-out both; }
+  [role="tabpanel"]:not([hidden]) > .section-heading,
+  [role="tabpanel"]:not([hidden]) > h2 { animation: heading-arrive .4s ease-out both; }
+}
