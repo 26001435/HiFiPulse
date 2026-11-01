@@ -4,6 +4,8 @@ Development milestones for HiFiPulse. Pull-request numbers below describe merged
 
 ## Unreleased
 
+- Added an optional self-reported floor/level and live label preview (for example, KK12 Blok A L4); the Coverage map now has a searchable, filter-aware sidebar of individual measurements with place, floor, provider, metrics, time and approximate GPS accuracy. Selecting a test focuses its grouped marker. Floors remain unverified and depend on the external feed publishing its Floor column for shared visibility.
+
 - Added decibel-meter-style quality bars for download, upload, ping and jitter: poor red, fair amber, excellent green, with live fills, explicit threshold guide, and unrated states when no measurement exists.
 
 - Added an interactive speed-test stage tracker, live measured download trend, accessible approximate progress and a Test again action; the trend is provisional and cleared on cancellation.

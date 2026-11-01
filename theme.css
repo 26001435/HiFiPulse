@@ -490,3 +490,27 @@ footer p { margin: 0; }
 .quality-guide p { margin: 12px 0 7px; }
 .quality-guide ul { margin: 0; padding-left: 20px; }
 @media (prefers-reduced-motion: reduce) { .quality-fill { transition: none; } }
+
+/* Test-by-test map rail; the map stays the primary canvas. */
+.location-preview { max-width: 720px; margin: 15px 0 0; padding: 12px 15px; border-left: 3px solid var(--green); background: var(--green-light); color: var(--ink); font-size: .88rem; font-weight: 650; overflow-wrap: anywhere; }
+.location-preview + .note { margin-top: 8px; max-width: 720px; }
+.map-workspace { display: grid; grid-template-columns: minmax(0,1fr) minmax(270px,320px); gap: 24px; align-items: start; }
+.map-workspace #map-home { min-width: 0; }
+.test-sidebar { min-width: 0; padding: 0 0 13px; border-top: 2px solid var(--green); border-bottom: 1px solid var(--line); background: var(--paper); }
+.test-sidebar-head { padding: 16px 0 12px; }
+.test-sidebar-head .eyebrow { margin: 0 0 6px; }
+.test-sidebar-head h2 { margin: 0; font-size: 1.2rem; letter-spacing: -.035em; }
+.test-sidebar-head .note { margin-top: 7px; }
+.test-sidebar .field { font-size: .78rem; }
+.test-sidebar .field input { width: 100%; }
+#test-list-status { margin: 10px 0; }
+.test-list { max-height: 510px; overflow-y: auto; overscroll-behavior: contain; border-top: 1px solid var(--line); }
+.test-list-item { display: block; width: 100%; padding: 13px 6px 14px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; color: var(--ink); text-align: left; }
+.test-list-item:hover, .test-list-item:focus-visible { background: var(--green-light); }
+.test-list-item[data-active="true"] { border-left: 3px solid var(--green); padding-left: 9px; background: var(--green-light); }
+.test-list-item strong { display: block; font-size: .91rem; line-height: 1.35; overflow-wrap: anywhere; }
+.test-list-item span { display: block; font-size: .77rem; line-height: 1.5; color: var(--muted); }
+.test-list-item .test-list-speed { color: var(--green); font-weight: 700; font-variant-numeric: tabular-nums; }
+.test-list-item .test-list-speed[data-tone="unknown"] { color: var(--ochre); }
+.test-sidebar #test-list-more { margin-top: 13px; padding: 8px 12px; font-size: .81rem; }
+@media (max-width: 950px) { .map-workspace { grid-template-columns: 1fr; } .test-list { max-height: 360px; } }

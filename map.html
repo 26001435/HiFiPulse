@@ -15,6 +15,7 @@
   <script src="config.js" defer></script>
   <script src="csv.js" defer></script>
   <script src="place-check.js" defer></script>
+  <script src="location-label.js" defer></script>
   <script src="map-clusters.js" defer></script>
   <script src="map.js" defer></script>
   <script src="insights.js" defer></script>
@@ -91,7 +92,19 @@
       </div><button type="button" class="btn btn-ghost" id="btn-locate">Find my location</button><span id="location-status" role="status"></span></div>
       <div class="banner" id="banner" hidden></div>
 
-      <div id="map-home"><div id="map" role="application" aria-label="Map of speed test results"></div></div>
+      <div class="map-workspace">
+        <div id="map-home"><div id="map" role="application" aria-label="Map of speed test results"></div></div>
+        <aside class="test-sidebar" aria-labelledby="test-sidebar-heading">
+          <div class="test-sidebar-head"><p class="eyebrow">INDIVIDUAL MEASUREMENTS</p><h2 id="test-sidebar-heading">Tests by place &amp; floor</h2>
+            <p class="note">Each entry is a self-reported location, not a verified building or floor. Select one to focus its approximate marker. Search narrows this list; the map filters above affect both.</p></div>
+          <label class="field" for="test-search">Find a place, floor or network
+            <input id="test-search" type="search" placeholder="e.g. KK12 Blok A L4" autocomplete="off">
+          </label>
+          <p id="test-list-status" class="note" role="status" aria-live="polite">Loading tests…</p>
+          <div id="test-list" class="test-list"></div>
+          <button id="test-list-more" class="btn btn-ghost" type="button" hidden>Show more tests</button>
+        </aside>
+      </div>
       <div class="dead-zone-controls"><label><input type="checkbox" id="show-dead-zones" checked> Show reported dead zones</label><span>Red rings = user reports, not verified speed tests.</span></div>
       <details class="dead-zone-report"><summary>Mark a dead zone</summary>
         <form id="dead-zone-form">

@@ -257,7 +257,7 @@
       accuracy: accuracy,
       geoSource: source,
       building: ($("input-building").value || "").trim().slice(0, 60),
-      floor: ($("input-floor").value || "").trim().slice(0, 20),
+      floor: window.HifiLocationLabel.floor($("input-floor").value),
       provider: $("input-provider").value,
       connection:
         (navigator.connection && navigator.connection.effectiveType) || "",
@@ -546,12 +546,25 @@
       if (tipTimer) { clearInterval(tipTimer); tipTimer = setInterval(nextTip, 6500); }
     });
 
+    // Show the same self-reported label that the map will display, without
+    // changing the selected place or inventing a GPS-verified floor.
+    function updateLocationPreview() {
+      var name = $("input-building").value.trim();
+      $("location-preview").textContent = name
+        ? "Map label (self-reported): " + window.HifiLocationLabel.label(name, $("input-floor").value)
+        : "Enter a place to preview how the location will appear.";
+    }
+    $("input-building").addEventListener("input", updateLocationPreview);
+    $("input-building").addEventListener("change", updateLocationPreview);
+    $("input-building").addEventListener("blur", function () { setTimeout(updateLocationPreview, 0); });
     // places.js owns the place combobox and its saved value.
     var floor = $("input-floor");
     try { floor.value = localStorage.getItem("hifipulse:input-floor") || ""; } catch (e) {}
     floor.addEventListener("input", function () {
+      updateLocationPreview();
       try { localStorage.setItem("hifipulse:input-floor", floor.value); } catch (e) {}
     });
+    updateLocationPreview();
 
     $("input-suggest").addEventListener("change", function () {
       $("study-type-field").hidden = !$("input-suggest").checked;
