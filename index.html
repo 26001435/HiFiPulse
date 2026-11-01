@@ -16,6 +16,7 @@
   <script src="spots.js" defer></script>
   <script src="places.js" defer></script>
   <script src="place-check.js" defer></script>
+  <script src="location-label.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -67,10 +68,13 @@
           <p class="note">Choose a suggestion or enter a new place. Names are self-reported; when GPS is available, obvious mismatches are removed before saving.</p>
         </div>
         <label class="field">
-          Floor
-          <input type="text" id="input-floor" maxlength="20" placeholder="e.g. 3" autocomplete="off">
+          Floor or level (optional)
+          <input type="text" id="input-floor" maxlength="20" placeholder="e.g. L4, G or B1" autocomplete="off">
         </label>
       </div>
+
+      <p class="location-preview" id="location-preview" aria-live="polite">Enter a place to preview how the location will appear.</p>
+      <p class="note">Example: choose KK12 (Blok A) and enter 4 to show “KK12 Blok A L4”. Floors are self-reported, not detected by GPS. Do not enter a room number or personal details.</p>
 
       <div class="study-optin"><label><input type="checkbox" id="input-suggest"> Suggest this place as a study spot</label>
         <label class="field" id="study-type-field" hidden>Type of study space

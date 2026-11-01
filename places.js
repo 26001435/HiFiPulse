@@ -58,6 +58,7 @@
       input.value = value;
       try { localStorage.setItem("hifipulse:input-building", value); } catch (e) {}
       close();
+      input.dispatchEvent(new Event("change", { bubbles: true }));
       input.focus();
     }
     function highlight(index) {

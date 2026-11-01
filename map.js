@@ -29,6 +29,9 @@
   var deadZoneKey = "hifipulse:dead-zones";
   var deadZoneReports = [];
   var records = [];
+  var sidebarRecords = [];
+  var mapPointers = new Map();
+  var sidebarLimit = 40;
   var fitted = false;
   var lastLoaded = null;
 
@@ -192,7 +195,7 @@
       jitter: num(field(row, ["Jitter", "Jitter (ms)"])),
       accuracy: accuracy,
       building: building,
-      floor: building ? field(row, ["Floor"]) : "",
+      floor: building ? window.HifiLocationLabel.floor(field(row, ["Floor"])) : "",
       connection: field(row, ["Connection"]),
       provider: field(row, ["Provider", "Network Provider", "Carrier"]),
       city: field(row, ["City"]),
@@ -239,7 +242,7 @@
       el.appendChild(
         popupRow(
           "Place (self-reported)",
-          rec.building + (rec.floor ? " · floor " + rec.floor : "")
+          window.HifiLocationLabel.label(rec.building, rec.floor)
         )
       );
     }
@@ -294,7 +297,7 @@
         line.textContent = (r.provider || "Network unlabelled") + " · " +
           (r.download === null ? "download unmeasured" : fmtSpeed(r.download) + " Mbps") +
           " · " + (r.ts ? new Date(r.ts).toLocaleString() : "time unknown") +
-          (r.building ? " · " + r.building + " (self-reported)" : "");
+          " · " + window.HifiLocationLabel.label(r.building, r.floor) + " (self-reported if named)";
         details.appendChild(line);
       });
     if (group.records.length > 20) {
@@ -304,6 +307,58 @@
     }
     host.appendChild(details);
     return host;
+  }
+
+  function sidebarLine(host, text, className) {
+    var span = document.createElement("span");
+    if (className) span.className = className;
+    span.textContent = text;
+    host.appendChild(span);
+  }
+  function renderSidebar() {
+    var query = $("test-search").value.trim().toLocaleLowerCase();
+    var matches = sidebarRecords.filter(function (r) {
+      return !query || [r.building, r.floor, r.provider,
+        window.HifiLocationLabel.label(r.building, r.floor)].join(" ").toLocaleLowerCase().includes(query);
+    });
+    var list = $("test-list");
+    list.replaceChildren();
+    $("test-list-status").textContent = matches.length + " of " + sidebarRecords.length +
+      " visible test" + (sidebarRecords.length === 1 ? "" : "s") +
+      (query ? " matching this search." : " after map filters.");
+    matches.slice(0, sidebarLimit).forEach(function (r) {
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "test-list-item";
+      var title = document.createElement("strong");
+      title.textContent = window.HifiLocationLabel.label(r.building, r.floor);
+      button.appendChild(title);
+      sidebarLine(button, (r.provider || "Network unlabelled") + " · " +
+        (r.ts ? new Date(r.ts).toLocaleString() : "Time unknown"));
+      sidebarLine(button, r.download === null ? "Download unmeasured · incomplete attempt" :
+        "Download " + fmtSpeed(r.download) + " Mbps",
+        "test-list-speed");
+      if (r.download === null) button.querySelector(".test-list-speed").dataset.tone = "unknown";
+      sidebarLine(button, "Upload " + fmt(r.upload, 1) + " Mbps · Ping " +
+        fmt(r.ping, 0) + " ms · Jitter " + fmt(r.jitter, 1) + " ms");
+      sidebarLine(button, r.accuracy === null ? "GPS precision unavailable · rounded position" :
+        "GPS ±" + Math.round(r.accuracy) + " m · rounded position");
+      button.addEventListener("click", function () {
+        var entry = mapPointers.get(r);
+        if (!entry) return;
+        list.querySelectorAll("[data-active]").forEach(function (item) { delete item.dataset.active; });
+        button.dataset.active = "true";
+        map.setView([entry.group.lat, entry.group.lon], Math.max(map.getZoom(), 17));
+        entry.marker.openPopup();
+        if (window.matchMedia && window.matchMedia("(max-width: 950px)").matches) {
+          $("map-home").scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+        }
+      });
+      list.appendChild(button);
+    });
+    var more = $("test-list-more");
+    more.hidden = matches.length <= sidebarLimit;
+    if (!more.hidden) more.textContent = "Show more tests (" + (matches.length - sidebarLimit) + " remaining)";
   }
 
   /* ---- Rendering --------------------------------------------------------- */
@@ -319,6 +374,7 @@
 
   function render() {
     layer.clearLayers();
+    mapPointers.clear();
     drawDeadZones();
 
     var enabled = activeTiers();
@@ -351,6 +407,8 @@
       if (rec.ping !== null) pings.push(rec.ping);
     });
 
+    sidebarRecords = filtered.slice().sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    sidebarLimit = 40;
     var groups = window.HifiMapClusters.group(filtered, 160);
     groups.forEach(function (group) {
       var measured = group.records.filter(function (r) { return r.download !== null; })
@@ -374,6 +432,7 @@
       }
       marker.bindPopup(buildGroupPopup(group, tier), { maxWidth: 320 });
       marker.addTo(layer);
+      group.records.forEach(function (r) { mapPointers.set(r, { group: group, marker: marker }); });
       bounds.push([group.lat, group.lon]);
     });
 
@@ -381,6 +440,8 @@
       // Stay focused on UM rather than flying to an unrelated global result.
       fitted = true;
     }
+
+    renderSidebar();
 
     /* Stats */
     $("stat-count").textContent = shown;
@@ -589,7 +650,10 @@
     document.querySelectorAll(".chip input").forEach(function (input) {
       input.addEventListener("change", render);
     });
+    $("test-search").addEventListener("input", function () { sidebarLimit = 40; renderSidebar(); });
+    $("test-list-more").addEventListener("click", function () { sidebarLimit += 40; renderSidebar(); });
     $("range").addEventListener("change", render);
+    $("show-incomplete").addEventListener("change", render);
     $("map-provider").addEventListener("change", render);
     $("btn-refresh").addEventListener("click", load);
     var query = new URLSearchParams(window.location.search);
