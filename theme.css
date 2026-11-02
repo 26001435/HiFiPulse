@@ -570,6 +570,20 @@ footer p { margin: 0; }
 @media (prefers-reduced-motion: reduce) { .about-text-link { transition: none; } .about-text-link:hover { transform: none; } }
 /* PITRAM framing: a cost-ordered research process, not a claim of results. */
 .about-vision, .about-future { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 30px; border-top: 1px solid var(--line); padding-top: 26px; margin: 25px 0 75px; }
+/* These heads already occupy the narrow left column; do not nest the
+   guide's two-column header grid inside a 170px rail. */
+.about-questions > .guide-section-head,
+.about-vision > .guide-section-head,
+.about-future > .guide-section-head { display: block; min-width: 0; border-top: 0; padding: 0; }
+.about-questions > .guide-section-head .eyebrow,
+.about-vision > .guide-section-head .eyebrow,
+.about-future > .guide-section-head .eyebrow { margin-bottom: 10px; }
+.about-questions > .guide-section-head h2,
+.about-vision > .guide-section-head h2,
+.about-future > .guide-section-head h2 { max-width: 100%; overflow-wrap: break-word; }
+.about-questions > .about-question-list,
+.about-vision > .about-vision-body,
+.about-future > .about-future-body { min-width: 0; }
 .about-vision .guide-section-head h2, .about-future .guide-section-head h2 { margin: 0; font-size: clamp(1.35rem, 2.4vw, 2rem); line-height: 1.2; letter-spacing: -.04em; }
 .about-vision-body > p, .about-future-body > p { max-width: 73ch; color: var(--muted); line-height: 1.7; margin: 0 0 18px; }
 .about-vision-body > .about-lead { color: var(--ink); font-size: clamp(1.18rem, 2vw, 1.55rem); line-height: 1.45; letter-spacing: -.02em; }
