@@ -16,7 +16,7 @@ window.HIFIPULSE = {
    * While these still say PASTE_YOUR_..., the site runs the test but does
    * not submit, and tells the user so.
    * ----------------------------------------------------------------------*/
-  submitUrl: "https://script.google.com/macros/s/AKfycbxaEuWMFdROQpZUL91YgSTSKxLtcgeaVy7EJ869hUpJw_fuGr7kHhuAgSJ-l2yCeoYZyA/exec",
+  submitUrl: "https://script.google.com/macros/s/AKfycbzIqPq4iuo7FmAoDaLgvWZAlM3z4DSxhY9bntPoD8zYEfrRtVuxB3qrqQsAMYhVsN6xkw/exec",
   submitToken: "8292af7f14fe4e2eac57153dfa5e3904",
 
   /* ------------------------------------------------------------------------
