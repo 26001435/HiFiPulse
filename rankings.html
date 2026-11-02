@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="theme.css"><link rel="icon" type="image/png" href="favicon.png">
   <script src="theme.js" defer></script><script src="config.js" defer></script>
   <script src="csv.js" defer></script><script src="spots.js" defer></script>
-  <script src="place-check.js" defer></script><script src="location-label.js" defer></script><script src="stability-core.js" defer></script><script src="rankings-core.js" defer></script><script src="rankings.js" defer></script>
+  <script src="place-check.js" defer></script><script src="location-label.js" defer></script><script src="stability-core.js" defer></script><script src="rankings-core.js" defer></script><script src="feed-diagnostics.js" defer></script><script src="rankings.js" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -40,7 +40,12 @@
         <div class="sidebar-block"><p class="eyebrow">TODAY / MYT</p><h2>Highest speed</h2><p class="sidebar-value" id="daily-speed">—</p><p id="daily-detail" class="note">Waiting for measurements.</p></div>
         <div class="sidebar-block"><p class="eyebrow">TODAY / MYT</p><h2>Tests recorded</h2><p class="sidebar-value" id="daily-count">0</p><p class="note">Campus Wi-Fi measurements with valid location and time.</p></div>
         <div class="sidebar-block"><p class="eyebrow">PAST 30 DAYS / MYT</p><h2>Best observed hour</h2><p class="sidebar-value" id="best-hour">—</p><p id="best-hour-detail" class="note">At least 3 samples are required.</p></div>
-        <div class="sidebar-block"><p class="eyebrow">DATA STATUS</p><h2>Community feed</h2><p id="rank-status" role="status" aria-live="polite">Loading measurements…</p><button type="button" class="btn btn-ghost" id="rank-refresh">Refresh</button></div>
+        <div class="sidebar-block"><p class="eyebrow">DATA STATUS</p><h2>Community feed</h2><p id="rank-status" role="status" aria-live="polite">Loading measurements…</p>
+          <details class="feed-help"><summary>Why do other devices show zero?</summary>
+            <p id="rank-diagnostics" class="note">Checking the published CSV…</p>
+            <p class="note">Only the published community CSV is shared across devices. Tests saved in this browser and study-space suggestions are not. Google account sign-in does not synchronize browser storage. The leaderboard only accepts geolocated, dated tests labelled <strong>Campus Wi-Fi</strong>; Today uses Malaysia time.</p>
+            <p class="note">To share results: verify the external submission service actually saves the fields and publishes the same sheet/tab as a publicly readable CSV. Other browsers must be able to fetch it. A successful local save is not proof of publication.</p>
+          </details><button type="button" class="btn btn-ghost" id="rank-refresh">Refresh</button></div>
         <p class="rankings-disclaimer">This is a leaderboard of opt-in browser measurements, not a contest of students. A single unusually fast result may reflect test conditions or inaccurate self-reporting. <a href="index.html">Run a test</a> when you are ready.</p>
       </aside>
       <div class="rankings-primary">

@@ -303,7 +303,9 @@
 
       if (data && data.ok) return { ok: true, duplicate: !!data.duplicate };
       if (data && data.error) return { ok: false, reason: data.error };
-      return { ok: true, unverified: true };
+      // A 200 HTML page or non-JSON response is not proof that Apps Script
+      // wrote a row. Keep the local result, but never claim a shared save.
+      return { ok: false, reason: "unconfirmed" };
     } catch (err) {
       if (controller.signal.aborted) return { ok: false, reason: "unconfirmed" };
       /* The redirect to script.googleusercontent.com occasionally breaks

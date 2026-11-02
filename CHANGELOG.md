@@ -4,6 +4,10 @@ Development milestones for HiFiPulse. Pull-request numbers below describe merged
 
 ## Unreleased
 
+- Added an explicitly manual Google Apps Script receiver and safe migration for the existing 16-column sheet: append Provider, Test Status and Test Profile without rewriting historical rows. New GPS values retain the front-end’s three-decimal precision. The deployed script and published CSV must still be updated by the sheet owner.
+
+- Added rankings feed diagnostics distinguishing published qualifying tests from browser-local results, with clearer guidance when CSV fields or accessibility are missing. HTTP 200 without a verifiable JSON acknowledgment is no longer presented as a confirmed community save.
+
 - Added assessment-ready *candidates* based on five repeat Campus Wi-Fi attempts over at least two days in 30 days, with GPS/label checks, upload, ping, jitter and failed-test thresholds. Rankings displays evidence and the map shows separate candidate rings; no continuous dropout or exam guarantee is claimed.
 - Added a private, rule-based task planner for online quizzes, report uploads, lecture video and saved-PDF reading. Evidence-backed places/hours are suggested only when repeat observations qualify; otherwise the UI says evidence is missing.
 

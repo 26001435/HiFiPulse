@@ -42,7 +42,7 @@ python3 -m http.server 8000 --bind 0.0.0.0
 
 Open `http://localhost:8000/`. Geolocation requires **HTTPS or localhost**; a LAN address served over plain HTTP may not be eligible. The base map needs access to OpenStreetMap tiles, and measurements need access to the configured test endpoints. `file://` is not supported for reliable network and geolocation behaviour.
 
-To deploy, publish the static files and update `config.js` with a reachable submission endpoint and published Google Sheet CSV. The source for the existing external Google Apps Script is **not** in this repository. Hosting static files alone will not create a shared results database. Test submission and feed access may fail if the external services are unavailable or block browser cross-origin requests; the UI reports failures rather than inventing a measurement.
+To deploy, publish the static files and update `config.js` with a reachable submission endpoint and published Google Sheet CSV. A compatible, **manually deployed** receiver and additive migration instructions now live in [`apps-script/Code.gs`](apps-script/Code.gs) and [`apps-script/README.md`](apps-script/README.md). The code currently deployed at the configured external URL cannot be inspected or updated from this repository. Hosting static files alone will not create a shared results database. Test submission and feed access may fail if the external services are unavailable or block browser cross-origin requests; the UI reports failures rather than inventing a measurement.
 
 ## Data flow and limitations
 
@@ -71,6 +71,7 @@ To deploy, publish the static files and update `config.js` with a reachable subm
 | `theme.js` | Persistent light/dark preference |
 | `theme.css`, `vendor/` | Shared styling and bundled Leaflet map library |
 | `config.js` | Test endpoints, map settings and external data-service URLs |
+| `apps-script/Code.gs`, `apps-script/README.md` | Optional replacement sheet receiver and manual, additive migration/deployment guide (not auto-deployed) |
 | `CHANGELOG.md` | Development milestones and upcoming changes |
 
 ## Roadmap
@@ -86,3 +87,16 @@ Place names are **self-reported**, not proof that a device was inside a particul
 Names without vetted coordinates (including custom names and many individual buildings) **cannot be independently verified** by this check. Even a plausible fix cannot establish the exact room or rule out spoofed GPS. Study-space rankings still require repeated nearby tests; a production rollout also needs server-side validation, an authoritative campus place-coordinate catalogue, moderation and abuse controls. Browser-side checks alone cannot guarantee honest crowdsourced data.
 
 Run the place check tests with `node --test tests/place-check.test.js`.
+
+## Why rankings appear on only one device
+
+The site is static and does not synchronize browser storage through a Google account. `hifipulse:results` (up to 50 recent measurements) and study suggestions are in **this browser on this site origin**; another Chrome profile, private window, device or site URL starts with different storage. Rankings combine those local measurements with the **published CSV** from `config.js`. Local visibility therefore does **not** confirm that a test reached the shared sheet.
+
+To diagnose a zero leaderboard on another device:
+
+1. In Rankings, expand **Why do other devices show zero?** and compare the number of *qualifying shared tests* with *tests saved on this device*. Try **All time**—Today is the current date in Malaysia time. Only timestamped, geolocated tests explicitly labelled `Campus Wi-Fi` enter the speed leaderboard; incomplete tests and cellular tests do not.
+2. Open the public CSV URL configured as `sheetCsvUrl` in a signed-out or private browser window. It must return actual CSV rows, not an HTML login page. Look for `Provider`, `Download`, `Timestamp`, `Latitude` and `Longitude` headers and a row with `Provider` exactly `Campus Wi-Fi`, a measured download, and approximate UM coordinates. `Accuracy`, `Upload`, `Ping`, `Jitter`, `Floor` and `Test Status` are additionally needed for richer stability/floor analysis. A blank or stale published tab explains why a local result never becomes shared.
+3. If a row is missing, verify that the **external** Google Apps Script deployed at `submitUrl` accepts the payload and appends all required fields to the same spreadsheet tab that was published to CSV. The new repository receiver can safely add `Provider`, `Test Status` and `Test Profile` after the existing 16 columns when you **manually** replace and redeploy the bound script; follow [`apps-script/README.md`](apps-script/README.md) and back up the sheet first. The old rows cannot be assigned providers automatically. This site alone cannot repair a deployment. An opaque `no-cors` POST or HTTP 200 without a JSON acknowledgment is **unconfirmed**, not proof of a write.
+4. If the CSV contains qualifying rows but another browser still cannot load it, check the other browser's network console for a blocked request, permissions/CORS error or timeout. Publish a **read-only** CSV view; do not make the sheet editable or expose student identities. Changes to Sheets publication may take time to appear.
+
+Do not share spreadsheet edit permissions, tokens or private student data to debug this. A verified shared backend, proper access rules, moderation and a retention policy are needed before relying on cross-device rankings.

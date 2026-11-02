@@ -1,8 +1,9 @@
 /* ============================================================================
  * HiFiPulse — configuration
  * ----------------------------------------------------------------------------
- * This is the ONLY file you should need to edit to deploy.
- * Everything else (engine, UI, map) reads from window.HIFIPULSE.
+ * Front-end deployment settings live here. The external Apps Script must be
+ * deployed separately; see apps-script/README.md. The client token is public,
+ * so it is not authentication. Everything else reads window.HIFIPULSE.
  * ==========================================================================*/
 
 window.HIFIPULSE = {
