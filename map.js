@@ -26,9 +26,11 @@
 
   var layer = L.layerGroup().addTo(map);
   var deadZoneLayer = L.layerGroup().addTo(map);
+  var assessmentLayer = L.layerGroup().addTo(map);
   var deadZoneKey = "hifipulse:dead-zones";
   var deadZoneReports = [];
   var records = [];
+  var assessmentRecords = [];
   var sidebarRecords = [];
   var mapPointers = new Map();
   var sidebarLimit = 40;
@@ -361,6 +363,31 @@
     if (!more.hidden) more.textContent = "Show more tests (" + (matches.length - sidebarLimit) + " remaining)";
   }
 
+  function drawAssessmentZones() {
+    assessmentLayer.clearLayers();
+    var enabled = $("show-assessment").checked;
+    var provider = $("map-provider").value;
+    if (!enabled || (provider !== "all" && provider !== "Campus Wi-Fi")) return;
+    window.HifiStability.zones(assessmentRecords, Date.now()).filter(function (z) {
+      return z.ready;
+    }).forEach(function (z) {
+      var marker = L.circleMarker([z.lat, z.lon], {
+        radius: 23, color: "#255d49", weight: 3, dashArray: "6 4", fillOpacity: 0
+      });
+      var popup = document.createElement("div");
+      var heading = document.createElement("strong");
+      heading.textContent = "Assessment-ready candidate · observed only";
+      popup.appendChild(heading);
+      popup.appendChild(popupRow("Self-reported place", window.HifiLocationLabel.label(z.building, z.floor)));
+      popup.appendChild(popupRow("Evidence", z.success + "/" + z.count + " attempts passed over " + z.days + " days"));
+      popup.appendChild(popupRow("Median jitter", z.medianJitter.toFixed(1) + " ms"));
+      var caveat = document.createElement("p");
+      caveat.textContent = "Past 30 days; may include tests saved only on this device. Does not verify a room or monitor continuous dropouts. Retest before an assessment.";
+      popup.appendChild(caveat);
+      marker.bindPopup(popup, { maxWidth: 300 }).addTo(assessmentLayer);
+    });
+  }
+
   /* ---- Rendering --------------------------------------------------------- */
   function activeTiers() {
     var out = {};
@@ -442,6 +469,7 @@
     }
 
     renderSidebar();
+    drawAssessmentZones();
 
     /* Stats */
     $("stat-count").textContent = shown;
@@ -490,10 +518,14 @@
     el.dataset.tone = tone || "warn";
   }
 
-  function localRecords() {
+  function localRaw() {
     try {
-      return JSON.parse(localStorage.getItem("hifipulse:results") || "[]")
-        .map(function (item) {
+      var value = JSON.parse(localStorage.getItem("hifipulse:results") || "[]");
+      return Array.isArray(value) ? value : [];
+    } catch (e) { return []; }
+  }
+  function localRecords() {
+    return localRaw().map(function (item) {
           return normalise({
             Latitude: item.latitude, Longitude: item.longitude,
             Download: item.download, Upload: item.upload,
@@ -503,7 +535,6 @@
             testStatus: item.testStatus
           });
         }).filter(Boolean);
-    } catch (e) { return []; }
   }
 
   function updateProviderOptions() {
@@ -536,6 +567,9 @@
       }
 
       var rows = window.HifiCsv.toObjects(window.HifiCsv.parse(text));
+      assessmentRecords = window.HifiStability.dedupe(rows.concat(localRaw()).map(function (r) {
+        return window.HifiStability.normalise(r, window.HifiPlaceCheck);
+      }).filter(Boolean));
       records = rows.map(normalise).filter(Boolean);
       // The published sheet can lag behind a recent submission. Show local
       // measurements as well, avoiding duplicate timestamps from the sheet.
@@ -552,6 +586,9 @@
       render();
       window.dispatchEvent(new CustomEvent("hifipulse:records", { detail: records.slice() }));
     } catch (err) {
+      assessmentRecords = window.HifiStability.dedupe(localRaw().map(function (r) {
+        return window.HifiStability.normalise(r, window.HifiPlaceCheck);
+      }).filter(Boolean));
       records = localRecords();
       lastLoaded = Date.now();
       updateProviderOptions();
@@ -635,6 +672,12 @@
     incompleteCount.textContent = "0";
     incompleteLegend.append(incompleteDot, incompleteLabel, incompleteCount);
     legend.appendChild(incompleteLegend);
+    var candidateHint = document.createElement("span");
+    var candidateIcon = document.createElement("i");
+    candidateIcon.className = "assessment-ring-key";
+    candidateHint.appendChild(candidateIcon);
+    candidateHint.appendChild(document.createTextNode("Assessment-ready candidate · observed, not guaranteed"));
+    legend.appendChild(candidateHint);
 
     /* Hollow-marker hint. */
     var hollow = document.createElement("span");
@@ -654,6 +697,7 @@
     $("test-list-more").addEventListener("click", function () { sidebarLimit += 40; renderSidebar(); });
     $("range").addEventListener("change", render);
     $("show-incomplete").addEventListener("change", render);
+    $("show-assessment").addEventListener("change", render);
     $("map-provider").addEventListener("change", render);
     $("btn-refresh").addEventListener("click", load);
     var query = new URLSearchParams(window.location.search);

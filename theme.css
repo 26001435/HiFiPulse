@@ -514,3 +514,29 @@ footer p { margin: 0; }
 .test-list-item .test-list-speed[data-tone="unknown"] { color: var(--ochre); }
 .test-sidebar #test-list-more { margin-top: 13px; padding: 8px 12px; font-size: .81rem; }
 @media (max-width: 950px) { .map-workspace { grid-template-columns: 1fr; } .test-list { max-height: 360px; } }
+
+/* Evidence-led assessment candidates and private task planner. */
+.stability-zones { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 20px; margin: 17px 0; }
+.stability-zone { min-width: 0; padding: 17px 0 23px; border-top: 1px solid var(--line); }
+.stability-zone h3 { margin: 0 0 5px; font-size: 1rem; overflow-wrap: anywhere; }
+.stability-zone .note { margin: 5px 0; }
+.stability-badge { display: inline-block; padding: 3px 8px; margin: 3px 0 9px; color: var(--ochre); border: 1px solid currentColor; border-radius: 3px; font-size: .77rem; font-weight: 700; }
+.stability-badge.is-ready { color: var(--green); }
+.planner-cta { margin-top: 15px; }
+.planner-layout { display: grid; grid-template-columns: minmax(260px,340px) minmax(0,1fr); gap: clamp(24px,5vw,65px); }
+.planner-layout .field { margin-bottom: 17px; }
+.planner-layout .field input, .planner-layout .field select { width: 100%; }
+.task-list { margin: 18px 0 0; padding: 0; list-style: none; }
+.task-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); font-size: .86rem; }
+.task-item span { overflow-wrap: anywhere; }
+.task-item button { border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--green); font-size: .76rem; }
+.plan-item { padding: 18px 0 24px; border-top: 1px solid var(--line); }
+.plan-item h3 { margin: 0 0 10px; font-size: 1.18rem; overflow-wrap: anywhere; }
+.plan-item p { margin: 5px 0; }
+.plan-item .plan-location { font-weight: 650; color: var(--green); }
+.plan-item .eyebrow { margin-bottom: 5px; }
+.plan-item a { display: inline-block; margin-top: 9px; font-size: .83rem; }
+@media (max-width: 800px) { .planner-layout, .stability-zones { grid-template-columns: 1fr; } }
+.assessment-ring-key { background: transparent !important; border: 2px dashed var(--green); }
+
+.stability-score { font-variant-numeric: tabular-nums; font-size: .87rem; font-weight: 700; color: var(--ink); margin: 7px 0; }
