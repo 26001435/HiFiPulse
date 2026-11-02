@@ -190,6 +190,7 @@
     return {
       lat: lat,
       lon: lon,
+      testId: field(row, ["TestId", "Test ID", "testId"]),
       download: download,
       testStatus: incomplete && download === null ? "incomplete" : "complete",
       upload: num(field(row, ["Upload", "Upload (Mbps)"])),
@@ -532,7 +533,7 @@
             Ping: item.ping, Jitter: item.jitter,
             Accuracy: item.accuracy, Building: item.building,
             Floor: item.floor, Timestamp: item.timestamp, Provider: item.provider,
-            testStatus: item.testStatus
+            testStatus: item.testStatus, TestId: item.testId
           });
         }).filter(Boolean);
   }
@@ -571,13 +572,23 @@
         return window.HifiStability.normalise(r, window.HifiPlaceCheck);
       }).filter(Boolean));
       records = rows.map(normalise).filter(Boolean);
-      // The published sheet can lag behind a recent submission. Show local
-      // measurements as well, avoiding duplicate timestamps from the sheet.
-      var seen = new Map(records.map(function (r) { return [[r.ts, r.lat, r.lon].join(":"), r]; }));
+      // The published sheet can lag behind a recent submission. Prefer the
+      // local, more precisely rounded copy when TestId matches. Server and
+      // client timestamps differ, so timestamp alone is not a reliable key.
+      var byId = new Map(), byLegacyPosition = new Map();
+      records.forEach(function (r) {
+        if (r.testId) byId.set(r.testId, r);
+        byLegacyPosition.set([r.ts, r.lat, r.lon].join(":"), r);
+      });
       localRecords().forEach(function (r) {
         var key = [r.ts, r.lat, r.lon].join(":");
-        if (!seen.has(key)) { records.push(r); seen.set(key, r); }
-        else if (!seen.get(key).provider) seen.get(key).provider = r.provider;
+        var existing = r.testId ? byId.get(r.testId) : byLegacyPosition.get(key);
+        if (existing) Object.assign(existing, r);
+        else {
+          records.push(r);
+          if (r.testId) byId.set(r.testId, r);
+          byLegacyPosition.set(key, r);
+        }
       });
       lastLoaded = Date.now();
       updateProviderOptions();

@@ -540,3 +540,7 @@ footer p { margin: 0; }
 .assessment-ring-key { background: transparent !important; border: 2px dashed var(--green); }
 
 .stability-score { font-variant-numeric: tabular-nums; font-size: .87rem; font-weight: 700; color: var(--ink); margin: 7px 0; }
+
+.feed-help { margin: 12px 0 0; border-top: 1px solid var(--line); padding-top: 10px; font-size: .8rem; }
+.feed-help summary { color: var(--green); cursor: pointer; font-weight: 700; }
+.feed-help p { overflow-wrap: anywhere; }

@@ -149,6 +149,7 @@
   async function load() {
     var refresh = $('rank-refresh'); refresh.disabled = true;
     $('rank-status').textContent = 'Loading measurements…';
+    $('rank-diagnostics').textContent = 'Checking published CSV accessibility and required fields…';
     var local = localRecords();
     var rawLocal = [];
     try { rawLocal = JSON.parse(localStorage.getItem('hifipulse:results') || '[]');
@@ -164,17 +165,27 @@
       if (!response.ok) throw new Error('HTTP ' + response.status);
       var text = await response.text();
       if (/^\s*</.test(text)) throw new Error('Expected published CSV, received a web page');
-      var rows = window.HifiCsv.toObjects(window.HifiCsv.parse(text));
+      var parsed = window.HifiCsv.parse(text);
+      var rows = window.HifiCsv.toObjects(parsed);
+      var diagnosis = window.HifiFeedDiagnostics.analyse(parsed[0] || [], rows, function (r) {
+        return core.normalise(r, window.HifiPlaceCheck);
+      });
+      $('rank-diagnostics').textContent = diagnosis.message;
       var remote = rows.map(function (r) { return core.normalise(r,window.HifiPlaceCheck); }).filter(Boolean);
       records = core.dedupe(remote.concat(local));
       stabilityRecords = stability.dedupe(rows.map(function (r) {
         return stability.normalise(r,window.HifiPlaceCheck);
       }).filter(Boolean).concat(localStability));
-      $('rank-status').textContent = remote.length + ' community Campus Wi-Fi tests loaded' + (local.length ? ' · ' + local.length + ' saved here' : '') + '. Updated ' + new Date().toLocaleTimeString() + '.';
+      $('rank-status').textContent = remote.length + ' qualifying shared test(s) from the published CSV · ' +
+        local.length + ' qualifying test(s) saved on this device. ' +
+        (remote.length ? 'Other devices can see the shared tests if the feed is reachable.' :
+          'Any visible local tests are not shared with other devices.') +
+        ' Updated ' + new Date().toLocaleTimeString() + '.';
     } catch (error) {
       records = core.dedupe(local);
       stabilityRecords = stability.dedupe(localStability);
       $('rank-status').textContent = local.length ? 'Community feed unavailable; showing tests saved on this device only.' : 'Community feed unavailable. No local Campus Wi-Fi results to show.';
+      $('rank-diagnostics').textContent = 'Could not load the published CSV in this browser (network, access permission, CORS or timeout). The exact reason is not verifiable here. Check the public CSV in a signed-out browser and confirm the sheet is published to the web.';
     } finally { clearTimeout(timeout); render(); refresh.disabled = false; }
   }
   document.addEventListener('DOMContentLoaded', function () {
