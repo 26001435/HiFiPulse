@@ -4,6 +4,9 @@ Development milestones for HiFiPulse. Pull-request numbers below describe merged
 
 ## Unreleased
 
+- Added assessment-ready *candidates* based on five repeat Campus Wi-Fi attempts over at least two days in 30 days, with GPS/label checks, upload, ping, jitter and failed-test thresholds. Rankings displays evidence and the map shows separate candidate rings; no continuous dropout or exam guarantee is claimed.
+- Added a private, rule-based task planner for online quizzes, report uploads, lecture video and saved-PDF reading. Evidence-backed places/hours are suggested only when repeat observations qualify; otherwise the UI says evidence is missing.
+
 - Added an optional self-reported floor/level and live label preview (for example, KK12 Blok A L4); the Coverage map now has a searchable, filter-aware sidebar of individual measurements with place, floor, provider, metrics, time and approximate GPS accuracy. Selecting a test focuses its grouped marker. Floors remain unverified and depend on the external feed publishing its Floor column for shared visibility.
 
 - Added decibel-meter-style quality bars for download, upload, ping and jitter: poor red, fair amber, excellent green, with live fills, explicit threshold guide, and unrated states when no measurement exists.

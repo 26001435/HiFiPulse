@@ -3,6 +3,8 @@
   'use strict';
   var core = window.HifiRankingsCore;
   var records = [];
+  var stabilityRecords = [];
+  var stability = window.HifiStability;
   function $(id) { return document.getElementById(id); }
   function speed(value) {
     return value > 0 && value < 0.01 ? value.toFixed(6) : value < 1 ? value.toFixed(4) : value.toFixed(1);
@@ -119,11 +121,42 @@
       card.appendChild(link); host.appendChild(card);
     });
   }
-  function render() { renderLeaderboard(); renderHours(); renderSpaces(); }
+  function renderStability() {
+    var zones = stability.zones(stabilityRecords, Date.now());
+    var ready = zones.filter(function (z) { return z.ready; });
+    $('stability-summary').textContent = ready.length
+      ? ready.length + ' location' + (ready.length === 1 ? '' : 's') + ' meet the observed thresholds; none is certified for an assessment. Evidence may include tests saved only on this device.'
+      : 'No location meets all repeated-test thresholds yet. Missing evidence is not proof a spot is bad. Evidence may include this-device-only tests.';
+    var host = $('stability-zones'); host.replaceChildren();
+    zones.slice(0, 8).forEach(function (z) {
+      var card = node('article','stability-zone');
+      card.appendChild(node('h3','',window.HifiLocationLabel.label(z.building, z.floor)));
+      card.appendChild(node('p','stability-badge' + (z.ready ? ' is-ready' : ''),
+        z.ready ? 'Meets observed criteria' : z.count < 5 || z.days < 2 ? 'More repeat tests needed' : 'Criteria not met'));
+      card.appendChild(node('p','stability-score',z.score === null ? 'Score withheld · more evidence needed' :
+        'Observed stability score ' + z.score + '/100 (not a guarantee)'));
+      card.appendChild(node('p','note',z.count + ' attempts across ' + z.days +
+        ' day(s) · ' + z.success + '/' + z.count + ' passed upload, ping and jitter limits'));
+      card.appendChild(node('p','note','Median jitter ' + (z.medianJitter === null ? '—' : z.medianJitter.toFixed(1)) +
+        ' ms · median ping ' + (z.medianPing === null ? '—' : z.medianPing.toFixed(0)) +
+        ' ms · lower-quartile upload ' + (z.lowerUpload === null ? '—' : speed(z.lowerUpload)) + ' Mbps'));
+      var link = node('a','space-map-link','View approximate map location →');
+      link.href = 'map.html?lat=' + encodeURIComponent(z.lat) + '&lon=' + encodeURIComponent(z.lon);
+      card.appendChild(link); host.appendChild(card);
+    });
+  }
+  function render() { renderLeaderboard(); renderHours(); renderSpaces(); renderStability(); }
   async function load() {
     var refresh = $('rank-refresh'); refresh.disabled = true;
     $('rank-status').textContent = 'Loading measurements…';
     var local = localRecords();
+    var rawLocal = [];
+    try { rawLocal = JSON.parse(localStorage.getItem('hifipulse:results') || '[]');
+      if (!Array.isArray(rawLocal)) rawLocal = [];
+    } catch (e) { rawLocal = []; }
+    var localStability = rawLocal.map(function (r) {
+      return stability.normalise(r, window.HifiPlaceCheck);
+    }).filter(Boolean);
     var controller = new AbortController();
     var timeout = setTimeout(function () { controller.abort(); }, 12000);
     try {
@@ -134,9 +167,13 @@
       var rows = window.HifiCsv.toObjects(window.HifiCsv.parse(text));
       var remote = rows.map(function (r) { return core.normalise(r,window.HifiPlaceCheck); }).filter(Boolean);
       records = core.dedupe(remote.concat(local));
+      stabilityRecords = stability.dedupe(rows.map(function (r) {
+        return stability.normalise(r,window.HifiPlaceCheck);
+      }).filter(Boolean).concat(localStability));
       $('rank-status').textContent = remote.length + ' community Campus Wi-Fi tests loaded' + (local.length ? ' · ' + local.length + ' saved here' : '') + '. Updated ' + new Date().toLocaleTimeString() + '.';
     } catch (error) {
       records = core.dedupe(local);
+      stabilityRecords = stability.dedupe(localStability);
       $('rank-status').textContent = local.length ? 'Community feed unavailable; showing tests saved on this device only.' : 'Community feed unavailable. No local Campus Wi-Fi results to show.';
     } finally { clearTimeout(timeout); render(); refresh.disabled = false; }
   }

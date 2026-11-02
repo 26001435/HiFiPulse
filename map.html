@@ -16,6 +16,7 @@
   <script src="csv.js" defer></script>
   <script src="place-check.js" defer></script>
   <script src="location-label.js" defer></script>
+  <script src="stability-core.js" defer></script>
   <script src="map-clusters.js" defer></script>
   <script src="map.js" defer></script>
   <script src="insights.js" defer></script>
@@ -33,7 +34,7 @@
       </div>
       <a href="index.html">Speed test</a>
       <div class="nav-group"><a href="map.html" aria-current="page">Coverage map</a><details class="nav-dropdown"><summary class="nav-expand" aria-label="Toggle Coverage map menu"><span class="nav-chevron" aria-hidden="true"></span></summary>
-        <div class="nav-menu" id="map-menu"><a href="map.html#panel-map">Coverage map</a><a href="map.html#panel-history">Speed history</a><a href="map.html#panel-providers">Compare networks</a><a href="rankings.html">Rankings</a></div></details>
+        <div class="nav-menu" id="map-menu"><a href="map.html#panel-map">Coverage map</a><a href="map.html#panel-history">Speed history</a><a href="map.html#panel-providers">Compare networks</a><a href="rankings.html">Rankings</a><a href="planner.html">Task planner</a></div></details>
       </div>
     </nav>
     <div class="header-actions"><button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">Dark mode</button></div>
@@ -82,6 +83,8 @@
       </div>
 
       <label class="incomplete-filter"><input id="show-incomplete" type="checkbox" checked> Show incomplete tests (speed unknown)</label>
+      <label class="incomplete-filter"><input id="show-assessment" type="checkbox" checked> Show assessment-ready candidates</label>
+      <p class="note">Candidate rings use 5+ repeated Campus Wi-Fi attempts across 2 days in the past 30 days, regardless of the map’s time filter. They are not verified seats, continuous dropout monitors or guarantees for a quiz. <a href="rankings.html#stability-heading">See the criteria</a>.</p>
       <p class="note">An incomplete test means the download could not be measured. It is not a 0 Mbps measurement or a verified outage.</p>
       <div class="provider-map-filter"><label for="map-provider">Network</label>
         <select id="map-provider"><option value="all">All networks</option></select>

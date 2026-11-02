@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="theme.css"><link rel="icon" type="image/png" href="favicon.png">
   <script src="theme.js" defer></script><script src="config.js" defer></script>
   <script src="csv.js" defer></script><script src="spots.js" defer></script>
-  <script src="place-check.js" defer></script><script src="rankings-core.js" defer></script><script src="rankings.js" defer></script>
+  <script src="place-check.js" defer></script><script src="location-label.js" defer></script><script src="stability-core.js" defer></script><script src="rankings-core.js" defer></script><script src="rankings.js" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -20,7 +20,7 @@
       </div>
       <a href="index.html">Speed test</a>
       <div class="nav-group nav-parent-active"><a href="map.html">Coverage map</a><details class="nav-dropdown"><summary class="nav-expand" aria-label="Toggle Coverage map menu"><span class="nav-chevron" aria-hidden="true"></span></summary>
-        <div class="nav-menu" id="map-menu"><a href="map.html#panel-map">Coverage map</a><a href="map.html#panel-history">Speed history</a><a href="map.html#panel-providers">Compare networks</a><a href="rankings.html" aria-current="page">Rankings</a></div></details>
+        <div class="nav-menu" id="map-menu"><a href="map.html#panel-map">Coverage map</a><a href="map.html#panel-history">Speed history</a><a href="map.html#panel-providers">Compare networks</a><a href="rankings.html" aria-current="page">Rankings</a><a href="planner.html">Task planner</a></div></details>
       </div>
     </nav>
     <div class="header-actions"><button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">Dark mode</button></div>
@@ -44,6 +44,14 @@
         <p class="rankings-disclaimer">This is a leaderboard of opt-in browser measurements, not a contest of students. A single unusually fast result may reflect test conditions or inaccurate self-reporting. <a href="index.html">Run a test</a> when you are ready.</p>
       </aside>
       <div class="rankings-primary">
+        <section class="card" aria-labelledby="stability-heading">
+          <div class="rankings-heading"><div><p class="eyebrow">REPEATED OBSERVATIONS / NOT A GUARANTEE</p><h2 id="stability-heading">Assessment-ready candidates</h2></div></div>
+          <p class="note">A place and floor need at least 5 Campus Wi-Fi tests across 2 days in the past 30 days, with accurate GPS (≤150 m). At least 80% of attempts must have upload ≥2 Mbps, ping ≤80 ms and jitter ≤15 ms; the lower-quartile upload must be ≥2 Mbps and median ping/jitter must pass too. Incomplete tests count against the pass rate. A 0–100 observational score weights pass rate (50%), jitter (25%), ping (15%) and lower-quartile upload (10%); at least 5 tests across 2 days are needed for any score. This is not a probability. A browser cannot monitor continuous dropouts or guarantee a live quiz connection.</p>
+          <p id="stability-summary" class="note" role="status">Loading stability evidence…</p>
+          <div id="stability-zones" class="stability-zones"></div>
+          <p class="note">Check your connection again before an assessment, save work frequently, and follow your lecturer’s contingency plan. Labels and floors are self-reported.</p>
+          <a class="btn btn-ghost planner-cta" href="planner.html">Plan tasks around the signal →</a>
+        </section>
         <section class="card" aria-labelledby="spots-heading"><div class="rankings-heading"><div><p class="eyebrow">WORKABLE PLACES</p><h2 id="spots-heading">Best study spaces</h2></div></div>
           <p class="note">Non-classroom suggestions. A strong-coverage label requires 3 nearby matching tests over 2 or more days in the past 30 days. No seat availability is measured.</p>
           <div id="ranked-spaces" class="insight-grid"></div>

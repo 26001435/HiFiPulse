@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Task planner — HiFiPulse</title>
+  <meta name="description" content="Arrange campus study tasks by connectivity need using measured, evidence-gated Wi-Fi observations.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://docs.google.com https://*.googleusercontent.com; base-uri 'none'; form-action 'none'">
+  <link rel="stylesheet" href="theme.css"><link rel="icon" type="image/png" href="favicon.png">
+  <script src="theme.js" defer></script><script src="config.js" defer></script><script src="csv.js" defer></script>
+  <script src="place-check.js" defer></script><script src="location-label.js" defer></script>
+  <script src="stability-core.js" defer></script><script src="planner-core.js" defer></script><script src="planner.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span>HiFiPulse</a>
+    <nav class="site-nav" aria-label="Main">
+      <div class="nav-group"><a href="about.html">About us</a><details class="nav-dropdown"><summary class="nav-expand" aria-label="Toggle About us menu"><span class="nav-chevron" aria-hidden="true"></span></summary>
+        <div class="nav-menu" id="about-menu"><a href="about.html#mission-heading">Our Mission</a><a href="guide.html">Wi-Fi guide</a></div></details>
+      </div>
+      <a href="index.html">Speed test</a>
+      <div class="nav-group nav-parent-active"><a href="map.html">Coverage map</a><details class="nav-dropdown"><summary class="nav-expand" aria-label="Toggle Coverage map menu"><span class="nav-chevron" aria-hidden="true"></span></summary>
+        <div class="nav-menu" id="map-menu"><a href="map.html#panel-map">Coverage map</a><a href="map.html#panel-history">Speed history</a><a href="map.html#panel-providers">Compare networks</a><a href="rankings.html">Rankings</a><a href="planner.html" aria-current="page">Task planner</a></div></details>
+      </div>
+    </nav>
+    <div class="header-actions"><button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">Dark mode</button></div>
+  </header>
+  <main class="wide planner-main">
+    <div class="hero"><p class="eyebrow">PLAN AROUND THE SIGNAL</p><h1>Put the connection to <span class="heading-emphasis">work for your day.</span></h1>
+      <p>List your tasks. We’ll put connection-critical work first and suggest a place and historically steadier hour only where repeated Campus Wi-Fi measurements support it. We cannot verify which hours are truly off-peak. Nothing here reserves a seat or guarantees a connection.</p></div>
+    <div class="planner-layout">
+      <section class="card" aria-labelledby="planner-input-heading">
+        <h2 id="planner-input-heading">Your tasks</h2>
+        <p class="note">Tasks stay in this tab only; they are not submitted or saved. Add a label if you like—avoid personal details.</p>
+        <form id="planner-form">
+          <label class="field" for="task-type">Connectivity need
+            <select id="task-type"><option value="quiz">Take an online quiz or test</option><option value="upload">Upload an assignment</option><option value="video">Watch a lecture video</option><option value="reading">Read a saved PDF offline</option></select>
+          </label>
+          <label class="field" for="task-name">Task label (optional)
+            <input id="task-name" maxlength="60" placeholder="e.g. Upload report" autocomplete="off">
+          </label>
+          <button class="btn" type="submit">Add task</button>
+        </form>
+        <ul id="task-list" class="task-list" aria-label="Tasks added"></ul>
+        <p id="task-count" class="note" role="status">No tasks yet.</p>
+      </section>
+      <section class="card" aria-labelledby="planner-output-heading">
+        <p class="eyebrow">CONNECTIVITY FIRST</p><h2 id="planner-output-heading">Suggested order</h2>
+        <p id="planner-status" class="note" role="status" aria-live="polite">Loading measurements…</p>
+        <div id="planner-results" class="planner-results"></div>
+        <p class="note">An “assessment-ready” candidate is based on small, self-reported snapshots—not a monitored connection or prediction. Incomplete downloads are a proxy for failed tests, not measured continuous dropouts. Always check again before a deadline.</p>
+      </section>
+    </div>
+  </main>
+  <footer><p>HiFiPulse · no AI, booking or seat availability claims. <a href="rankings.html">See the underlying stability evidence</a>.</p></footer>
+</body>
+</html>
