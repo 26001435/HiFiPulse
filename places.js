@@ -25,7 +25,7 @@
     "STOR ICT AAJ", "BILIK AVA", "BILIK JURUTEKNIK", "MAKMAL BAHASA",
     "BILIK SERVER ICT", "BILIK KETUA GURU JEPUN", "BILIK PENYELARAS RPKJ",
     "DEWAN ADK 1", "DEWAN ADK 2", "DEWAN KULIAH UTAMA",
-    "MAKMAL FIZIK JEPUN", "MAKMAL KIMIA JEPUN"
+    "MAKMAL FIZIK JEPUN", "MAKMAL KIMIA JEPUN", "PASUM Library"
   ];
   function normal(value) { return value.trim().replace(/\s+/g, " ").toLocaleLowerCase(); }
   var seen = new Set();
