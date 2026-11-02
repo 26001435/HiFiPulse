@@ -267,51 +267,6 @@
     return el;
   }
 
-  function buildGroupPopup(group, tier) {
-    if (group.records.length === 1) return buildPopup(group.records[0], tier);
-    var host = document.createElement("div");
-    var title = document.createElement("strong");
-    title.textContent = group.records.length + " nearby tests · approximate position";
-    host.appendChild(title);
-    var measured = group.records.filter(function (r) { return r.download !== null; })
-      .map(function (r) { return r.download; }).sort(function (a, b) { return a - b; });
-    var mid = Math.floor(measured.length / 2);
-    var median = measured.length % 2 ? measured[mid] : (measured[mid - 1] + measured[mid]) / 2;
-    var summary = document.createElement("p");
-    summary.textContent = measured.length
-      ? "Median measured download: " + fmtSpeed(median) +
-        " Mbps from " + measured.length + " test(s)."
-      : "No measured download speeds in this group.";
-    host.appendChild(summary);
-    var unknown = group.records.length - measured.length;
-    if (unknown) {
-      var note = document.createElement("p");
-      note.textContent = unknown + " incomplete attempt(s), speed unknown — not 0 Mbps.";
-      host.appendChild(note);
-    }
-    var details = document.createElement("details");
-    var label = document.createElement("summary");
-    label.textContent = "View individual tests";
-    details.appendChild(label);
-    group.records.slice().sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); })
-      .slice(0, 20).forEach(function (r) {
-        var line = document.createElement("p");
-        line.className = "group-test";
-        line.textContent = (r.provider || "Network unlabelled") + " · " +
-          (r.download === null ? "download unmeasured" : fmtSpeed(r.download) + " Mbps") +
-          " · " + (r.ts ? new Date(r.ts).toLocaleString() : "time unknown") +
-          " · " + window.HifiLocationLabel.label(r.building, r.floor) + " (self-reported if named)";
-        details.appendChild(line);
-      });
-    if (group.records.length > 20) {
-      var more = document.createElement("p");
-      more.textContent = "Showing the 20 most recent of " + group.records.length + " tests.";
-      details.appendChild(more);
-    }
-    host.appendChild(details);
-    return host;
-  }
-
   function sidebarLine(host, text, className) {
     var span = document.createElement("span");
     if (className) span.className = className;
@@ -351,8 +306,17 @@
         if (!entry) return;
         list.querySelectorAll("[data-active]").forEach(function (item) { delete item.dataset.active; });
         button.dataset.active = "true";
-        map.setView([entry.group.lat, entry.group.lon], Math.max(map.getZoom(), 17));
-        entry.marker.openPopup();
+        var targetZoom = Math.max(map.getZoom(), 17);
+        if (targetZoom !== map.getZoom()) {
+          map.once("zoomend", function () {
+            var current = mapPointers.get(r);
+            if (current) current.marker.openPopup();
+          });
+          map.setView([r.lat, r.lon], targetZoom);
+        } else {
+          map.panTo([r.lat, r.lon]);
+          entry.marker.openPopup();
+        }
         if (window.matchMedia && window.matchMedia("(max-width: 950px)").matches) {
           $("map-home").scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
         }
@@ -437,31 +401,30 @@
 
     sidebarRecords = filtered.slice().sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
     sidebarLimit = 40;
-    var groups = window.HifiMapClusters.group(filtered, 160);
-    groups.forEach(function (group) {
-      var measured = group.records.filter(function (r) { return r.download !== null; })
-        .map(function (r) { return r.download; }).sort(function (a, b) { return a - b; });
-      var mid = Math.floor(measured.length / 2);
-      var median = measured.length % 2 ? measured[mid] : (measured[mid - 1] + measured[mid]) / 2;
-      var tier = measured.length ? tierFor(median) : { color: "#71807a" };
-      var approximate = group.records.some(function (r) {
-        return r.accuracy === null || r.accuracy > cfg.map.preciseAccuracyM;
-      });
-      var marker = L.circleMarker([group.lat, group.lon], {
-        radius: group.records.length === 1 ? 7 : Math.min(18, 9 + Math.log2(group.records.length) * 2),
-        color: "#ffffff", weight: 1.5, fillColor: tier.color,
-        dashArray: !measured.length ? "3 3" : null,
-        fillOpacity: approximate || !measured.length ? 0.35 : 0.9
-      });
-      if (group.records.length > 1) {
-        marker.bindTooltip(String(group.records.length), {
-          permanent: true, direction: "center", className: "map-cluster-count"
-        });
+    // Separate overlapping markers in screen space, not geographical space.
+    // Lines point back to the original recorded fix; no position is averaged.
+    var placements = window.HifiMapClusters.layout(filtered, function (lat, lon) {
+      return map.latLngToLayerPoint([lat, lon]);
+    });
+    placements.forEach(function (placement) {
+      var rec = placement.record;
+      var tier = rec.download === null ? { color: "#71807a" } : tierFor(rec.download);
+      var approximate = rec.accuracy === null || rec.accuracy > cfg.map.preciseAccuracyM;
+      var position = map.layerPointToLatLng(L.point(placement.x, placement.y));
+      if (placement.displaced) {
+        L.polyline([[rec.lat, rec.lon], position], {
+          color: "#71807a", weight: 1, opacity: 0.55, interactive: false
+        }).addTo(layer);
       }
-      marker.bindPopup(buildGroupPopup(group, tier), { maxWidth: 320 });
+      var marker = L.circleMarker(position, {
+        radius: 7, color: "#ffffff", weight: 1.5, fillColor: tier.color,
+        dashArray: rec.download === null ? "3 3" : null,
+        fillOpacity: approximate || rec.download === null ? 0.35 : 0.9
+      });
+      marker.bindPopup(buildPopup(rec, tier), { maxWidth: 320 });
       marker.addTo(layer);
-      group.records.forEach(function (r) { mapPointers.set(r, { group: group, marker: marker }); });
-      bounds.push([group.lat, group.lon]);
+      mapPointers.set(rec, { group: { lat: rec.lat, lon: rec.lon }, marker: marker });
+      bounds.push([rec.lat, rec.lon]);
     });
 
     if (!fitted && bounds.length) {
@@ -474,7 +437,7 @@
 
     /* Stats */
     $("stat-count").textContent = shown;
-    $("stat-locations").textContent = groups.length;
+    $("stat-locations").textContent = placements.length;
     $("stat-avg").textContent = downloadCount
       ? fmtSpeed(totalDownload / downloadCount) + " Mbps"
       : "—";
@@ -707,6 +670,7 @@
     $("test-search").addEventListener("input", function () { sidebarLimit = 40; renderSidebar(); });
     $("test-list-more").addEventListener("click", function () { sidebarLimit += 40; renderSidebar(); });
     $("range").addEventListener("change", render);
+    map.on("zoomend", render);
     $("show-incomplete").addEventListener("change", render);
     $("show-assessment").addEventListener("change", render);
     $("map-provider").addEventListener("change", render);

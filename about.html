@@ -6,14 +6,14 @@
   <meta name="color-scheme" content="light dark">
   <title>About us — HiFiPulse</title>
   <meta name="description" content="HiFiPulse's mission: fairer digital access, faster study-space discovery, and better campus connectivity awareness.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://speed.cloudflare.com https://cloudflare.com; base-uri 'none'; form-action 'none'">
   <link rel="stylesheet" href="theme.css">
-  <script src="theme.js" defer></script>
+  <script src="theme.js" defer></script><script src="config.js" defer></script><script src="engine.js" defer></script><script src="quick-options.js" defer></script>
   <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span>HiFiPulse</a>
+    <a class="brand" href="index.html"><img class="brand-logo" src="assets/hifipulse-mark.png" width="270" height="339" alt="">HiFiPulse</a>
     <nav class="site-nav" aria-label="Main">
       <div class="nav-group"><a href="about.html" aria-current="page">About us</a><details class="nav-dropdown"><summary class="nav-expand" aria-label="Toggle About us menu"><span class="nav-chevron" aria-hidden="true"></span></summary>
         <div class="nav-menu" id="about-menu"><a href="about.html#mission-heading">Our Mission</a><a href="guide.html">Wi-Fi guide</a></div></details>
@@ -27,16 +27,24 @@
   </header>
 
   <main class="wide about-main">
-    <div class="hero">
+    <div class="hero about-hero">
+      <div class="about-hero-copy">
       <p class="eyebrow">ABOUT HIFIPULSE</p>
-      <h1>Better access begins with <span class="heading-emphasis">better evidence.</span></h1>
-      <p>HiFiPulse is a student-facing project exploring how everyday network measurements can help people navigate campus—and make unequal access harder to ignore. Our initial focus is Universiti Malaya, particularly PASUM, KK11 and KK12.</p>
+      <h1>Find the problem first. <span class="heading-emphasis">Fix what matters.</span></h1>
+      <p>HiFiPulse is a student-facing project exploring how everyday network measurements can help people navigate campus—and make unequal access harder to ignore. Our starting point is Universiti Malaya—PASUM, KK11 and KK12. The broader idea is to diagnose connectivity gaps before spending on fixes, and check whether those fixes actually help.</p>
+      <a class="about-text-link" href="#vision-heading">See the bigger idea <span aria-hidden="true">↓</span></a>
+      <a class="about-text-link" href="map.html">Explore the coverage map <span aria-hidden="true">↗</span></a>
+      </div>
+      <figure class="about-photo">
+        <img src="assets/pasum-campus.png" width="515" height="388" alt="Campus buildings and a sloping road at PASUM, Universiti Malaya" decoding="async">
+        <figcaption>PASUM, Universiti Malaya · our starting point</figcaption>
+      </figure>
     </div>
 
     <section class="about-statement" aria-labelledby="mission-heading">
       <p class="eyebrow">OUR MISSION</p>
       <h2 id="mission-heading">Make connectivity useful, visible and fair.</h2>
-      <p>Students should not have to guess which study space will support a submission, a video call or a lecture. We turn individual measurements into a more useful view of campus, while being clear about gaps in the evidence. HiFiPulse is not an official university network monitor.</p>
+      <p>Students should not have to guess which study space will support a submission, a video call or a lecture. We turn individual measurements into a more useful view of campus, while being clear about gaps in the evidence. HiFiPulse is not an official university network monitor. Our proposed pilot asks whether evidence can guide practical improvements from the least costly option to the infrastructure upgrades that truly need investment.</p>
     </section>
 
     <section class="about-objectives" aria-labelledby="objectives-heading">
@@ -48,8 +56,18 @@
       </div>
     </section>
 
+    <section class="about-questions" aria-labelledby="questions-heading">
+      <div class="guide-section-head"><p class="eyebrow">A CLOSER LOOK</p><h2 id="questions-heading">What does a test actually tell us?</h2><p>Open a question to see how we interpret a result.</p></div>
+      <div class="about-question-list">
+        <details><summary>Is one fast test enough to recommend a study space?</summary><p>Not on its own. Speeds change with time and load. We look for repeated, nearby measurements and show when there is not enough evidence. We cannot tell whether a seat is available.</p></details>
+        <details><summary>Does a pin prove which room someone was in?</summary><p>No. GPS can drift, particularly indoors. Place names are self-reported; a map pin shows an approximate recorded location, not a verified room or building.</p></details>
+        <details><summary>Will my report appear on another device?</summary><p>Speed tests only appear across devices when the external results service saves them and its published feed is reachable. Study-space suggestions and manual dead-zone reports currently stay in this browser.</p></details>
+      </div>
+    </section>
+
     <section class="about-method" aria-labelledby="method-heading">
       <div class="guide-section-head"><p class="eyebrow">HOW IT WORKS</p><h2 id="method-heading">Measurements first. Claims second.</h2></div>
+      <figure class="about-signal"><img src="assets/wifi-signal.png" width="512" height="512" alt="Blue Wi-Fi signal symbol" loading="lazy" decoding="async"><figcaption>A signal icon is not a speed measurement. A real test gives us a clearer picture.</figcaption></figure>
       <div class="about-method-grid">
         <div><h3>Measure</h3><p>A browser test records download, upload, ping and jitter. The student selects the network being tested and may provide a place name and approximate location.</p></div>
         <div><h3>Compare</h3><p>Map points and historical medians give context for a specific area and time. Network labels are self-reported; low sample counts and single tests should not be treated as guarantees.</p></div>
@@ -57,9 +75,33 @@
       </div>
     </section>
 
+    <section class="about-vision" aria-labelledby="vision-heading">
+      <div class="guide-section-head"><p class="eyebrow">THE BIGGER IDEA</p><h2 id="vision-heading">Diagnose before buying.</h2></div>
+      <div class="about-vision-body">
+        <p class="about-lead">A slow connection in a crowded hall does not tell us what failed. It might be a weak signal, competition for airtime, an access-point placement problem or an upstream limit. A browser speed test alone cannot distinguish those causes.</p>
+        <p>Our PITRAM proposal turns HiFiPulse into an evidence-first cycle: <strong>measure → explain → try the least costly appropriate response → independently verify.</strong> Start with observations by place, network and time, including failed attempts. Investigate recurring gaps under controlled conditions. Try guidance and approved low-cost options where they make sense; ask campus IT to assess access points or backhaul when evidence points to an infrastructure problem. We would record costs and negative results, not just successes.</p>
+        <ol class="about-ladder">
+          <li><span>01 / MEASURE</span><p>Opt-in browser tests exist now; proposed fixed-position readings would add repeat context in a permitted hall.</p></li>
+          <li><span>02 / EXPLAIN</span><p>A proposed crowd study would compare signal, latency and throughput at fixed positions and occupancy levels, rather than blaming one cause from a speed reading.</p></li>
+          <li><span>03 / RESPOND</span><p>Use practical guidance and the rule-based task planner first where useful; investigate proposed low-cost trials only with permission. Institutional upgrades remain an IT decision.</p></li>
+          <li><span>04 / VERIFY</span><p>Re-test the same conditions, including failures and effects on other seats. If a response does not help, say so.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="about-future" aria-labelledby="future-heading">
+      <div class="guide-section-head"><p class="eyebrow">PROPOSED PILOT / NOT DEPLOYED</p><h2 id="future-heading">From student tool to careful experiments</h2></div>
+      <div class="about-future-body">
+        <p>These are research ideas from our PITRAM proposal—not features currently operating on campus. Any hall trial needs consent and approval from the relevant lecturers, UM IT and facilities teams.</p>
+        <details><summary>Study why a crowded lecture hall struggles</summary><p>At approved fixed positions, a proposed study would compare Wi-Fi signal strength, ping and throughput across different occupancy levels. Headcounts and other conditions would be recorded; no cameras or other students’ device identifiers are proposed. A change in speed alone would not prove crowd absorption.</p></details>
+        <details><summary>Test small, low-cost responses</summary><p>Bench tests would first check whether low-duty-cycle ESP32 sensing could work with harvested indoor energy, and whether a steerable reflector helps a weak spot without worsening another. Power budgets, parts, labour and any actual signal effects are unverified. An optional local offline-content node would require content rights and a security review; it cannot handle live submissions.</p></details>
+        <details><summary>Check who benefits—and who is left behind</summary><p>Students should not need to buy mobile data to overcome a campus gap. The proposed pilot would compare access patterns without recording individual finances or publishing personal routes. This work relates to SDG 4 (quality education), SDG 9 (infrastructure) and SDG 10 (reduced inequalities); the prototype alone does not achieve those goals.</p></details>
+      </div>
+    </section>
+
     <section class="about-limits" aria-labelledby="limits-heading">
       <div class="guide-section-head"><p class="eyebrow">WHERE WE ARE NOW</p><h2 id="limits-heading">A prototype with clear boundaries</h2></div>
-      <p>The map depends on an external published results feed. Study-space suggestions and dead-zone reports submitted through their forms currently stay on the device where they were made. A shared provider comparison needs the external data service to save the provider field. We have not built live seat counts, network-capacity predictions or an official IT dashboard.</p>
+      <p>The map depends on an external published results feed. Study-space suggestions and dead-zone reports submitted through their forms currently stay on the device where they were made. A shared provider comparison needs the external data service to save the provider field. We have not built live seat counts, network-capacity predictions, the proposed hall sensors or reflector, an OfflineNode, or an official IT dashboard.</p>
       <p>Next steps include a shared, moderated reporting service, broader campus measurements and privacy-conscious ways to share aggregate evidence with students and campus IT. These are plans, not available features.</p>
     </section>
 
