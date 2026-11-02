@@ -13,6 +13,7 @@
   <script src="config.js" defer></script>
   <script src="engine.js" defer></script>
   <script src="quality.js" defer></script>
+  <script src="test-feedback.js" defer></script>
   <script src="spots.js" defer></script>
   <script src="places.js" defer></script>
   <script src="place-check.js" defer></script>
@@ -23,7 +24,7 @@
 
   <header class="site-header">
     <a class="brand" href="index.html">
-      <span class="brand-mark" aria-hidden="true"></span>
+      <img class="brand-logo" src="assets/hifipulse-mark.png" width="270" height="339" alt="">
       HiFiPulse
     </a>
     <nav class="site-nav" aria-label="Main">
@@ -41,7 +42,9 @@
   <main>
     <div class="hero">
       <h1>Measure the connection <span class="heading-emphasis">you actually use.</span></h1>
-      <p>Test download, upload and latency at your exact campus location. Results help students see where connections hold up—and where they do not.</p>
+      <p>Test download, upload and latency from where you study. Your approximate location helps students see where connections hold up—and where they do not.</p>
+      <div class="test-journey" aria-label="How your test helps"><span><b>01</b> Choose your network</span><span><b>02</b> Run a test</span><span><b>03</b> Explore the evidence</span></div>
+      <a class="hero-help-link" href="#speed-faq-heading">Questions about data use or privacy? Read the quick answers ↓</a>
     </div>
 
     <section class="card" aria-labelledby="context-heading">
@@ -90,6 +93,10 @@
 
     <section class="card" aria-labelledby="test-heading">
       <h2 id="test-heading">Network test</h2>
+      <div class="test-level" aria-label="Test journey progress"><span id="test-level-label">Level 0 / 4 · Ready</span><span id="test-xp">0 / 100 test XP</span></div>
+      <div class="test-xp-pips" id="test-xp-pips" data-earned="0" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <p class="test-level-note">Levels follow this test’s stages. XP is for measured metrics, not fast speeds; it resets each test and is never shared.</p>
+      <p class="test-callout" id="test-callout" aria-live="off">Choose a network, then start your run.</p>
       <ol class="test-steps" aria-label="Test stages">
         <li data-stage="latency">01 <span>Latency</span></li>
         <li data-stage="download">02 <span>Download</span></li>
@@ -170,6 +177,17 @@
     </section>
 
     <section class="card" id="result" hidden aria-live="polite"></section>
+    <section class="speed-faq" aria-labelledby="speed-faq-heading">
+      <div class="speed-faq-intro"><p class="eyebrow">QUICK ANSWERS</p><h2 id="speed-faq-heading">Before you press start</h2><p>What a browser test can tell you—and what it cannot.</p></div>
+      <div class="speed-faq-list">
+        <details><summary>How much data will this test use?</summary><p>Choose Lightweight (up to about 8 MB) or Heavyweight (up to about 52 MB). These are estimates, not exact charges. On a metered connection, start with Lightweight; an interrupted or very slow test can still be recorded as incomplete rather than disappearing.</p></details>
+        <details><summary>Do I need to share my location?</summary><p>You can refuse browser location permission, but without a usable approximate fix your result cannot be placed on the map or included in location-based rankings. If you permit location, coordinates are rounded before submission; an indoor fix still cannot prove your exact room or floor.</p></details>
+        <details><summary>Is the network detected automatically?</summary><p>No. Select the network actually carrying your test traffic. Browsers cannot reliably identify a mobile carrier, and a “Campus Wi-Fi” label is self-reported. Check your device connection before starting.</p></details>
+        <details><summary>Will other students see my test immediately?</summary><p>Not necessarily. Your recent result can appear in this browser first. Shared results depend on the external submission service saving the test and the published CSV becoming available to other devices. A local save is not proof that the shared feed has updated.</p></details>
+        <details><summary>Does a fast result guarantee a good study spot?</summary><p>No. A single test reflects one network and moment. Study-space guidance needs repeated nearby observations; it cannot tell you whether a seat is free or promise that an assessment will stay connected.</p></details>
+      </div>
+      <p class="speed-faq-exit">Ready to contribute a measurement? <a href="#test-heading">Go to the test ↑</a></p>
+    </section>
     <section class="guide-preview"><div><h2>Before your next lecture</h2><p>Practical advice for crowded networks, weak signals and safer hotspots.</p></div><a class="btn btn-ghost" href="guide.html">Explore the Wi-Fi guide →</a></section>
   </main>
 

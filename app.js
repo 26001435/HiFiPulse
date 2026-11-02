@@ -10,6 +10,45 @@
   var running = false;
   var userCancelled = false;
   var tipTimer = null;
+  var feedbackTimer = null;
+  var feedbackExitTimer = null;
+  var feedbackQueue = null;
+  var feedbackRun = 0;
+  function stopFeedback() {
+    feedbackRun++;
+    clearTimeout(feedbackTimer);
+    clearTimeout(feedbackExitTimer);
+    feedbackQueue = null;
+  }
+  function callout(text, tone) {
+    var el = $("test-callout");
+    clearTimeout(feedbackExitTimer);
+    el.textContent = text;
+    el.dataset.tone = tone || "info";
+    el.classList.remove("is-appearing", "is-leaving");
+    // Restart the transition only on a stage change, not on every live sample.
+    void el.offsetWidth;
+    el.classList.add("is-appearing");
+    feedbackExitTimer = setTimeout(function () {
+      el.classList.remove("is-appearing");
+      el.classList.add("is-leaving");
+    }, 2500);
+  }
+  function playFeedback(result) {
+    stopFeedback();
+    var queue = ["ping", "download", "upload", "jitter"].map(function (metric) {
+      return window.HifiTestFeedback.feedback(metric, result[metric], window.HifiQuality.rate);
+    }).filter(Boolean);
+    if (!queue.length) { callout("No usable metric yet. This attempt is not a zero-speed result.", "warn"); return; }
+    var run = feedbackRun;
+    feedbackQueue = queue;
+    function next() {
+      if (run !== feedbackRun || !feedbackQueue || !feedbackQueue.length) return;
+      callout(feedbackQueue.shift(), "info");
+      if (feedbackQueue.length) feedbackTimer = setTimeout(next, 3200);
+    }
+    next();
+  }
   var currentTip = 0;
   var tipBag = [];
   var tips = [
@@ -101,6 +140,9 @@
   var stages = ["latency", "download", "upload", "save"];
   function setStage(stage) {
     var current = stages.indexOf(stage);
+    $("test-level-label").textContent = current < 0 ? "Level 0 / 4 · Ready" :
+      "Level " + (current + 1) + " / 4 · " +
+      { latency: "Ping scout", download: "Download run", upload: "Upload run", save: "Record check" }[stage];
     document.querySelectorAll(".test-steps li").forEach(function (item) {
       var position = stages.indexOf(item.dataset.stage);
       item.dataset.state = current < 0 ? "waiting" :
@@ -384,9 +426,13 @@
     $("test-profile").disabled = true;
     $("btn-cancel").hidden = false;
     $("result").hidden = true;
+    stopFeedback();
     resetMetrics();
+    $("test-xp").textContent = "0 / 100 test XP";
+    $("test-xp-pips").dataset.earned = "0";
     setProgress(0);
     setStatus("Starting…", "info");
+    callout("Level up: let's check the ping.");
     setStage("latency");
 
     var geoPromise = getPosition();
@@ -404,10 +450,12 @@
             setStage("download");
             $("live-trend").hidden = false;
             setPhase("Measuring download…");
+            callout("Level up: on to download.");
             setProgress(0.3);
           } else if (phase === "upload") {
             setStage("upload");
             setPhase("Measuring upload…");
+            callout("Level up: now upload.");
             setProgress(0.7);
           } else {
             setPhase("Preparing result…");
@@ -446,7 +494,11 @@
           (result.edge.country ? " (" + result.edge.country + ")" : "");
       }
 
+      var earned = window.HifiTestFeedback.xp(result);
+      $("test-xp").textContent = earned + " / 100 test XP";
+      $("test-xp-pips").dataset.earned = String(earned / 25);
       setStage("save");
+      callout("Final level: checking the record. XP counts readings, not speed.");
       setProgress(0.9);
       if (result.download === null) document.querySelector('[data-stage="download"]').dataset.state = "skipped";
       if (result.upload === null) document.querySelector('[data-stage="upload"]').dataset.state = "skipped";
@@ -455,7 +507,11 @@
 
       var geo = await geoPromise;
       if (userCancelled) {
+        stopFeedback();
         resetMetrics();
+        $("test-xp").textContent = "0 / 100 test XP";
+        $("test-xp-pips").dataset.earned = "0";
+        callout("Run cancelled. No level carried over.", "warn");
         setStatus("Test cancelled; no result was saved.", "warn");
         setPhase("");
         return;
@@ -494,15 +550,21 @@
       var outcome = await submit(payload);
       setPhase("");
       reportSubmission(outcome, payload, localSaved);
+      playFeedback(result);
       setProgress(1);
       document.querySelector('[data-stage="save"]').dataset.state =
         localSaved || outcome.ok ? "done" : "skipped";
     } catch (err) {
+      stopFeedback();
       if (err && err.name === "AbortError") {
         resetMetrics();
+        $("test-xp").textContent = "0 / 100 test XP";
+        $("test-xp-pips").dataset.earned = "0";
+        callout("Run cancelled. No level carried over.", "warn");
         setStatus("Test cancelled.", "warn");
         setPhase("");
       } else {
+        callout("That run hit a snag. You can try again.", "warn");
         setStatus("Test failed: " + (err && err.message ? err.message : "unknown error"), "error");
         setPhase("");
       }
@@ -517,6 +579,7 @@
   }
 
   function cancel() {
+    stopFeedback();
     userCancelled = true;
     if (engine) engine.abort();
   }

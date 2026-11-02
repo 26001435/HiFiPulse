@@ -5,14 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>HiFiPulse — Live Coverage Map</title>
-  <meta name="description" content="Live, crowd-sourced campus network map. Nearby rounded measurements are grouped into approximate location markers.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; connect-src 'self' https://docs.google.com https://*.googleusercontent.com; font-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="description" content="Live, crowd-sourced campus network map. Individual measurements have separate markers; overlapping dots are visually spread without changing recorded GPS.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; connect-src 'self' https://speed.cloudflare.com https://cloudflare.com https://docs.google.com https://*.googleusercontent.com; font-src 'self'; base-uri 'none'; form-action 'none'">
   <link rel="stylesheet" href="theme.css">
-  <script src="theme.js" defer></script>
+  <script src="theme.js" defer></script><script src="config.js" defer></script><script src="engine.js" defer></script><script src="quick-options.js" defer></script>
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="stylesheet" href="vendor/leaflet.css">
   <script src="vendor/leaflet.js" defer></script>
-  <script src="config.js" defer></script>
   <script src="csv.js" defer></script>
   <script src="place-check.js" defer></script>
   <script src="location-label.js" defer></script>
@@ -25,7 +24,7 @@
 
   <header class="site-header">
     <a class="brand" href="index.html">
-      <span class="brand-mark" aria-hidden="true"></span>
+      <img class="brand-logo" src="assets/hifipulse-mark.png" width="270" height="339" alt="">
       HiFiPulse
     </a>
     <nav class="site-nav" aria-label="Main">
@@ -43,7 +42,7 @@
   <main class="wide">
     <div class="hero">
       <h1>The campus, <span class="heading-emphasis">measured.</span></h1>
-      <p>Explore student measurements around PASUM, KK12 and KK11. Nearby tests are grouped by approximate position, not by verified building. A marker is not a coverage guarantee.</p>
+      <p>Explore student measurements around PASUM, KK12 and KK11. Each test has its own marker. Overlapping markers spread apart on screen, with thin lines back to their recorded GPS positions; the spread is not a more accurate location. A marker is not a coverage guarantee.</p>
     </div>
 
     <div class="view-tabs" role="tablist" aria-label="Explore campus data">
@@ -130,11 +129,11 @@
       </details>
 
       <div class="legend" id="legend" aria-label="Legend"></div>
-      <p class="note">Numbered markers group nearby tests within about 160 m of an anchor point. Positions are averages of rounded coordinates, not exact rooms or verified place names. Open a marker for individual results.</p>
+      <p class="note">Each test has its own marker. Overlapping dots are spread apart for selection and linked to their recorded, approximate GPS positions. A display offset is not a new location or a verified room.</p>
 
       <div class="stats">
         <span>Tests shown <b id="stat-count">0</b></span>
-        <span>Map locations <b id="stat-locations">0</b></span>
+        <span>Visible markers <b id="stat-locations">0</b></span>
         <span>Average download <b id="stat-avg">—</b></span>
         <span>Median ping <b id="stat-ping">—</b></span>
         <span>Updated <b id="stat-updated">—</b></span>
