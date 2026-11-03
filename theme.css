@@ -801,3 +801,63 @@ body { font-size: 1.025rem; line-height: 1.62; }
   .speed-workspace .test-console .metric:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; }
   .speed-workspace .test-console .metric:nth-child(4) { border-top: 1px solid var(--line); }
 }
+/* Map is the canvas; controls and evidence have distinct, readable zones. */
+#panel-map > .card { padding-top: 10px; }
+#map-heading { font-family: var(--display-font); font-size: clamp(1.55rem, 2.8vw, 2.3rem); font-weight: 500; margin-bottom: 18px; }
+#panel-map .map-toolbar { border-top: 1px solid var(--line); padding: 16px 0 5px; gap: 14px 24px; }
+#panel-map .filters { gap: 11px 17px; }
+#panel-map .chip { font-size: .88rem; }
+#panel-map .provider-map-filter { padding: 14px 0; margin: 0; border-bottom: 1px solid var(--line); }
+#panel-map .provider-map-filter span { max-width: 34ch; }
+#panel-map .map-tools { padding: 13px 0 8px; margin: 0; }
+#panel-map .zone-links button { padding: 7px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); }
+#panel-map .zone-links button:hover, #panel-map .zone-links button:focus-visible { border-color: var(--green); background: var(--green-light); }
+.map-reading-notes { margin: 8px 0; font-size: .85rem; color: var(--muted); }
+.map-reading-notes summary { cursor: pointer; color: var(--green); font-weight: 700; }
+.map-reading-notes .note { margin: 8px 0; }
+.map-legend { border-top: 1px solid var(--line); margin-top: 13px; padding: 14px 0 7px; }
+.map-legend i { border-radius: 2px; width: 14px; height: 14px; }
+.map-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 20px; margin-bottom: 12px; padding: 14px 0; }
+.map-stats span { display: flex; flex-direction: column; gap: 2px; }
+.map-stats b { font-size: 1.08rem; }
+.map-workspace { grid-template-columns: minmax(0, 1.85fr) minmax(265px, .85fr); gap: clamp(18px, 2.8vw, 34px); }
+#panel-map #map { height: min(72vh, 690px); min-height: 430px; }
+.test-sidebar { background: transparent; }
+.test-sidebar-head .note { max-width: 45ch; }
+#panel-map .test-list { max-height: 540px; }
+@media (max-width: 950px) {
+  .map-workspace { grid-template-columns: 1fr; }
+  #panel-map #map { min-height: 360px; height: 54vh; }
+  .map-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #panel-map .test-list { max-height: 340px; }
+}
+@media (max-width: 500px) { .map-stats { gap: 12px; } .map-stats b { font-size: .94rem; } }
+/* Rankings: observations first, leaderboard alongside deeper evidence. */
+.rankings-main .hero { max-width: 760px; margin-bottom: 28px; }
+.rankings-overview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(18px, 3vw, 38px); border-top: 2px solid var(--sea); margin-bottom: 27px; }
+.rankings-overview .sidebar-block { border-top: 0; padding: 18px 0 20px; min-width: 0; }
+.rankings-overview .sidebar-value { margin: 5px 0; }
+.rankings-layout { grid-template-columns: minmax(0, 1fr) minmax(275px, 330px); gap: clamp(24px, 4vw, 55px); }
+.rankings-layout > .rankings-primary { grid-column: 1; grid-row: 1; min-width: 0; }
+.rankings-layout > .rankings-sidebar { grid-column: 2; grid-row: 1; min-width: 0; position: static; }
+.rankings-sidebar .rankings-heading { display: block; }
+.rankings-sidebar .rankings-heading .field { max-width: 220px; margin-top: 15px; }
+.rankings-primary > .card { padding-top: 18px; }
+.rankings-primary .rankings-heading h2 { font-family: var(--display-font); font-weight: 500; line-height: 1.2; }
+.rankings-primary > .card > .note { max-width: 74ch; }
+@media (max-width: 850px) {
+  .rankings-layout { grid-template-columns: 1fr; }
+  .rankings-layout > .rankings-primary, .rankings-layout > .rankings-sidebar { grid-column: 1; grid-row: auto; }
+  .rankings-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) { .rankings-overview { grid-template-columns: 1fr; gap: 0; } .rankings-overview .sidebar-block { border-bottom: 1px solid var(--line); } }
+/* History and comparison remain readable as separate map views. */
+.view-tabs { gap: clamp(16px, 3vw, 38px); margin-bottom: 28px; }
+.view-tabs button { min-height: 48px; font-size: .94rem; font-weight: 650; }
+#panel-history, #panel-providers { max-width: 1020px; }
+#panel-history > h2, #panel-providers .section-heading h2 { font-family: var(--display-font); font-size: clamp(1.65rem, 3vw, 2.4rem); font-weight: 500; line-height: 1.2; }
+#panel-history .history-summary, #panel-providers #compare-summary { margin: 16px 0 23px; }
+#history-table { overflow-x: auto; }
+#panel-providers .compare-controls { padding: 15px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+#panel-providers .compare-card { padding: 21px 0; }
+@media (max-width: 600px) { .view-tabs { gap: 22px; } .view-tabs button { font-size: .84rem; } }

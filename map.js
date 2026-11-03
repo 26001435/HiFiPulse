@@ -1,6 +1,6 @@
 /* ============================================================================
  * HiFiPulse — live coverage map.
- * Reads the published sheet CSV, renders tier-coloured markers, and keeps
+ * Reads the published sheet CSV, renders sparse observation cells, and keeps
  * every user-supplied value out of innerHTML.
  * ==========================================================================*/
 (function () {
@@ -310,12 +310,12 @@
         if (targetZoom !== map.getZoom()) {
           map.once("zoomend", function () {
             var current = mapPointers.get(r);
-            if (current) current.marker.openPopup();
+            if (current && current.marker) current.marker.openPopup();
           });
           map.setView([r.lat, r.lon], targetZoom);
         } else {
           map.panTo([r.lat, r.lon]);
-          entry.marker.openPopup();
+          if (entry.marker) entry.marker.openPopup();
         }
         if (window.matchMedia && window.matchMedia("(max-width: 950px)").matches) {
           $("map-home").scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
@@ -401,30 +401,36 @@
 
     sidebarRecords = filtered.slice().sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
     sidebarLimit = 40;
-    // Separate overlapping markers in screen space, not geographical space.
-    // Lines point back to the original recorded fix; no position is averaged.
-    var placements = window.HifiMapClusters.layout(filtered, function (lat, lon) {
-      return map.latLngToLayerPoint([lat, lon]);
-    });
-    placements.forEach(function (placement) {
-      var rec = placement.record;
-      var tier = rec.download === null ? { color: "#71807a" } : tierFor(rec.download);
-      var approximate = rec.accuracy === null || rec.accuracy > cfg.map.preciseAccuracyM;
-      var position = map.layerPointToLatLng(L.point(placement.x, placement.y));
-      if (placement.displaced) {
-        L.polyline([[rec.lat, rec.lon], position], {
-          color: "#71807a", weight: 1, opacity: 0.55, interactive: false
-        }).addTo(layer);
-      }
-      var marker = L.circleMarker(position, {
-        radius: 7, color: "#ffffff", weight: 1.5, fillColor: tier.color,
-        dashArray: rec.download === null ? "3 3" : null,
-        fillOpacity: approximate || rec.download === null ? 0.35 : 0.9
+    // A sparse observation grid shows where eligible fixes occurred. Never
+    // interpolate into empty cells or treat a square as uniform coverage.
+    var cells = window.HifiMapGrid.cells(filtered);
+    var tiled = new Set();
+    cells.forEach(function (cell) {
+      var tier = cell.median === null ? { color: "#71807a" } : tierFor(cell.median);
+      var square = L.rectangle(cell.bounds, {
+        color: tier.color, weight: 1.5, fillColor: tier.color,
+        fillOpacity: cell.measured ? Math.min(.18 + cell.measured * .07, .53) : .13,
+        dashArray: cell.measured ? null : "4 3"
       });
-      marker.bindPopup(buildPopup(rec, tier), { maxWidth: 320 });
-      marker.addTo(layer);
-      mapPointers.set(rec, { group: { lat: rec.lat, lon: rec.lon }, marker: marker });
-      bounds.push([rec.lat, rec.lon]);
+      var popup = document.createElement("div");
+      var heading = document.createElement("strong");
+      heading.textContent = "Observed area · " + cell.records.length + " test" +
+        (cell.records.length === 1 ? "" : "s");
+      popup.appendChild(heading);
+      popup.appendChild(popupRow("Median measured download", cell.median === null ?
+        "Unknown" : fmtSpeed(cell.median) + " Mbps"));
+      popup.appendChild(popupRow("Measured / incomplete", cell.measured + " / " + cell.incomplete));
+      var note = document.createElement("p");
+      note.className = "note";
+      note.textContent = "Approximate GPS bin, not verified coverage or a building. " +
+        "Search the test list for individual results.";
+      popup.appendChild(note);
+      square.bindPopup(popup, { maxWidth: 300 }).addTo(layer);
+      cell.records.forEach(function (r) { mapPointers.set(r, { marker: square }); tiled.add(r); });
+      bounds.push(cell.bounds[0]);
+    });
+    filtered.forEach(function (r) {
+      if (!tiled.has(r)) mapPointers.set(r, { marker: null });
     });
 
     if (!fitted && bounds.length) {
@@ -437,7 +443,8 @@
 
     /* Stats */
     $("stat-count").textContent = shown;
-    $("stat-locations").textContent = placements.length;
+    $("stat-locations").textContent = cells.length;
+    $("stat-untiled").textContent = filtered.length - tiled.size;
     $("stat-avg").textContent = downloadCount
       ? fmtSpeed(totalDownload / downloadCount) + " Mbps"
       : "—";
@@ -465,6 +472,8 @@
           : "No results match these filters.",
         "warn"
       );
+    } else if (!cells.length) {
+      banner("Tests match, but their recorded GPS is too uncertain for a map cell. Inspect them in the list.", "warn");
     } else {
       banner("");
     }
@@ -670,7 +679,7 @@
     $("test-search").addEventListener("input", function () { sidebarLimit = 40; renderSidebar(); });
     $("test-list-more").addEventListener("click", function () { sidebarLimit += 40; renderSidebar(); });
     $("range").addEventListener("change", render);
-    map.on("zoomend", render);
+    // Cell boundaries are geographic, so zooming does not need to rebuild them.
     $("show-incomplete").addEventListener("change", render);
     $("show-assessment").addEventListener("change", render);
     $("map-provider").addEventListener("change", render);
