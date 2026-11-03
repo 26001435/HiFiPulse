@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>HiFiPulse — Live Coverage Map</title>
-  <meta name="description" content="Live, crowd-sourced campus network map. Individual measurements have separate markers; overlapping dots are visually spread without changing recorded GPS.">
+  <meta name="description" content="Live, crowd-sourced campus network map. Sparse observation cells show tested areas without inventing coverage between measurements.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; connect-src 'self' https://speed.cloudflare.com https://cloudflare.com https://docs.google.com https://*.googleusercontent.com; font-src 'self'; base-uri 'none'; form-action 'none'">
   <link rel="stylesheet" href="theme.css">
   <script src="theme.js" defer></script><script src="config.js" defer></script><script src="engine.js" defer></script><script src="quick-options.js" defer></script>
@@ -16,7 +16,7 @@
   <script src="place-check.js" defer></script>
   <script src="location-label.js" defer></script>
   <script src="stability-core.js" defer></script>
-  <script src="map-clusters.js" defer></script>
+  <script src="map-grid.js" defer></script>
   <script src="map.js" defer></script>
   <script src="insights.js" defer></script>
 </head>
@@ -42,7 +42,7 @@
   <main class="wide">
     <div class="hero">
       <h1>The campus, <span class="heading-emphasis">measured.</span></h1>
-      <p>Explore student measurements around PASUM, KK12 and KK11. Each test has its own marker. Overlapping markers spread apart on screen, with thin lines back to their recorded GPS positions; the spread is not a more accurate location. A marker is not a coverage guarantee.</p>
+      <p>Explore student measurements around PASUM, KK12 and KK11. Small shaded cells show where usable approximate GPS tests were recorded. Empty space is unknown, not a dead zone. Tap a cell for its sample count and median; inspect every test in the list.</p>
     </div>
 
     <div class="view-tabs" role="tablist" aria-label="Explore campus data">
@@ -83,22 +83,33 @@
 
       <label class="incomplete-filter"><input id="show-incomplete" type="checkbox" checked> Show incomplete tests (speed unknown)</label>
       <label class="incomplete-filter"><input id="show-assessment" type="checkbox" checked> Show assessment-ready candidates</label>
+      <details class="map-reading-notes"><summary>How to read this map</summary>
       <p class="note">Candidate rings use 5+ repeated Campus Wi-Fi attempts across 2 days in the past 30 days, regardless of the map’s time filter. They are not verified seats, continuous dropout monitors or guarantees for a quiz. <a href="rankings.html#stability-heading">See the criteria</a>.</p>
-      <p class="note">An incomplete test means the download could not be measured. It is not a 0 Mbps measurement or a verified outage.</p>
+      <p class="note">An incomplete test means the download could not be measured. It is not a 0 Mbps measurement or a verified outage.</p></details>
       <div class="provider-map-filter"><label for="map-provider">Network</label>
         <select id="map-provider"><option value="all">All networks</option></select>
-        <span>Unlabelled older tests appear only in “All networks”.</span>
+        <span>Older unlabelled tests appear only in “All networks”.</span>
       </div>
       <div class="map-tools"><div class="zone-links" role="group" aria-label="Focus map area">
         <button type="button" data-zone="all">Campus</button><button type="button" data-zone="pasum">PASUM</button><button type="button" data-zone="kk12">KK12</button><button type="button" data-zone="kk11">KK11</button>
       </div><button type="button" class="btn btn-ghost" id="btn-locate">Find my location</button><span id="location-status" role="status"></span></div>
       <div class="banner" id="banner" hidden></div>
 
+      <div class="legend map-legend" id="legend" aria-label="Speed tiers in the filtered tests"></div>
+      <p class="note map-legend-note">Tier counts include tests with uncertain GPS that appear only in the list; cell colours use measured median speed.</p>
+      <div class="stats map-stats">
+        <span>Tests shown <b id="stat-count">0</b></span>
+        <span>Observed cells <b id="stat-locations">0</b></span>
+        <span>List only (coarse/legacy GPS) <b id="stat-untiled">0</b></span>
+        <span>Average download <b id="stat-avg">—</b></span>
+        <span>Median ping <b id="stat-ping">—</b></span>
+        <span>Updated <b id="stat-updated">—</b></span>
+      </div>
       <div class="map-workspace">
         <div id="map-home"><div id="map" role="application" aria-label="Map of speed test results"></div></div>
         <aside class="test-sidebar" aria-labelledby="test-sidebar-heading">
           <div class="test-sidebar-head"><p class="eyebrow">INDIVIDUAL MEASUREMENTS</p><h2 id="test-sidebar-heading">Tests by place &amp; floor</h2>
-            <p class="note">Each entry is a self-reported location, not a verified building or floor. Select one to focus its approximate marker. Search narrows this list; the map filters above affect both.</p></div>
+            <p class="note">Each entry is a self-reported location, not a verified building or floor. Select one to focus its approximate area; tests with missing, coarse or legacy two-decimal GPS stay in the list but cannot shade the map. Search narrows this list; the map filters above affect both.</p></div>
           <label class="field" for="test-search">Find a place, floor or network
             <input id="test-search" type="search" placeholder="e.g. KK12 Blok A L4" autocomplete="off">
           </label>
@@ -128,16 +139,7 @@
         <div id="dead-zone-list"></div>
       </details>
 
-      <div class="legend" id="legend" aria-label="Legend"></div>
-      <p class="note">Each test has its own marker. Overlapping dots are spread apart for selection and linked to their recorded, approximate GPS positions. A display offset is not a new location or a verified room.</p>
-
-      <div class="stats">
-        <span>Tests shown <b id="stat-count">0</b></span>
-        <span>Visible markers <b id="stat-locations">0</b></span>
-        <span>Average download <b id="stat-avg">—</b></span>
-        <span>Median ping <b id="stat-ping">—</b></span>
-        <span>Updated <b id="stat-updated">—</b></span>
-      </div>
+      <p class="note">A shaded square is a bin of observed GPS fixes, not proof of coverage throughout that square. Colour uses the median measured download; unmeasured attempts stay counted separately. Fixes with missing or poor accuracy, and potentially two-decimal legacy coordinates, remain in the list, not the grid.</p>
 
       <p class="note" id="status-line" role="status" aria-live="polite"></p>
       <p class="note">Looking for the fastest network or a place to study? <a href="rankings.html">Open Rankings</a>.</p>

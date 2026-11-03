@@ -30,6 +30,11 @@
       <h1>The campus <span class="heading-emphasis">leaderboard.</span></h1>
       <p>Friendly competition, real measurements. Only tests labelled Campus Wi-Fi with a usable approximate location are ranked. No names, no prizes, no claim of verified coverage.</p>
     </div>
+    <section class="rankings-overview" aria-label="Recent campus Wi-Fi observations">
+        <div class="sidebar-block"><p class="eyebrow">TODAY / MYT</p><h2>Highest speed</h2><p class="sidebar-value" id="daily-speed">—</p><p id="daily-detail" class="note">Waiting for measurements.</p></div>
+        <div class="sidebar-block"><p class="eyebrow">TODAY / MYT</p><h2>Tests recorded</h2><p class="sidebar-value" id="daily-count">0</p><p class="note">Campus Wi-Fi measurements with valid location and time.</p></div>
+        <div class="sidebar-block"><p class="eyebrow">PAST 30 DAYS / MYT</p><h2>Best observed hour</h2><p class="sidebar-value" id="best-hour">—</p><p id="best-hour-detail" class="note">At least 3 samples are required.</p></div>
+    </section>
     <div class="rankings-layout">
       <aside class="rankings-sidebar" aria-label="Wi-Fi speed leaderboard and daily statistics">
         <section class="card" aria-labelledby="leaderboard-heading"><div class="rankings-heading"><div><p class="eyebrow">THE TOP FIVE</p><h2 id="leaderboard-heading">Fastest downloads</h2></div>
@@ -37,9 +42,6 @@
           <p class="note">Individual download tests, highest first. Places and networks are self-reported. Ties use the most recent test.</p>
           <ol class="ranking-list" id="top-five"></ol>
         </section>
-        <div class="sidebar-block"><p class="eyebrow">TODAY / MYT</p><h2>Highest speed</h2><p class="sidebar-value" id="daily-speed">—</p><p id="daily-detail" class="note">Waiting for measurements.</p></div>
-        <div class="sidebar-block"><p class="eyebrow">TODAY / MYT</p><h2>Tests recorded</h2><p class="sidebar-value" id="daily-count">0</p><p class="note">Campus Wi-Fi measurements with valid location and time.</p></div>
-        <div class="sidebar-block"><p class="eyebrow">PAST 30 DAYS / MYT</p><h2>Best observed hour</h2><p class="sidebar-value" id="best-hour">—</p><p id="best-hour-detail" class="note">At least 3 samples are required.</p></div>
         <div class="sidebar-block"><p class="eyebrow">DATA STATUS</p><h2>Community feed</h2><p id="rank-status" role="status" aria-live="polite">Loading measurements…</p>
           <details class="feed-help"><summary>Why do other devices show zero?</summary>
             <p id="rank-diagnostics" class="note">Checking the published CSV…</p>

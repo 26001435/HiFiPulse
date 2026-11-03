@@ -4,6 +4,8 @@ Development milestones for HiFiPulse. Pull-request numbers below describe merged
 
 ## Unreleased
 
+- Replaced individual speed markers with sparse, labelled observation cells (eligible GPS fixes only). Kept every filtered test in the detailed sidebar and separated incomplete attempts from measured medians; no unobserved area is inferred. Reorganized map controls and statistics and moved Rankings daily figures above the evidence layout.
+
 - Added an explicitly manual Google Apps Script receiver and safe migration for the existing 16-column sheet: append Provider, Test Status and Test Profile without rewriting historical rows. New GPS values retain the front-end’s three-decimal precision. The deployed script and published CSV must still be updated by the sheet owner.
 
 - Added rankings feed diagnostics distinguishing published qualifying tests from browser-local results, with clearer guidance when CSV fields or accessibility are missing. HTTP 200 without a verifiable JSON acknowledgment is no longer presented as a confirmed community save.
