@@ -861,3 +861,46 @@ body { font-size: 1.025rem; line-height: 1.62; }
 #panel-providers .compare-controls { padding: 15px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 #panel-providers .compare-card { padding: 21px 0; }
 @media (max-width: 600px) { .view-tabs { gap: 22px; } .view-tabs button { font-size: .84rem; } }
+/* WaveLens: an evidence-first companion concept, clearly separate from measurements. */
+.about-wave, .wave-loop, .wave-science, .wave-status { display: grid; grid-template-columns: minmax(175px, .42fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 60px); padding: 28px 0 46px; border-top: 2px solid var(--sea); margin: 26px 0 56px; }
+.about-wave { border-top-color: var(--clay); }
+.about-wave > div, .wave-loop > div, .wave-science > div, .wave-status > div { min-width: 0; }
+.about-wave h2, .wave-main h2, .wave-teaser h2 { font-family: var(--display-font); font-size: clamp(1.55rem, 2.6vw, 2.3rem); font-weight: 500; line-height: 1.2; letter-spacing: -.035em; margin: 0 0 13px; overflow-wrap: break-word; }
+.about-wave p, .wave-main p, .wave-teaser p { max-width: 68ch; line-height: 1.7; }
+.about-wave p:first-child { margin-top: 0; }
+.about-wave > div > .about-text-link { margin-top: 12px; }
+.wave-teaser { display: flex; justify-content: space-between; align-items: center; gap: 25px; padding: 26px 0; border-top: 2px solid var(--clay); border-bottom: 1px solid var(--line); margin: 40px 0 60px; }
+.wave-teaser h2 { font-size: clamp(1.5rem, 2.5vw, 2rem); }
+.wave-teaser p:not(.eyebrow) { color: var(--muted); margin: 0; }
+.wave-teaser > a { flex: none; font-weight: 700; }
+.wave-guide-link { margin: 0 0 40px; padding: 15px 0; border-top: 1px solid var(--line); color: var(--muted); }
+.wave-guide-link a { font-weight: 700; }
+.wave-hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: clamp(28px, 6vw, 80px); align-items: center; margin: 0 0 70px; }
+.wave-hero > * { min-width: 0; }
+.wave-hero h1 { font-family: var(--display-font); font-size: clamp(2.7rem, 5.4vw, 5rem); line-height: 1.08; font-weight: 500; letter-spacing: -.05em; margin: 0 0 20px; }
+.wave-hero .wave-lead { font-size: clamp(1.2rem, 1.9vw, 1.48rem); color: var(--ink); line-height: 1.5; }
+.wave-hero p:not(.eyebrow):not(.wave-lead), .wave-loop > div > p:not(.eyebrow) { color: var(--muted); }
+.wave-hero .btn { margin-top: 12px; }
+.wave-figure { margin: 0; padding: 15px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; }
+.wave-figure svg { display: block; width: min(100%, 360px); height: auto; margin: auto; }
+.wave-zone-covered { fill: var(--green); }
+.wave-zone-open { fill: var(--paper); }
+.wave-figure figcaption { color: var(--muted); font-size: .8rem; margin: 0 auto; max-width: 32ch; }
+.wave-loop ol { margin: 0; padding: 0; list-style: none; }
+.wave-loop li { display: grid; grid-template-columns: minmax(115px, .38fr) minmax(0, 1fr); gap: 14px; padding: 16px 0; border-top: 1px solid var(--line); }
+.wave-loop li strong { color: var(--green); font-size: .82rem; }
+.wave-loop li span { color: var(--muted); line-height: 1.6; }
+.wave-formula { display: flex; flex-direction: column; gap: 7px; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.wave-formula span { font-size: .75rem; font-weight: 700; color: var(--clay); text-transform: uppercase; letter-spacing: .08em; }
+.wave-formula strong { font-family: var(--display-font); font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 500; overflow-wrap: anywhere; }
+.wave-formula small { color: var(--muted); font-size: .85rem; line-height: 1.6; max-width: 72ch; }
+.wave-status-list > div { padding: 15px 0; border-top: 1px solid var(--line); }
+.wave-status-list strong { color: var(--ink); }
+.wave-status-list p { color: var(--muted); margin: 5px 0 0; }
+.wave-links { display: flex; gap: 12px 24px; flex-wrap: wrap; font-weight: 700; }
+@media (max-width: 850px) {
+  .about-wave, .wave-loop, .wave-science, .wave-status { grid-template-columns: 1fr; gap: 12px; }
+  .wave-hero { grid-template-columns: 1fr; }
+  .wave-figure { max-width: 440px; }
+}
+@media (max-width: 600px) { .wave-teaser { flex-direction: column; align-items: flex-start; } .wave-loop li { grid-template-columns: 1fr; gap: 4px; } }

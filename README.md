@@ -80,6 +80,7 @@ About, Guide, Map, Rankings and Planner have an opt-in **Quick options** drawer.
 | `theme.css`, `vendor/` | Shared styling and bundled Leaflet map library |
 | `config.js` | Test endpoints, map settings and external data-service URLs |
 | `apps-script/Code.gs`, `apps-script/README.md` | Optional replacement sheet receiver and manual, additive migration/deployment guide (not auto-deployed) |
+| `wavelens.html` | Proposed EUREKA@KK12 Fresnel-zone experiment; physics, limitations and validation plan (not a tested device) |
 | `CHANGELOG.md` | Development milestones and upcoming changes |
 
 ## Roadmap
