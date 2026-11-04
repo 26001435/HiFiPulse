@@ -904,3 +904,11 @@ body { font-size: 1.025rem; line-height: 1.62; }
   .wave-figure { max-width: 440px; }
 }
 @media (max-width: 600px) { .wave-teaser { flex-direction: column; align-items: flex-start; } .wave-loop li { grid-template-columns: 1fr; gap: 4px; } }
+/* Optional future work remains secondary to the measured pilot story. */
+.vision-next { margin-top: 29px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 15px 0; }
+.vision-next summary { cursor: pointer; color: var(--green); font-weight: 700; font-size: .96rem; }
+.vision-next summary:hover { text-decoration: underline; text-underline-offset: 3px; }
+.vision-next p, .vision-next li { max-width: 70ch; color: var(--muted); line-height: 1.68; font-size: .9rem; }
+.vision-next ul { padding-left: 22px; }
+.vision-next li + li { margin-top: 11px; }
+.vision-next strong { color: var(--ink); }
