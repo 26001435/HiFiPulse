@@ -4,6 +4,8 @@ Development milestones for HiFiPulse. Pull-request numbers below describe merged
 
 ## Unreleased
 
+- Added an EUREKA@KK12 WaveLens companion-concept page and linked it from About, Speed test and the Wi-Fi guide. WaveLens remains an unbuilt/unvalidated RF experiment in the repository; no gain or cost claim is made.
+
 - Replaced individual speed markers with sparse, labelled observation cells (eligible GPS fixes only). Kept every filtered test in the detailed sidebar and separated incomplete attempts from measured medians; no unobserved area is inferred. Reorganized map controls and statistics and moved Rankings daily figures above the evidence layout.
 
 - Added an explicitly manual Google Apps Script receiver and safe migration for the existing 16-column sheet: append Provider, Test Status and Test Profile without rewriting historical rows. New GPS values retain the front-end’s three-decimal precision. The deployed script and published CSV must still be updated by the sheet owner.

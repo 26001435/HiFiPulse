@@ -258,3 +258,96 @@ Feedback, mentorship—especially in RF/antenna work and data governance—and a
 ### Optional 30-second bridge to the existing spoken pitch
 
 > HiFiPulse already gives students an approximate way to record and compare connectivity. For PITRAM 2027, the bigger idea is **evidence-first Wi-Fi for lecture halls**: measure where and when a hall fails, explain whether the problem is signal, crowd load or upstream capacity, test free and low-cost responses, and only then recommend expensive upgrades. Assessment-ready candidates and a task planner make the evidence useful to students now; fixed-position sensors and controlled experiments would test why those patterns occur. We will report what works, what fails, what it costs and whom poor connectivity affects—without claiming results before the pilot.
+
+---
+
+# EUREKA@KK12 supplement — WaveLens (proposed)
+
+> **Status and scope (read before presenting):** This is an EUREKA-specific *proposal variant*, not a claim that a Fresnel zone plate has been built, tested or shown to improve Wi-Fi. The repository does not contain prototype photographs, a bill of materials, controlled RF measurements or permission to install anything at UM. The existing PITRAM proposal, Section 3.4 reflector study and spoken pitch above remain intact as the original version. Use this supplement for EUREKA **only after** checking the competition's actual category rules, making a safe physical prototype, and replacing any conditional statements with documented observations. Do not advertise a price, gain, throughput improvement or category eligibility as established.
+
+## Why add a physical prototype?
+
+HiFiPulse already offers an opt-in browser measurement and evidence interface, but the proposed sensor, reflector and OfflineNode components above remain unbuilt. An independently made passive ring-aperture demonstrator, tentatively called **WaveLens**, could make the proposal tangible and connect it to Asasi wave optics. The EUREKA narrative is a **hypothesis to test**, not a completed loop:
+
+**HiFiPulse observes a repeat weak spot → investigate the cause → try a permitted passive plate *if appropriate* → re-measure at the same conditions and nearby seats → report gains, null results and losses.** A browser download speed alone cannot diagnose poor RF signal or prove a plate caused a change. If the bottleneck is congestion or backhaul, the plate is unlikely to fix it. The original cost ladder still applies; WaveLens is an *alternative planned physical trial* to the steerable reflector, not an additional deployed campus feature.
+
+**Entry category:** Product Innovation / Category B is a *suggested* EUREKA route, subject to the organiser's current rules and eligibility. Do not claim acceptance or endorsement.
+
+## Proposed component 3.4 alternative: Fresnel zone plate
+
+**Status: Proposed design; fabrication and RF validation not evidenced in this repository.** A cardboard panel with alternating foil-covered and open concentric zones is a *binary amplitude* zone plate: the foil blocks/transforms incident transmission rather than actively amplifying it. Open zones contribute fields with more favourable phase at a specified focus; closed zones suppress some out-of-phase contributions. Energy is redistributed, so other directions may worsen. In a real Wi-Fi room, the source is not necessarily a plane wave, multipath and polarisation matter, and a metal sheet may also reflect or detune nearby equipment. A simple cardboard mock-up would demonstrate geometry, **not** measured radio gain.
+
+**Candidate calculation for 5.18 GHz (nominal channel 36):** λ = c/f ≈ **5.79 cm**. The familiar paraxial formula **rₙ ≈ √(nλf)** assumes a plane incident wave and a small-angle approximation. For a plane wave focused **f = 15 cm behind the plate**, the exact on-axis path-difference boundary is **rₙ = √(nλf + (nλ/2)²)**: the edge-to-axis path difference is nλ/2. Alternating half-wave zones are open/blocked, so contributions from consecutive *open* zones differ by about one full wavelength. Do not call the radial ring spacing “a quarter wavelength”; it varies with radius. At this short focal length and wide aperture, the small-angle approximation is **not sufficiently accurate to cut a finished template**.
+
+| Boundary n | Paraxial radius √(nλf) | Plane-wave exact radius | Why it matters |
+| --- | ---: | ---: | --- |
+| 1 | 9.3 cm | **9.8 cm** | First half-wave zone |
+| 2 | 13.2 cm | **14.4 cm** | Second boundary |
+| 3 | 16.1 cm | **18.3 cm** | Third boundary |
+| 4 | 18.6 cm | **21.9 cm** | Fourth boundary; exact outer diameter **≈43.9 cm**, not ≈37 cm |
+
+Four zones here means two open and two blocked, with the choice of which zone opens documented. **These radii apply only to the stated plane-wave/15 cm image-distance model.** They do **not** justify mounting a plate 15 cm from an access point to improve a distant study area. For a finite-distance source and receiver, compute the phase from the **sum of source→ring and ring→receiver paths**, then design a different zone pattern and verify it experimentally. A 15 cm focal distance would put the intended plane-wave focus near the plate, not a laptop a metre away. Obtain a basic RF/antenna review before publishing a printable template or positioning anything near an AP.
+
+| Practical claim | What can currently be said |
+| --- | --- |
+| Materials | Recycled cardboard, aluminium foil and adhesive are *proposed*; document actual construction and safety. |
+| Cost | “Under RM5” / “RM3.50” is a **target**, not a measured bill of materials. Include stand, consumables and labour if comparing with infrastructure costs. |
+| Electrical power | The passive plate has no powered electronics; the router/hotspot and laptop still consume power. |
+| Gain or speed | **Unknown.** +3 to +5 dB, 2–3× on-axis power and 50–80% faster throughput are *not observed results* and must not be promised. Power ratio in dB is not a throughput prediction. |
+| Channel / source | A consumer phone hotspot may not expose or stay on channel 36. Confirm actual frequency and channel with a permitted diagnostic; otherwise document the channel used and recalculate. |
+
+### Revised cost ladder for the EUREKA variant (proposed)
+
+| Step | Response | Status and cost |
+| --- | --- | --- |
+| 1. Measure | Opt-in HiFiPulse tests by approximate place, time and self-reported network | **Browser prototype exists**; shared feed operation and data quality still need checking. |
+| 2. Explain | Separate weak RF signal, crowd/load, AP placement and upstream limits using controlled observations | **Proposed hall study**; a speed reading alone cannot do this. |
+| 3. Try no-new-hardware responses | Timing, saved/offline preparation, approved lighter course material and study guidance | Guidance and rule-based planner exist; efficacy and staff time have not been evaluated. |
+| 4. Trial a passive plate | Bench-test WaveLens against no plate, a plain cardboard/foil control and off-axis locations | **Unbuilt/unvalidated here**; sub-RM5 parts cost is a target, not a demonstrated campus fix. |
+| 5. Escalate | AP, cabling or backhaul investigation where evidence warrants | UM IT's decision; do not delay necessary infrastructure repair. |
+
+### Controlled experiment, not a staged improvement
+
+1. **Before the expo:** confirm a controllable source and actual channel, get approval for the space and radio equipment, build and photograph the plate and a same-size plain control, and measure its real parts cost. Never attach anything to an institutional AP without written permission.
+2. **Bench geometry first:** place source, plate and receiving device at documented fixed distances; derive zones for that geometry. Check receive-side RSSI/signal metrics separately from HiFiPulse ping, download and upload; the browser cannot read RSSI reliably. Do not interpret a faster internet test as proof of diffraction.
+3. **Alternate baseline / plate / control** in a predeclared order over repeated sessions. Keep source channel, device, position, test profile, time window and load as constant as possible. Include adjacent/off-axis positions and record failures. Keep metered-data use modest; a local test endpoint may be preferable for controlled throughput, with permissions.
+4. Report sample counts, variability, channel, exact geometry, raw before/after data, any nearby losses, measured cost and uncertainty. A null or negative result is a valid outcome. If the plate only demonstrates the optical principle but does not improve Wi-Fi, present it honestly as a teaching demonstrator, **not** a network fix.
+5. Only if a controlled result survives repeats and a safety/permissions review should a small KK12 trial even be proposed. No claim of campus deployment or B40/rural scalability follows from one desk test.
+
+**Experiment-table replacement for this EUREKA variant:** measured weak spot → *proposed* Fresnel zone plate → repeated before/after/control RSSI and throughput at the intended focus **and adjacent positions** → report effect size, spread, null results and side effects. This is an alternate row to the original reflector experiment in Section 4, which remains part of the PITRAM version.
+
+## Asasi physics explanation for judges
+
+- **Diffraction and interference:** open concentric apertures contribute fields that superpose. Alternating half-wave *path-difference* zones can favour a particular focus. A metal-backed zone plate also reflects; its actual radio response must be measured.
+- **Young's double slit:** a useful analogy for coherent superposition, but a finite multi-ring plate in an indoor multipath Wi-Fi environment is not the same two-slit experiment.
+- **Newton's rings:** both show concentric geometry related to path differences. Newton's rings come from interference in a curved thin air film under reflected/transmitted illumination; they are **not** evidence that this plate focuses Wi-Fi.
+- **Thin-film interference:** another superposition analogy. The quarter-wave *optical thickness* used for some coatings is **not** the radial spacing of these zones; zone boundaries follow successive half-wave path differences.
+
+**Short honest phrase:** “We are applying the idea of controlled path differences and superposition to a proposed 5 GHz aperture. The geometry is calculable; its usefulness in a real Wi-Fi room still needs measured proof.”
+
+## Conditional three-minute EUREKA booth pitch (rehearsal version)
+
+> Think of trying to submit coursework while your connection stalls. Would you move, wait or pay for mobile data? The answer is not simply whether Wi-Fi exists. What matters is the network, the place, the time and how many observations support a claim.
+>
+> Our HiFiPulse browser prototype lets students opt in to a test, choose their network and approximate location, and examine past results near PASUM, KK11 and KK12. Its map shows observed areas, not verified coverage, and study-space guidance needs repeat tests. Shared publication depends on an external data service, which we must verify before claiming cross-device results.
+>
+> For this EUREKA variant, we are exploring a physical companion called WaveLens. **[Hold up a plate only if one has actually been built; otherwise show the drawing.]** Alternating open and foil-covered rings form a Fresnel zone plate. In a simple wave model, waves from selected zones can arrive more nearly in phase at a chosen focus; the blocked zones reduce contributions that would cancel. This illustrates diffraction and interference from our Asasi physics syllabus.
+>
+> The important question is not whether the rings look convincing: does this particular plate help a real connection, where a student actually sits, without making nearby seats worse? Our proposed test compares a baseline, the plate and a same-size control at fixed positions and channel, repeating RSSI and throughput measurements. A browser speed test tells us about a connection; it does **not** by itself identify the RF cause.
+>
+> **[If a controlled before/after dataset exists, show its actual figures and uncertainty. If not, say:]** We have not yet demonstrated a Wi-Fi improvement. The physical design and cost are testable hypotheses, not a substitute for campus IT. If the effect is absent, we will report that too.
+>
+> The bigger idea remains: measure a gap responsibly, understand the cause, try the least costly appropriate response and verify it. Students should not have to pay for mobile data to work around an avoidable problem. HiFiPulse makes the evidence visible; WaveLens is a proposed physics-based experiment we must earn the right to call a fix.
+
+This pitch deliberately does **not** replace the existing PITRAM spoken pitch, invent a booth result or promise an improvement. Edit its prototype sentence only when a real built object is available and documented.
+
+## 90-second live-demo plan and fallback
+
+- **Before judges:** check the competition rules, available internet, hotspot's *actual* channel and device data budget. Photograph the real build, verify dimensions and costs, and prepare a tested local display or pre-recorded **actual** measurements. A phone may not allow channel locking; never promise channel 36 without checking.
+- **At the booth:** show one current HiFiPulse reading, the physical plate or drawing and the phase/path-length sketch. If geometry, network conditions and time allow, run a second reading with the plate and control at the **precalculated** positions. Report the actual values and note that two readings in a busy hall cannot establish a causal effect.
+- **If the hall is noisy:** show only dated, genuine controlled results **if such results were collected**; otherwise show the protocol and say the effect remains unmeasured. Never invent “yesterday's KK12 test,” 12→18 Mbps, a 50% increase or +3 dB to fill a slide.
+- **Bring:** the *real* built plate (if any), an uncut design drawing, documented dimensions and materials, a laptop, a permitted source and power bank, a poster with equations and limitations, and an optional one-page handout. Do not print a gain chart until measurements exist.
+
+## Originality and access, with appropriate limits
+
+The inventive question is whether a **data-guided passive diffractive intervention** can outperform a simple control at a useful position, with documented cost and side effects. Fresnel plates, cardboard foil prototypes and crowdsourced speed maps already exist individually; no new wave physics is claimed. A printable design **could** be inexpensive and accessible, including to low-income communities, *if* validated for a repeatable geometry and real environment. B40 or rural benefit, JENDELA alignment, low-cost superiority and institutional savings are potential research questions, not proven impacts or endorsements.
