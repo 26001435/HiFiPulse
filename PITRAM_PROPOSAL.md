@@ -351,3 +351,13 @@ This pitch deliberately does **not** replace the existing PITRAM spoken pitch, i
 ## Originality and access, with appropriate limits
 
 The inventive question is whether a **data-guided passive diffractive intervention** can outperform a simple control at a useful position, with documented cost and side effects. Fresnel plates, cardboard foil prototypes and crowdsourced speed maps already exist individually; no new wave physics is claimed. A printable design **could** be inexpensive and accessible, including to low-income communities, *if* validated for a repeatable geometry and real environment. B40 or rural benefit, JENDELA alignment, low-cost superiority and institutional savings are potential research questions, not proven impacts or endorsements.
+
+## Future work — after the pilot (written-proposal only)
+
+First verify the shared HiFiPulse feed and independently test WaveLens with fixed positions, a control, permissions and off-axis checks. No working plate or Wi-Fi improvement is documented here. Only after that pilot might three connected studies be worth pursuing:
+
+1. **Occupancy-aware diagnostics.** The proposed hall study uses consented manual headcounts. Compatible Wi-Fi channel-state sensing could examine crowd-related changes without cameras, but needs supported drivers/hardware, careful validation against other causes, privacy safeguards and UM IT oversight. A browser test or off-the-shelf AX210 alone cannot deliver it.
+2. **Assisted connectivity in reported dead zones.** Current reports are unverified and cannot relay traffic. Opt-in local sharing would need secure routing, user and operator permission, MCMC/legal review, and data, battery and cost limits. It must not shift infrastructure costs to students with paid mobile plans.
+3. **Evidence-informed network planning.** Aggregated place × network × time counts might help campus IT investigate access-point or mesh placement. This needs a verified feed, minimum sample thresholds, privacy-preserving export and IT collaboration; browser observations alone cannot establish a topology or savings.
+
+These are **research possibilities, not current capabilities or a delivery promise**. Timing depends on pilot results, partners and approvals. Keep them out of the abstract, booth pitch and poster so the actual prototype and validation remain central.
